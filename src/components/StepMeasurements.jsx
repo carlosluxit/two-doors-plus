@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuote, useQuoteDispatch } from '../context/QuoteContext';
 import { WINDOW_TYPES, DOOR_TYPES } from '../data/products';
 import CameraMeasure from './CameraMeasure';
+import FractionPicker, { splitInches, combineInches } from './FractionPicker';
 import {
   Plus,
   Trash2,
@@ -10,10 +11,12 @@ import {
   ArrowRight,
   ArrowLeft,
   Info,
+  Home,
+  Square,
 } from 'lucide-react';
 
-const DEFAULT_WINDOW = { itemType: 'window', subType: 'single_hung', width: 36, height: 48, quantity: 1, label: '', photo: null };
-const DEFAULT_DOOR = { itemType: 'door', subType: 'single_entry', width: 36, height: 80, quantity: 1, label: '', photo: null };
+const DEFAULT_WINDOW = { itemType: 'window', subType: 'single_hung', width: 36, height: 48, quantity: 1, label: '', photo: null, measureFrom: 'inside' };
+const DEFAULT_DOOR = { itemType: 'door', subType: 'single_entry', width: 36, height: 80, quantity: 1, label: '', photo: null, measureFrom: 'inside' };
 
 export default function StepMeasurements() {
   const state = useQuote();
@@ -63,6 +66,7 @@ export default function StepMeasurements() {
       {measureItem && (
         <CameraMeasure
           itemType={measureItem.itemType}
+          measureFrom={measureItem.measureFrom}
           onComplete={handleMeasureComplete}
           onCancel={() => setMeasureItem(null)}
         />
@@ -96,7 +100,7 @@ export default function StepMeasurements() {
                 index={idx}
                 types={WINDOW_TYPES}
                 dispatch={dispatch}
-                onMeasure={() => setMeasureItem({ id: item.id, itemType: 'window' })}
+                onMeasure={() => setMeasureItem({ id: item.id, itemType: 'window', measureFrom: item.measureFrom || 'inside' })}
               />
             ))}
           </div>
@@ -131,7 +135,7 @@ export default function StepMeasurements() {
                 index={idx}
                 types={DOOR_TYPES}
                 dispatch={dispatch}
-                onMeasure={() => setMeasureItem({ id: item.id, itemType: 'door' })}
+                onMeasure={() => setMeasureItem({ id: item.id, itemType: 'door', measureFrom: item.measureFrom || 'inside' })}
               />
             ))}
           </div>
@@ -162,8 +166,27 @@ export default function StepMeasurements() {
   );
 }
 
+const FRAC_LABELS = { 0: '', 0.125: '⅛', 0.25: '¼', 0.375: '⅜', 0.5: '½', 0.625: '⅝', 0.75: '¾', 0.875: '⅞' };
+
+function formatSize(val) {
+  const { whole, fraction } = splitInches(val);
+  const f = FRAC_LABELS[fraction] || '';
+  if (!f) return `${whole}"`;
+  return `${whole} ${f}"`;
+}
+
 function ItemCard({ item, index, types, dispatch, onMeasure }) {
   const typeEntries = Object.entries(types);
+  const { whole: wWhole, fraction: wFrac } = splitInches(item.width);
+  const { whole: hWhole, fraction: hFrac } = splitInches(item.height);
+
+  const updateDimension = (dim, whole, frac) => {
+    dispatch({
+      type: 'UPDATE_ITEM',
+      id: item.id,
+      updates: { [dim]: combineInches(whole, frac) },
+    });
+  };
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
@@ -199,7 +222,34 @@ function ItemCard({ item, index, types, dispatch, onMeasure }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {/* Measuring from toggle */}
+      <div className="flex items-center gap-1 mb-3 bg-gray-50 rounded-lg p-1">
+        <button
+          type="button"
+          onClick={() => dispatch({ type: 'UPDATE_ITEM', id: item.id, updates: { measureFrom: 'inside' } })}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
+            (item.measureFrom || 'inside') === 'inside'
+              ? 'bg-white text-primary shadow-sm'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          <Home className="w-3 h-3" /> Inside
+        </button>
+        <button
+          type="button"
+          onClick={() => dispatch({ type: 'UPDATE_ITEM', id: item.id, updates: { measureFrom: 'outside' } })}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
+            (item.measureFrom || 'inside') === 'outside'
+              ? 'bg-white text-primary shadow-sm'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          <Square className="w-3 h-3" /> Outside
+        </button>
+      </div>
+
+      {/* Type + Qty row */}
+      <div className="grid grid-cols-2 gap-3 mb-3">
         <div>
           <label className="text-xs text-gray-500 block mb-1">Type</label>
           <select
@@ -213,44 +263,6 @@ function ItemCard({ item, index, types, dispatch, onMeasure }) {
               <option key={key} value={key}>{val.name}</option>
             ))}
           </select>
-        </div>
-        <div>
-          <label className="text-xs text-gray-500 flex items-center gap-1 mb-1">
-            <Ruler className="w-3 h-3" /> Width (in)
-          </label>
-          <input
-            type="number"
-            min="12"
-            max="180"
-            value={item.width}
-            onChange={(e) =>
-              dispatch({
-                type: 'UPDATE_ITEM',
-                id: item.id,
-                updates: { width: parseInt(e.target.value) || 0 },
-              })
-            }
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-primary outline-none"
-          />
-        </div>
-        <div>
-          <label className="text-xs text-gray-500 flex items-center gap-1 mb-1">
-            <Ruler className="w-3 h-3" /> Height (in)
-          </label>
-          <input
-            type="number"
-            min="12"
-            max="120"
-            value={item.height}
-            onChange={(e) =>
-              dispatch({
-                type: 'UPDATE_ITEM',
-                id: item.id,
-                updates: { height: parseInt(e.target.value) || 0 },
-              })
-            }
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-primary outline-none"
-          />
         </div>
         <div>
           <label className="text-xs text-gray-500 block mb-1">Qty</label>
@@ -271,11 +283,53 @@ function ItemCard({ item, index, types, dispatch, onMeasure }) {
         </div>
       </div>
 
+      {/* Width with fraction */}
+      <div className="bg-gray-50 rounded-lg p-2.5 mb-2">
+        <div className="flex items-center gap-2 mb-1.5">
+          <Ruler className="w-3 h-3 text-accent" />
+          <span className="text-xs font-semibold text-gray-600">Width</span>
+          <span className="text-xs text-primary font-bold ml-auto">{formatSize(item.width)}</span>
+        </div>
+        <div className="flex items-center gap-2 mb-1.5">
+          <input
+            type="number"
+            min="0"
+            max="200"
+            value={wWhole}
+            onChange={(e) => updateDimension('width', e.target.value, wFrac)}
+            className="w-20 border border-gray-200 rounded-lg px-2 py-1.5 text-sm font-semibold focus:border-primary outline-none text-center bg-white"
+          />
+          <span className="text-xs text-gray-400">in +</span>
+        </div>
+        <FractionPicker value={wFrac} onChange={(f) => updateDimension('width', wWhole, f)} />
+      </div>
+
+      {/* Height with fraction */}
+      <div className="bg-gray-50 rounded-lg p-2.5">
+        <div className="flex items-center gap-2 mb-1.5">
+          <Ruler className="w-3 h-3 text-blue-500" />
+          <span className="text-xs font-semibold text-gray-600">Height</span>
+          <span className="text-xs text-primary font-bold ml-auto">{formatSize(item.height)}</span>
+        </div>
+        <div className="flex items-center gap-2 mb-1.5">
+          <input
+            type="number"
+            min="0"
+            max="200"
+            value={hWhole}
+            onChange={(e) => updateDimension('height', e.target.value, hFrac)}
+            className="w-20 border border-gray-200 rounded-lg px-2 py-1.5 text-sm font-semibold focus:border-primary outline-none text-center bg-white"
+          />
+          <span className="text-xs text-gray-400">in +</span>
+        </div>
+        <FractionPicker value={hFrac} onChange={(f) => updateDimension('height', hWhole, f)} />
+      </div>
+
       {/* Photo thumbnail */}
       {item.photo && (
         <div className="mt-3 flex items-center gap-3">
           <img src={item.photo} alt="Captured" className="w-20 h-14 object-contain rounded-lg border bg-gray-50" />
-          <span className="text-xs text-success font-medium">Photo captured &amp; measured</span>
+          <span className="text-xs text-success font-medium">Photo captured & measured</span>
           <button
             onClick={() =>
               dispatch({ type: 'UPDATE_ITEM', id: item.id, updates: { photo: null } })
