@@ -1,0 +1,291 @@
+import { useState } from 'react';
+import { useQuote, useQuoteDispatch } from '../context/QuoteContext';
+import { WINDOW_TYPES, DOOR_TYPES } from '../data/products';
+import CameraMeasure from './CameraMeasure';
+import {
+  Plus,
+  Trash2,
+  Camera,
+  Ruler,
+  ArrowRight,
+  ArrowLeft,
+  Info,
+} from 'lucide-react';
+
+const DEFAULT_WINDOW = { itemType: 'window', subType: 'single_hung', width: 36, height: 48, quantity: 1, label: '', photo: null };
+const DEFAULT_DOOR = { itemType: 'door', subType: 'single_entry', width: 36, height: 80, quantity: 1, label: '', photo: null };
+
+export default function StepMeasurements() {
+  const state = useQuote();
+  const dispatch = useQuoteDispatch();
+  const [measureItem, setMeasureItem] = useState(null); // { id, itemType } or null
+
+  const showWindows = state.projectType === 'windows' || state.projectType === 'both';
+  const showDoors = state.projectType === 'doors' || state.projectType === 'both';
+
+  const addItem = (type) => {
+    const defaults = type === 'window' ? DEFAULT_WINDOW : DEFAULT_DOOR;
+    dispatch({ type: 'ADD_ITEM', item: { ...defaults } });
+  };
+
+  const handleMeasureComplete = ({ width, height, photo }) => {
+    if (measureItem) {
+      dispatch({
+        type: 'UPDATE_ITEM',
+        id: measureItem.id,
+        updates: { width, height, photo },
+      });
+      setMeasureItem(null);
+    }
+  };
+
+  const canProceed = state.items.length > 0 && state.items.every(
+    (item) => item.width > 0 && item.height > 0 && item.quantity > 0
+  );
+
+  const windowItems = state.items.filter((i) => i.itemType === 'window');
+  const doorItems = state.items.filter((i) => i.itemType === 'door');
+
+  return (
+    <div className="max-w-3xl mx-auto px-4 py-8 animate-fade-in">
+      <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-2">
+        Add Your Windows & Doors
+      </h2>
+      <p className="text-gray-500 text-center mb-2">
+        Enter measurements in inches, or use the camera to measure with a credit card reference.
+      </p>
+      <div className="flex items-center justify-center gap-2 mb-8 text-sm text-blue-600 bg-blue-50 p-3 rounded-lg">
+        <Info className="w-4 h-4 flex-shrink-0" />
+        <span>Approximate measurements are fine! We'll verify during the expert visit.</span>
+      </div>
+
+      {/* Camera Measure Modal */}
+      {measureItem && (
+        <CameraMeasure
+          itemType={measureItem.itemType}
+          onComplete={handleMeasureComplete}
+          onCancel={() => setMeasureItem(null)}
+        />
+      )}
+
+      {/* Windows Section */}
+      {showWindows && (
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <span className="text-2xl">🪟</span> Windows
+              <span className="text-sm font-normal text-gray-400">({windowItems.length})</span>
+            </h3>
+            <button
+              onClick={() => addItem('window')}
+              className="inline-flex items-center gap-1.5 bg-primary/10 text-primary px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/20 transition-colors cursor-pointer"
+            >
+              <Plus className="w-4 h-4" /> Add Window
+            </button>
+          </div>
+          {windowItems.length === 0 && (
+            <div className="text-center py-8 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+              <p className="text-gray-400">No windows added yet. Click "Add Window" to start.</p>
+            </div>
+          )}
+          <div className="space-y-3">
+            {windowItems.map((item, idx) => (
+              <ItemCard
+                key={item.id}
+                item={item}
+                index={idx}
+                types={WINDOW_TYPES}
+                dispatch={dispatch}
+                onMeasure={() => setMeasureItem({ id: item.id, itemType: 'window' })}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Doors Section */}
+      {showDoors && (
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <span className="text-2xl">🚪</span> Doors
+              <span className="text-sm font-normal text-gray-400">({doorItems.length})</span>
+            </h3>
+            <button
+              onClick={() => addItem('door')}
+              className="inline-flex items-center gap-1.5 bg-primary/10 text-primary px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/20 transition-colors cursor-pointer"
+            >
+              <Plus className="w-4 h-4" /> Add Door
+            </button>
+          </div>
+          {doorItems.length === 0 && (
+            <div className="text-center py-8 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+              <p className="text-gray-400">No doors added yet. Click "Add Door" to start.</p>
+            </div>
+          )}
+          <div className="space-y-3">
+            {doorItems.map((item, idx) => (
+              <ItemCard
+                key={item.id}
+                item={item}
+                index={idx}
+                types={DOOR_TYPES}
+                dispatch={dispatch}
+                onMeasure={() => setMeasureItem({ id: item.id, itemType: 'door' })}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Navigation */}
+      <div className="flex items-center justify-between mt-8">
+        <button
+          onClick={() => dispatch({ type: 'PREV_STEP' })}
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
+        >
+          <ArrowLeft className="w-5 h-5" /> Back
+        </button>
+        <button
+          disabled={!canProceed}
+          onClick={() => dispatch({ type: 'NEXT_STEP' })}
+          className={`inline-flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-lg transition-all cursor-pointer ${
+            canProceed
+              ? 'bg-primary text-white hover:bg-primary-light'
+              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+          }`}
+        >
+          Continue <ArrowRight className="w-5 h-5" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ItemCard({ item, index, types, dispatch, onMeasure }) {
+  const typeEntries = Object.entries(types);
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <span className="bg-primary/10 text-primary text-sm font-bold w-7 h-7 rounded-full flex items-center justify-center">
+            {index + 1}
+          </span>
+          <input
+            type="text"
+            placeholder={`${item.itemType === 'window' ? 'Window' : 'Door'} label (e.g., Living Room)`}
+            value={item.label}
+            onChange={(e) =>
+              dispatch({ type: 'UPDATE_ITEM', id: item.id, updates: { label: e.target.value } })
+            }
+            className="border-0 border-b border-gray-200 focus:border-primary outline-none text-sm py-1 px-2 w-44 sm:w-56"
+          />
+        </div>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={onMeasure}
+            className="p-2 text-gray-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors cursor-pointer"
+            title="Measure with camera"
+          >
+            <Camera className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => dispatch({ type: 'REMOVE_ITEM', id: item.id })}
+            className="p-2 text-gray-400 hover:text-danger hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div>
+          <label className="text-xs text-gray-500 block mb-1">Type</label>
+          <select
+            value={item.subType}
+            onChange={(e) =>
+              dispatch({ type: 'UPDATE_ITEM', id: item.id, updates: { subType: e.target.value } })
+            }
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:border-primary outline-none cursor-pointer"
+          >
+            {typeEntries.map(([key, val]) => (
+              <option key={key} value={key}>{val.name}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="text-xs text-gray-500 flex items-center gap-1 mb-1">
+            <Ruler className="w-3 h-3" /> Width (in)
+          </label>
+          <input
+            type="number"
+            min="12"
+            max="180"
+            value={item.width}
+            onChange={(e) =>
+              dispatch({
+                type: 'UPDATE_ITEM',
+                id: item.id,
+                updates: { width: parseInt(e.target.value) || 0 },
+              })
+            }
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-primary outline-none"
+          />
+        </div>
+        <div>
+          <label className="text-xs text-gray-500 flex items-center gap-1 mb-1">
+            <Ruler className="w-3 h-3" /> Height (in)
+          </label>
+          <input
+            type="number"
+            min="12"
+            max="120"
+            value={item.height}
+            onChange={(e) =>
+              dispatch({
+                type: 'UPDATE_ITEM',
+                id: item.id,
+                updates: { height: parseInt(e.target.value) || 0 },
+              })
+            }
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-primary outline-none"
+          />
+        </div>
+        <div>
+          <label className="text-xs text-gray-500 block mb-1">Qty</label>
+          <input
+            type="number"
+            min="1"
+            max="50"
+            value={item.quantity}
+            onChange={(e) =>
+              dispatch({
+                type: 'UPDATE_ITEM',
+                id: item.id,
+                updates: { quantity: parseInt(e.target.value) || 1 },
+              })
+            }
+            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-primary outline-none"
+          />
+        </div>
+      </div>
+
+      {/* Photo thumbnail */}
+      {item.photo && (
+        <div className="mt-3 flex items-center gap-3">
+          <img src={item.photo} alt="Captured" className="w-16 h-16 object-cover rounded-lg border" />
+          <span className="text-xs text-success font-medium">Photo captured &amp; measured</span>
+          <button
+            onClick={() =>
+              dispatch({ type: 'UPDATE_ITEM', id: item.id, updates: { photo: null } })
+            }
+            className="text-xs text-gray-400 hover:text-danger cursor-pointer"
+          >
+            Remove
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
