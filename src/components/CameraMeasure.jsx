@@ -1,403 +1,258 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import Webcam from 'react-webcam';
 import {
   X,
   Camera,
   RotateCcw,
-  CreditCard,
-  Move,
-  Check,
   ChevronRight,
-  Info,
-  ZoomIn,
+  Ruler,
+  ArrowLeftRight,
+  ArrowUpDown,
 } from 'lucide-react';
-
-// Standard credit card dimensions in inches
-const CARD_WIDTH_INCHES = 3.375;
-const CARD_HEIGHT_INCHES = 2.125;
-
-const STEPS = [
-  {
-    id: 'capture',
-    title: 'Take Photo',
-    desc: 'Hold a credit card flat against the window/door frame and take a photo.',
-    icon: Camera,
-  },
-  {
-    id: 'card',
-    title: 'Mark Credit Card',
-    desc: 'Tap the 4 corners of the credit card in order: top-left, top-right, bottom-right, bottom-left.',
-    icon: CreditCard,
-  },
-  {
-    id: 'frame',
-    title: 'Mark Frame',
-    desc: 'Tap the 4 corners of the window/door opening: top-left, top-right, bottom-right, bottom-left.',
-    icon: Move,
-  },
-  {
-    id: 'result',
-    title: 'Measurements',
-    desc: 'Review your calculated dimensions.',
-    icon: Check,
-  },
-];
 
 export default function CameraMeasure({ onComplete, onCancel, itemType }) {
   const webcamRef = useRef(null);
-  const canvasRef = useRef(null);
-  const imgRef = useRef(null);
-  const [step, setStep] = useState(0); // 0=capture, 1=card corners, 2=frame corners, 3=result
+  const [step, setStep] = useState('guide'); // 'guide' | 'camera' | 'enter'
   const [photo, setPhoto] = useState(null);
-  const [cardPoints, setCardPoints] = useState([]);
-  const [framePoints, setFramePoints] = useState([]);
-  const [dimensions, setDimensions] = useState(null);
+  const [width, setWidth] = useState('');
+  const [height, setHeight] = useState('');
   const [cameraError, setCameraError] = useState(false);
-  const [imgSize, setImgSize] = useState({ w: 0, h: 0 });
 
   const capturePhoto = useCallback(() => {
     if (webcamRef.current) {
       const imageSrc = webcamRef.current.getScreenshot({ width: 1280, height: 960 });
       setPhoto(imageSrc);
-      setStep(1);
+      setStep('enter');
     }
   }, []);
 
-  const handleImageLoad = (e) => {
-    setImgSize({ w: e.target.clientWidth, h: e.target.clientHeight });
-  };
-
-  const handleImageClick = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const point = { x, y };
-
-    if (step === 1) {
-      // Marking credit card corners
-      const newPoints = [...cardPoints, point];
-      setCardPoints(newPoints);
-      if (newPoints.length === 4) {
-        setStep(2);
-      }
-    } else if (step === 2) {
-      // Marking frame corners
-      const newPoints = [...framePoints, point];
-      setFramePoints(newPoints);
-      if (newPoints.length === 4) {
-        calculateDimensions(cardPoints, newPoints);
-        setStep(3);
-      }
-    }
-  };
-
-  const calculateDimensions = (card, frame) => {
-    // Calculate pixel distances for card
-    const cardPixelWidth = dist(card[0], card[1]);
-    const cardPixelHeight = dist(card[1], card[2]);
-
-    // Pixels per inch based on card reference
-    const ppiHorizontal = cardPixelWidth / CARD_WIDTH_INCHES;
-    const ppiVertical = cardPixelHeight / CARD_HEIGHT_INCHES;
-    const ppi = (ppiHorizontal + ppiVertical) / 2;
-
-    // Calculate frame pixel dimensions
-    const framePixelWidth = (dist(frame[0], frame[1]) + dist(frame[3], frame[2])) / 2;
-    const framePixelHeight = (dist(frame[0], frame[3]) + dist(frame[1], frame[2])) / 2;
-
-    // Convert to inches
-    const widthInches = Math.round(framePixelWidth / ppi);
-    const heightInches = Math.round(framePixelHeight / ppi);
-
-    setDimensions({ width: widthInches, height: heightInches });
-  };
-
-  const dist = (a, b) => Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2);
-
-  const resetStep = (targetStep) => {
-    if (targetStep <= 1) setCardPoints([]);
-    if (targetStep <= 2) setFramePoints([]);
-    if (targetStep === 0) setPhoto(null);
-    setDimensions(null);
-    setStep(targetStep);
-  };
-
-  const currentStep = STEPS[step];
-  const activePoints = step === 1 ? cardPoints : framePoints;
-  const cornerLabels = ['TL', 'TR', 'BR', 'BL'];
-
-  // Draw overlay on canvas
-  useEffect(() => {
-    if (!canvasRef.current || !photo || step === 0) return;
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    canvas.width = imgSize.w;
-    canvas.height = imgSize.h;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    const drawPolygon = (points, color, label) => {
-      if (points.length === 0) return;
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 2;
-      ctx.fillStyle = color + '20';
-
-      if (points.length > 1) {
-        ctx.beginPath();
-        ctx.moveTo(points[0].x, points[0].y);
-        for (let i = 1; i < points.length; i++) {
-          ctx.lineTo(points[i].x, points[i].y);
-        }
-        if (points.length === 4) {
-          ctx.closePath();
-          ctx.fill();
-        }
-        ctx.stroke();
-      }
-
-      // Draw points
-      points.forEach((p, i) => {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
-        ctx.fillStyle = color;
-        ctx.fill();
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold 10px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(cornerLabels[i], p.x, p.y);
-      });
-
-      // Draw dimension labels for completed shapes
-      if (points.length === 4) {
-        const midTop = midpoint(points[0], points[1]);
-        const midRight = midpoint(points[1], points[2]);
-
-        if (label === 'card') {
-          drawLabel(ctx, midTop, `${CARD_WIDTH_INCHES}"`, color);
-          drawLabel(ctx, midRight, `${CARD_HEIGHT_INCHES}"`, color);
-        } else if (dimensions) {
-          drawLabel(ctx, midTop, `${dimensions.width}"`, color);
-          drawLabel(ctx, midRight, `${dimensions.height}"`, color);
-        }
-      }
-    };
-
-    drawPolygon(cardPoints, '#f59e0b', 'card');
-    drawPolygon(framePoints, '#3b82f6', 'frame');
-  }, [cardPoints, framePoints, imgSize, step, dimensions]);
-
-  const midpoint = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
-
-  const drawLabel = (ctx, pos, text, color) => {
-    ctx.font = 'bold 14px sans-serif';
-    const metrics = ctx.measureText(text);
-    const pad = 4;
-    ctx.fillStyle = color;
-    ctx.fillRect(pos.x - metrics.width / 2 - pad, pos.y - 10, metrics.width + pad * 2, 20);
-    ctx.fillStyle = '#fff';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(text, pos.x, pos.y);
-  };
+  const canSubmit = parseInt(width) > 0 && parseInt(height) > 0;
+  const label = itemType === 'window' ? 'window' : 'door';
 
   return (
     <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-2 sm:p-4">
-      <div className="bg-white rounded-2xl w-full max-w-lg max-h-[95vh] flex flex-col overflow-hidden">
+      <div className="bg-white rounded-2xl w-full max-w-md max-h-[95vh] flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold">
-              {step + 1}
-            </div>
-            <div>
-              <h3 className="font-bold text-gray-900">{currentStep.title}</h3>
-              <p className="text-xs text-gray-500">{currentStep.desc}</p>
-            </div>
+            <Ruler className="w-5 h-5 text-primary" />
+            <h3 className="font-bold text-gray-900">Measure Your {itemType === 'window' ? 'Window' : 'Door'}</h3>
           </div>
-          <button
-            onClick={onCancel}
-            className="p-2 hover:bg-gray-100 rounded-full cursor-pointer"
-          >
+          <button onClick={onCancel} className="p-2 hover:bg-gray-100 rounded-full cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Progress dots */}
-        <div className="flex items-center justify-center gap-2 py-2 bg-gray-50">
-          {STEPS.map((s, i) => (
-            <div
-              key={s.id}
-              className={`w-2 h-2 rounded-full transition-all ${
-                i === step ? 'w-6 bg-primary' : i < step ? 'bg-success' : 'bg-gray-300'
-              }`}
-            />
-          ))}
-        </div>
-
-        {/* Content */}
         <div className="flex-1 overflow-auto">
-          {step === 0 && (
-            <div className="p-4">
-              {/* Instructions */}
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4 text-sm">
-                <div className="flex items-start gap-2">
-                  <Info className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-amber-800">How to get accurate measurements:</p>
-                    <ol className="mt-1 text-amber-700 space-y-1 list-decimal ml-4">
-                      <li>Hold a credit card flat against the window/door frame</li>
-                      <li>Stand back so the full frame is visible</li>
-                      <li>Keep the camera straight (not angled)</li>
-                      <li>Make sure the card and frame are in the same plane</li>
-                    </ol>
+          {/* STEP 1: Visual Guide */}
+          {step === 'guide' && (
+            <div className="p-4 space-y-4">
+              <p className="text-sm text-gray-600 text-center">
+                Here's how to measure your {label}. Use a tape measure for best results.
+              </p>
+
+              {/* Visual diagram */}
+              <div className="bg-gray-50 rounded-xl p-6 relative">
+                <div className="border-4 border-primary rounded-lg aspect-[3/4] max-w-[200px] mx-auto relative">
+                  {/* Frame label */}
+                  <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-bold text-gray-500 uppercase tracking-wide">
+                    {label} frame
                   </div>
+
+                  {/* Width arrow - top */}
+                  <div className="absolute -top-1 left-2 right-2 flex items-center justify-center">
+                    <div className="flex-1 h-0.5 bg-accent" />
+                    <span className="px-2 text-xs font-bold text-accent bg-gray-50">WIDTH</span>
+                    <div className="flex-1 h-0.5 bg-accent" />
+                  </div>
+
+                  {/* Height arrow - right side */}
+                  <div className="absolute -right-12 top-2 bottom-2 flex flex-col items-center justify-center">
+                    <div className="flex-1 w-0.5 bg-blue-500" />
+                    <span className="py-1 text-xs font-bold text-blue-500 bg-gray-50 [writing-mode:vertical-lr]">HEIGHT</span>
+                    <div className="flex-1 w-0.5 bg-blue-500" />
+                  </div>
+
+                  {/* Inner opening */}
+                  <div className="absolute inset-3 border-2 border-dashed border-gray-300 rounded flex items-center justify-center">
+                    <span className="text-xs text-gray-400 text-center px-2">
+                      Measure inside edges
+                    </span>
+                  </div>
+
+                  {/* Corner markers */}
+                  {['top-0 left-0', 'top-0 right-0', 'bottom-0 left-0', 'bottom-0 right-0'].map((pos, i) => (
+                    <div key={i} className={`absolute ${pos} w-3 h-3 bg-primary rounded-full -translate-x-1/2 -translate-y-1/2`}
+                      style={{
+                        transform: `translate(${pos.includes('right') ? '50%' : '-50%'}, ${pos.includes('bottom') ? '50%' : '-50%'})`
+                      }}
+                    />
+                  ))}
                 </div>
               </div>
 
+              {/* Tips */}
+              <div className="space-y-2">
+                {[
+                  { icon: ArrowLeftRight, color: 'text-accent', text: 'WIDTH: Measure inside the frame, left edge to right edge' },
+                  { icon: ArrowUpDown, color: 'text-blue-500', text: 'HEIGHT: Measure inside the frame, top to bottom' },
+                  { icon: Ruler, color: 'text-gray-500', text: 'Measure in 3 spots — use the SMALLEST number' },
+                ].map(({ icon: Icon, color, text }) => (
+                  <div key={text} className="flex items-start gap-3 text-sm">
+                    <Icon className={`w-4 h-4 ${color} flex-shrink-0 mt-0.5`} />
+                    <span className="text-gray-700">{text}</span>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                onClick={() => setStep('camera')}
+                className="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-primary-light transition-colors cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Camera className="w-5 h-5" /> Take Photo of {label}
+              </button>
+              <button
+                onClick={() => setStep('enter')}
+                className="w-full text-center text-sm text-primary hover:underline cursor-pointer py-1"
+              >
+                Skip photo — just enter measurements
+              </button>
+            </div>
+          )}
+
+          {/* STEP 2: Camera */}
+          {step === 'camera' && (
+            <div className="p-4">
               {cameraError ? (
-                <div className="text-center py-12">
-                  <Camera className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">Camera not available.</p>
-                  <p className="text-sm text-gray-400 mt-2">
-                    Please allow camera access or use a device with a camera.
-                  </p>
+                <div className="text-center py-8">
+                  <Camera className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-500 text-sm">Camera not available.</p>
+                  <button
+                    onClick={() => setStep('enter')}
+                    className="mt-4 text-primary text-sm font-medium hover:underline cursor-pointer"
+                  >
+                    Enter measurements manually instead
+                  </button>
                 </div>
               ) : (
                 <>
-                  <Webcam
-                    ref={webcamRef}
-                    audio={false}
-                    screenshotFormat="image/jpeg"
-                    screenshotQuality={0.9}
-                    className="w-full rounded-xl"
-                    videoConstraints={{ facingMode: 'environment', width: 1280, height: 960 }}
-                    onUserMediaError={() => setCameraError(true)}
-                  />
+                  {/* Camera with overlay guide */}
+                  <div className="relative rounded-xl overflow-hidden">
+                    <Webcam
+                      ref={webcamRef}
+                      audio={false}
+                      screenshotFormat="image/jpeg"
+                      screenshotQuality={0.9}
+                      className="w-full"
+                      videoConstraints={{ facingMode: 'environment', width: 1280, height: 960 }}
+                      onUserMediaError={() => setCameraError(true)}
+                    />
+                    {/* Guide overlay */}
+                    <div className="absolute inset-0 pointer-events-none">
+                      <div className="absolute inset-[15%] border-2 border-white/60 border-dashed rounded-lg" />
+                      <div className="absolute bottom-3 left-0 right-0 text-center">
+                        <span className="bg-black/60 text-white text-xs px-3 py-1.5 rounded-full">
+                          Align {label} frame inside the guide
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
                   <button
                     onClick={capturePhoto}
-                    className="w-full mt-4 bg-primary text-white py-3 rounded-xl font-semibold hover:bg-primary-light transition-colors cursor-pointer flex items-center justify-center gap-2"
+                    className="w-full mt-4 bg-primary text-white py-3.5 rounded-xl font-semibold hover:bg-primary-light transition-colors cursor-pointer flex items-center justify-center gap-2 text-lg"
                   >
-                    <Camera className="w-5 h-5" />
-                    Capture Photo
+                    <Camera className="w-5 h-5" /> Snap Photo
                   </button>
                 </>
               )}
             </div>
           )}
 
-          {(step === 1 || step === 2 || step === 3) && photo && (
-            <div className="p-4">
-              {/* Indicator for what to tap */}
-              {(step === 1 || step === 2) && (
-                <div
-                  className={`rounded-lg px-3 py-2 mb-3 text-sm font-medium flex items-center gap-2 ${
-                    step === 1
-                      ? 'bg-amber-50 text-amber-800 border border-amber-200'
-                      : 'bg-blue-50 text-blue-800 border border-blue-200'
-                  }`}
-                >
-                  <ZoomIn className="w-4 h-4 flex-shrink-0" />
-                  <span>
-                    Tap corner{' '}
-                    <strong>
-                      {cornerLabels[activePoints.length]} ({activePoints.length + 1}/4)
-                    </strong>
-                    {step === 1 ? ' of the credit card' : ` of the ${itemType} frame`}
-                  </span>
+          {/* STEP 3: Enter measurements */}
+          {step === 'enter' && (
+            <div className="p-4 space-y-4">
+              {/* Photo preview */}
+              {photo && (
+                <div className="relative rounded-xl overflow-hidden bg-gray-100">
+                  <img src={photo} alt="Your window/door" className="w-full max-h-[40vh] object-contain rounded-xl" />
+                  <button
+                    onClick={() => { setPhoto(null); setStep('camera'); }}
+                    className="absolute top-2 right-2 bg-black/50 text-white p-1.5 rounded-full hover:bg-black/70 cursor-pointer"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                  </button>
+                  <div className="absolute bottom-2 left-2 bg-success/90 text-white text-xs px-2 py-1 rounded-full font-medium">
+                    Photo saved for verification
+                  </div>
                 </div>
               )}
 
-              {/* Image with overlay */}
-              <div className="relative rounded-xl overflow-hidden border-2 border-gray-200">
-                <img
-                  ref={imgRef}
-                  src={photo}
-                  alt="Captured"
-                  className="w-full"
-                  onClick={step < 3 ? handleImageClick : undefined}
-                  onLoad={handleImageLoad}
-                  style={{ cursor: step < 3 ? 'crosshair' : 'default' }}
+              <p className="text-sm text-gray-600 text-center font-medium">
+                Enter your measurements in inches
+              </p>
+
+              {/* Width input */}
+              <div>
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-1.5">
+                  <ArrowLeftRight className="w-4 h-4 text-accent" /> Width (inches)
+                </label>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min="10"
+                  max="200"
+                  value={width}
+                  onChange={(e) => setWidth(e.target.value)}
+                  placeholder="e.g. 36"
+                  autoFocus
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-lg font-semibold focus:border-primary outline-none transition-colors text-center"
                 />
-                <canvas
-                  ref={canvasRef}
-                  className="absolute inset-0 w-full h-full pointer-events-none"
-                />
-                {/* Legend */}
-                <div className="absolute bottom-2 left-2 flex gap-2">
-                  {cardPoints.length > 0 && (
-                    <span className="bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full">
-                      Card
-                    </span>
-                  )}
-                  {framePoints.length > 0 && (
-                    <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">
-                      Frame
-                    </span>
-                  )}
-                </div>
               </div>
 
-              {/* Undo last point */}
-              {step < 3 && activePoints.length > 0 && (
+              {/* Height input */}
+              <div>
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-1.5">
+                  <ArrowUpDown className="w-4 h-4 text-blue-500" /> Height (inches)
+                </label>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min="10"
+                  max="200"
+                  value={height}
+                  onChange={(e) => setHeight(e.target.value)}
+                  placeholder="e.g. 48"
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-lg font-semibold focus:border-primary outline-none transition-colors text-center"
+                />
+              </div>
+
+              {/* Submit */}
+              <button
+                disabled={!canSubmit}
+                onClick={() =>
+                  onComplete({
+                    width: parseInt(width),
+                    height: parseInt(height),
+                    photo,
+                  })
+                }
+                className={`w-full py-3.5 rounded-xl font-semibold text-lg transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                  canSubmit
+                    ? 'bg-primary text-white hover:bg-primary-light'
+                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                }`}
+              >
+                Save Measurements <ChevronRight className="w-5 h-5" />
+              </button>
+
+              {!photo && (
                 <button
-                  onClick={() => {
-                    if (step === 1) setCardPoints(cardPoints.slice(0, -1));
-                    else setFramePoints(framePoints.slice(0, -1));
-                  }}
-                  className="mt-3 text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1 cursor-pointer"
+                  onClick={() => setStep('camera')}
+                  className="w-full text-center text-sm text-primary hover:underline cursor-pointer py-1"
                 >
-                  <RotateCcw className="w-3 h-3" /> Undo last point
+                  Want to add a photo?
                 </button>
-              )}
-
-              {/* Results */}
-              {step === 3 && dimensions && (
-                <div className="mt-4 space-y-4">
-                  <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-                    <h4 className="font-bold text-green-900 mb-3 flex items-center gap-2">
-                      <Check className="w-5 h-5" /> Calculated Dimensions
-                    </h4>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-white rounded-lg p-3 text-center border border-green-100">
-                        <div className="text-3xl font-extrabold text-gray-900">
-                          {dimensions.width}"
-                        </div>
-                        <div className="text-sm text-gray-500">Width</div>
-                      </div>
-                      <div className="bg-white rounded-lg p-3 text-center border border-green-100">
-                        <div className="text-3xl font-extrabold text-gray-900">
-                          {dimensions.height}"
-                        </div>
-                        <div className="text-sm text-gray-500">Height</div>
-                      </div>
-                    </div>
-                    <p className="text-xs text-green-700 mt-3">
-                      Based on credit card reference ({CARD_WIDTH_INCHES}" x {CARD_HEIGHT_INCHES}").
-                      Accuracy depends on camera angle and card placement.
-                    </p>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => resetStep(0)}
-                      className="flex-1 py-3 rounded-xl font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer"
-                    >
-                      Retake
-                    </button>
-                    <button
-                      onClick={() =>
-                        onComplete({
-                          width: dimensions.width,
-                          height: dimensions.height,
-                          photo,
-                        })
-                      }
-                      className="flex-1 py-3 rounded-xl font-semibold text-white bg-primary hover:bg-primary-light transition-colors cursor-pointer flex items-center justify-center gap-2"
-                    >
-                      Use Measurements <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
               )}
             </div>
           )}

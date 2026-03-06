@@ -52,7 +52,7 @@ export default function StepMeasurements() {
         Add Your Windows & Doors
       </h2>
       <p className="text-gray-500 text-center mb-2">
-        Enter measurements in inches, or use the camera to measure with a credit card reference.
+        Enter measurements in inches, or use the camera to snap a photo for reference.
       </p>
       <div className="flex items-center justify-center gap-2 mb-8 text-sm text-blue-600 bg-blue-50 p-3 rounded-lg">
         <Info className="w-4 h-4 flex-shrink-0" />
@@ -274,7 +274,7 @@ function ItemCard({ item, index, types, dispatch, onMeasure }) {
       {/* Photo thumbnail */}
       {item.photo && (
         <div className="mt-3 flex items-center gap-3">
-          <img src={item.photo} alt="Captured" className="w-16 h-16 object-cover rounded-lg border" />
+          <img src={item.photo} alt="Captured" className="w-20 h-14 object-contain rounded-lg border bg-gray-50" />
           <span className="text-xs text-success font-medium">Photo captured &amp; measured</span>
           <button
             onClick={() =>
