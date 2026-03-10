@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuote, useQuoteDispatch } from '../context/QuoteContext';
-import { ArrowRight, ArrowLeft, Home, Square, X, AlertTriangle, Play } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Home, Square, X, AlertTriangle, Play, Ruler } from 'lucide-react';
 
 export default function StepMeasureMethod() {
   const state = useQuote();
@@ -187,18 +187,36 @@ function OutsideMeasurePopup({ onClose }) {
             </p>
           </div>
 
-          {/* Video/GIF placeholder */}
+          {/* Photo Tutorial */}
           <div>
             <p className="text-sm font-semibold text-gray-800 mb-2 flex items-center gap-2">
-              <Play className="w-4 h-4 text-primary" /> How to Measure (Video Guide)
+              <Ruler className="w-4 h-4 text-primary" /> How to Measure — Photo Guide
             </p>
-            <div className="bg-gray-900 rounded-xl aspect-video flex flex-col items-center justify-center gap-3">
-              <div className="w-14 h-14 bg-white/10 rounded-full flex items-center justify-center">
-                <Play className="w-7 h-7 text-white ml-1" />
+            <div className="space-y-2">
+              <div className="relative rounded-xl overflow-hidden bg-gray-900">
+                <img
+                  src="/measure-tutorial-1.png"
+                  alt="Measure edge to edge from outside"
+                  className="w-full object-cover"
+                />
+                <div className="absolute bottom-2 left-2 right-2 flex items-center justify-center">
+                  <span className="bg-black/60 text-white text-xs font-bold px-3 py-1 rounded-full tracking-wide uppercase">
+                    Edge to Edge — Full Frame Width
+                  </span>
+                </div>
               </div>
-              <p className="text-white/60 text-sm text-center px-4">
-                Measurement video guide coming soon
-              </p>
+              <div className="relative rounded-xl overflow-hidden bg-gray-900">
+                <img
+                  src="/measure-tutorial-2.png"
+                  alt="Measure from sill to top from outside"
+                  className="w-full object-cover"
+                />
+                <div className="absolute bottom-2 left-2 right-2 flex items-center justify-center">
+                  <span className="bg-black/60 text-white text-xs font-bold px-3 py-1 rounded-full tracking-wide uppercase">
+                    Sill to Top — Full Frame Height
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
