@@ -2,20 +2,22 @@ import { useState, useEffect } from 'react';
 import { useQuote, useQuoteDispatch } from '../context/QuoteContext';
 import { ArrowRight, ArrowLeft, Home, Square, X, AlertTriangle, HelpCircle } from 'lucide-react';
 
-// Shared tutorial GIFs (no labels)
-function TutorialImages() {
+// Outside tutorial GIFs
+function OutsideImages() {
   return (
     <div className="space-y-2">
-      <img
-        src="/outside_1.GIF"
-        alt="Measure edge to edge from outside"
-        className="w-full rounded-xl"
-      />
-      <img
-        src="/outside_2.GIF"
-        alt="Measure from sill to top from outside"
-        className="w-full rounded-xl"
-      />
+      <img src="/outside_1.GIF" alt="Measure edge to edge from outside" className="w-full rounded-xl" />
+      <img src="/outside_2.GIF" alt="Measure sill to top from outside" className="w-full rounded-xl" />
+    </div>
+  );
+}
+
+// Inside tutorial GIFs
+function InsideImages() {
+  return (
+    <div className="space-y-2">
+      <img src="/inside_1.GIF" alt="Measure wall to wall from inside" className="w-full rounded-xl" />
+      <img src="/inside2.GIF" alt="Measure sill to top from inside" className="w-full rounded-xl" />
     </div>
   );
 }
@@ -27,6 +29,7 @@ export default function StepMeasureMethod() {
 
   const [showDoorsPopup, setShowDoorsPopup] = useState(false);
   const [showWindowsPopup, setShowWindowsPopup] = useState(false);
+  const [showInsidePopup, setShowInsidePopup] = useState(false);
   const [understood, setUnderstood] = useState(false);
 
   useEffect(() => {
@@ -53,7 +56,10 @@ export default function StepMeasureMethod() {
         <button
           type="button"
           disabled={hasDoors}
-          onClick={() => dispatch({ type: 'SET_MEASURE_FROM', measureFrom: 'inside' })}
+          onClick={() => {
+            dispatch({ type: 'SET_MEASURE_FROM', measureFrom: 'inside' });
+            setShowInsidePopup(true);
+          }}
           className={`relative rounded-2xl border-2 p-5 text-left transition-all cursor-pointer ${
             selected === 'inside' && !hasDoors
               ? 'border-primary bg-blue-50 shadow-md'
@@ -145,17 +151,31 @@ export default function StepMeasureMethod() {
         </div>
       )}
 
-      {/* Windows: show tutorial link when outside is selected */}
+      {/* Windows outside: tutorial banner */}
       {!hasDoors && selected === 'outside' && (
         <button
           onClick={() => setShowWindowsPopup(true)}
+          className="w-full flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-6 cursor-pointer hover:bg-amber-100 transition-colors"
+        >
+          <HelpCircle className="w-5 h-5 text-amber-600 flex-shrink-0" />
+          <span className="text-sm text-amber-800 font-medium text-left">
+            See how to measure from outside
+          </span>
+          <span className="text-xs text-amber-600 ml-auto">View guide →</span>
+        </button>
+      )}
+
+      {/* Inside: tutorial banner */}
+      {!hasDoors && selected === 'inside' && (
+        <button
+          onClick={() => setShowInsidePopup(true)}
           className="w-full flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 mb-6 cursor-pointer hover:bg-blue-100 transition-colors"
         >
           <HelpCircle className="w-5 h-5 text-blue-600 flex-shrink-0" />
           <span className="text-sm text-blue-800 font-medium text-left">
-            See how to measure from outside
+            See how to measure from inside
           </span>
-          <span className="text-xs text-blue-600 ml-auto">View photos →</span>
+          <span className="text-xs text-blue-600 ml-auto">View guide →</span>
         </button>
       )}
 
@@ -190,9 +210,14 @@ export default function StepMeasureMethod() {
         />
       )}
 
-      {/* Windows popup (optional tutorial) */}
+      {/* Windows outside popup */}
       {showWindowsPopup && (
         <WindowsMeasurePopup onClose={() => setShowWindowsPopup(false)} />
+      )}
+
+      {/* Inside popup */}
+      {showInsidePopup && (
+        <InsideMeasurePopup onClose={() => setShowInsidePopup(false)} />
       )}
     </div>
   );
@@ -233,7 +258,7 @@ function OutsideMeasurePopup({ onClose }) {
           {/* Tutorial images */}
           <div>
             <p className="text-sm font-semibold text-gray-800 mb-2">How to Measure — Photo Guide</p>
-            <TutorialImages />
+            <OutsideImages />
           </div>
 
           {/* Step-by-step */}
@@ -302,7 +327,66 @@ function OutsideMeasurePopup({ onClose }) {
   );
 }
 
-/* ── Windows popup (optional) ───────────────────────────── */
+/* ── Inside popup (optional) ────────────────────────────── */
+function InsideMeasurePopup({ onClose }) {
+  return (
+    <div className="fixed inset-0 bg-black/75 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div className="bg-white rounded-t-3xl sm:rounded-2xl w-full max-w-lg max-h-[92vh] flex flex-col overflow-hidden">
+        <div className="flex items-center justify-between p-5 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center">
+              <Home className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="font-bold text-gray-900">How to Measure From Inside</h3>
+              <p className="text-xs text-gray-500">Window measurement photo guide</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors">
+            <X className="w-5 h-5 text-gray-500" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-auto p-5 space-y-5">
+          <InsideImages />
+
+          <div>
+            <p className="text-sm font-semibold text-gray-800 mb-3">Step-by-Step Instructions</p>
+            <div className="space-y-3">
+              {[
+                { step: '1', title: 'Stay inside the home', desc: 'Stand inside facing the window opening you want to measure.', color: 'bg-blue-500' },
+                { step: '2', title: 'Measure the WIDTH', desc: 'Measure wall to wall — from the left inner edge of the opening to the right inner edge.', color: 'bg-accent' },
+                { step: '3', title: 'Measure the HEIGHT', desc: 'Measure from the inner bottom sill up to the inner top edge of the opening.', color: 'bg-blue-500' },
+                { step: '4', title: 'Measure 3 times', desc: 'Take left, center, and right for width; top, middle, bottom for height. Use the SMALLEST number.', color: 'bg-green-500' },
+              ].map(({ step, title, desc, color }) => (
+                <div key={step} className="flex gap-3">
+                  <div className={`w-6 h-6 ${color} text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5`}>
+                    {step}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">{title}</p>
+                    <p className="text-xs text-gray-500 leading-relaxed">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="p-5 border-t border-gray-100">
+          <button
+            onClick={onClose}
+            className="w-full bg-primary text-white py-3.5 rounded-xl font-bold text-base hover:bg-primary-light transition-colors cursor-pointer"
+          >
+            Got It — Continue
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Windows outside popup (optional) ───────────────────── */
 function WindowsMeasurePopup({ onClose }) {
   return (
     <div className="fixed inset-0 bg-black/75 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
@@ -323,7 +407,7 @@ function WindowsMeasurePopup({ onClose }) {
         </div>
 
         <div className="flex-1 overflow-auto p-5 space-y-5">
-          <TutorialImages />
+          <OutsideImages />
 
           <div>
             <p className="text-sm font-semibold text-gray-800 mb-3">Step-by-Step Instructions</p>
