@@ -2,19 +2,19 @@ import { useState, useEffect } from 'react';
 import { useQuote, useQuoteDispatch } from '../context/QuoteContext';
 import { ArrowRight, ArrowLeft, Home, Square, X, AlertTriangle, HelpCircle } from 'lucide-react';
 
-// Shared tutorial images (no labels)
+// Shared tutorial GIFs (no labels)
 function TutorialImages() {
   return (
     <div className="space-y-2">
       <img
-        src="/measure-tutorial-1.png"
+        src="/outside_1.GIF"
         alt="Measure edge to edge from outside"
-        className="w-full rounded-xl object-cover"
+        className="w-full rounded-xl"
       />
       <img
-        src="/measure-tutorial-2.png"
+        src="/outside_2.GIF"
         alt="Measure from sill to top from outside"
-        className="w-full rounded-xl object-cover"
+        className="w-full rounded-xl"
       />
     </div>
   );
