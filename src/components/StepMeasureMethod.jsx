@@ -1,25 +1,42 @@
 import { useState, useEffect } from 'react';
 import { useQuote, useQuoteDispatch } from '../context/QuoteContext';
-import { ArrowRight, ArrowLeft, Home, Square, X, AlertTriangle, Play, Ruler } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Home, Square, X, AlertTriangle, HelpCircle } from 'lucide-react';
+
+// Shared tutorial images (no labels)
+function TutorialImages() {
+  return (
+    <div className="space-y-2">
+      <img
+        src="/measure-tutorial-1.png"
+        alt="Measure edge to edge from outside"
+        className="w-full rounded-xl object-cover"
+      />
+      <img
+        src="/measure-tutorial-2.png"
+        alt="Measure from sill to top from outside"
+        className="w-full rounded-xl object-cover"
+      />
+    </div>
+  );
+}
 
 export default function StepMeasureMethod() {
   const state = useQuote();
   const dispatch = useQuoteDispatch();
   const hasDoors = state.projectType === 'doors' || state.projectType === 'both';
 
-  // Auto-set outside for doors and show popup
-  const [showPopup, setShowPopup] = useState(false);
+  const [showDoorsPopup, setShowDoorsPopup] = useState(false);
+  const [showWindowsPopup, setShowWindowsPopup] = useState(false);
   const [understood, setUnderstood] = useState(false);
 
   useEffect(() => {
     if (hasDoors) {
       dispatch({ type: 'SET_MEASURE_FROM', measureFrom: 'outside' });
-      setShowPopup(true);
+      setShowDoorsPopup(true);
     }
   }, [hasDoors]);
 
   const selected = state.measureFrom;
-
   const canContinue = !hasDoors || understood;
 
   return (
@@ -66,7 +83,8 @@ export default function StepMeasureMethod() {
           type="button"
           onClick={() => {
             dispatch({ type: 'SET_MEASURE_FROM', measureFrom: 'outside' });
-            if (hasDoors) setShowPopup(true);
+            if (!hasDoors) setShowWindowsPopup(true);
+            if (hasDoors) setShowDoorsPopup(true);
           }}
           className={`relative rounded-2xl border-2 p-5 text-left transition-all cursor-pointer ${
             selected === 'outside'
@@ -96,27 +114,49 @@ export default function StepMeasureMethod() {
         </button>
       </div>
 
-      {/* Notice for door projects */}
+      {/* Doors: re-open tutorial banner */}
       {hasDoors && !understood && (
         <button
-          onClick={() => setShowPopup(true)}
+          onClick={() => setShowDoorsPopup(true)}
           className="w-full flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-6 cursor-pointer hover:bg-amber-100 transition-colors"
         >
           <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
           <span className="text-sm text-amber-800 font-medium text-left">
             Doors must be measured from outside — tap to see how
           </span>
-          <Play className="w-4 h-4 text-amber-600 ml-auto flex-shrink-0" />
+          <HelpCircle className="w-4 h-4 text-amber-600 ml-auto flex-shrink-0" />
         </button>
       )}
 
       {hasDoors && understood && (
-        <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-3 mb-6">
-          <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-            <div className="w-2 h-2 bg-white rounded-full" />
+        <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-xl px-4 py-3 mb-6">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-2 h-2 bg-white rounded-full" />
+            </div>
+            <span className="text-sm text-green-800 font-medium">Got it — you'll measure from outside</span>
           </div>
-          <span className="text-sm text-green-800 font-medium">Got it — you'll measure from outside</span>
+          <button
+            onClick={() => setShowDoorsPopup(true)}
+            className="text-xs text-green-700 underline cursor-pointer"
+          >
+            Review
+          </button>
         </div>
+      )}
+
+      {/* Windows: show tutorial link when outside is selected */}
+      {!hasDoors && selected === 'outside' && (
+        <button
+          onClick={() => setShowWindowsPopup(true)}
+          className="w-full flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 mb-6 cursor-pointer hover:bg-blue-100 transition-colors"
+        >
+          <HelpCircle className="w-5 h-5 text-blue-600 flex-shrink-0" />
+          <span className="text-sm text-blue-800 font-medium text-left">
+            See how to measure from outside
+          </span>
+          <span className="text-xs text-blue-600 ml-auto">View photos →</span>
+        </button>
       )}
 
       {/* Navigation */}
@@ -140,19 +180,25 @@ export default function StepMeasureMethod() {
         </button>
       </div>
 
-      {/* Outside measurement popup */}
-      {showPopup && (
+      {/* Doors popup (mandatory) */}
+      {showDoorsPopup && (
         <OutsideMeasurePopup
           onClose={() => {
-            setShowPopup(false);
+            setShowDoorsPopup(false);
             setUnderstood(true);
           }}
         />
+      )}
+
+      {/* Windows popup (optional tutorial) */}
+      {showWindowsPopup && (
+        <WindowsMeasurePopup onClose={() => setShowWindowsPopup(false)} />
       )}
     </div>
   );
 }
 
+/* ── Doors popup (required) ─────────────────────────────── */
 function OutsideMeasurePopup({ onClose }) {
   return (
     <div className="fixed inset-0 bg-black/75 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
@@ -168,10 +214,7 @@ function OutsideMeasurePopup({ onClose }) {
               <p className="text-xs text-gray-500">Required for all door measurements</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors"
-          >
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors">
             <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
@@ -187,68 +230,21 @@ function OutsideMeasurePopup({ onClose }) {
             </p>
           </div>
 
-          {/* Photo Tutorial */}
+          {/* Tutorial images */}
           <div>
-            <p className="text-sm font-semibold text-gray-800 mb-2 flex items-center gap-2">
-              <Ruler className="w-4 h-4 text-primary" /> How to Measure — Photo Guide
-            </p>
-            <div className="space-y-2">
-              <div className="relative rounded-xl overflow-hidden bg-gray-900">
-                <img
-                  src="/measure-tutorial-1.png"
-                  alt="Measure edge to edge from outside"
-                  className="w-full object-cover"
-                />
-                <div className="absolute bottom-2 left-2 right-2 flex items-center justify-center">
-                  <span className="bg-black/60 text-white text-xs font-bold px-3 py-1 rounded-full tracking-wide uppercase">
-                    Edge to Edge — Full Frame Width
-                  </span>
-                </div>
-              </div>
-              <div className="relative rounded-xl overflow-hidden bg-gray-900">
-                <img
-                  src="/measure-tutorial-2.png"
-                  alt="Measure from sill to top from outside"
-                  className="w-full object-cover"
-                />
-                <div className="absolute bottom-2 left-2 right-2 flex items-center justify-center">
-                  <span className="bg-black/60 text-white text-xs font-bold px-3 py-1 rounded-full tracking-wide uppercase">
-                    Sill to Top — Full Frame Height
-                  </span>
-                </div>
-              </div>
-            </div>
+            <p className="text-sm font-semibold text-gray-800 mb-2">How to Measure — Photo Guide</p>
+            <TutorialImages />
           </div>
 
-          {/* Step-by-step instructions */}
+          {/* Step-by-step */}
           <div>
             <p className="text-sm font-semibold text-gray-800 mb-3">Step-by-Step Instructions</p>
             <div className="space-y-3">
               {[
-                {
-                  step: '1',
-                  title: 'Go outside the home',
-                  desc: 'Stand outside where you can see the full door frame.',
-                  color: 'bg-amber-500',
-                },
-                {
-                  step: '2',
-                  title: 'Measure the WIDTH',
-                  desc: 'Measure across the widest point of the door frame — from the outer edge of the left brick-mold to the outer edge of the right brick-mold.',
-                  color: 'bg-accent',
-                },
-                {
-                  step: '3',
-                  title: 'Measure the HEIGHT',
-                  desc: 'Measure from the threshold (bottom sill) at the floor level up to the top outer edge of the frame.',
-                  color: 'bg-blue-500',
-                },
-                {
-                  step: '4',
-                  title: 'Measure 3 times',
-                  desc: 'Take measurements at left, center, and right for width; and top, middle, and bottom for height. Use the SMALLEST number.',
-                  color: 'bg-green-500',
-                },
+                { step: '1', title: 'Go outside the home', desc: 'Stand outside where you can see the full door frame.', color: 'bg-amber-500' },
+                { step: '2', title: 'Measure the WIDTH', desc: 'Measure across the widest point — outer edge to outer edge of the frame.', color: 'bg-accent' },
+                { step: '3', title: 'Measure the HEIGHT', desc: 'Measure from the threshold (bottom sill) up to the top outer edge of the frame.', color: 'bg-blue-500' },
+                { step: '4', title: 'Measure 3 times', desc: 'Take left, center, and right for width; top, middle, bottom for height. Use the SMALLEST number.', color: 'bg-green-500' },
               ].map(({ step, title, desc, color }) => (
                 <div key={step} className="flex gap-3">
                   <div className={`w-6 h-6 ${color} text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5`}>
@@ -268,7 +264,6 @@ function OutsideMeasurePopup({ onClose }) {
             <p className="text-xs font-bold text-gray-600 text-center mb-3 uppercase tracking-wide">Outside Measurement Diagram</p>
             <div className="max-w-[200px] mx-auto">
               <div className="border-[6px] border-stone-600 rounded-lg aspect-[3/4] relative bg-sky-100">
-                {/* Width arrow */}
                 <div className="absolute -top-5 -left-2 -right-2 flex items-center">
                   <div className="w-0 h-0 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent border-r-[6px] border-r-accent" />
                   <div className="flex-1 h-0.5 bg-accent" />
@@ -276,7 +271,6 @@ function OutsideMeasurePopup({ onClose }) {
                   <div className="flex-1 h-0.5 bg-accent" />
                   <div className="w-0 h-0 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent border-l-[6px] border-l-accent" />
                 </div>
-                {/* Height arrow */}
                 <div className="absolute -right-12 -top-2 -bottom-2 flex flex-col items-center">
                   <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[6px] border-b-blue-500" />
                   <div className="flex-1 w-0.5 bg-blue-500" />
@@ -284,7 +278,6 @@ function OutsideMeasurePopup({ onClose }) {
                   <div className="flex-1 w-0.5 bg-blue-500" />
                   <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[6px] border-t-blue-500" />
                 </div>
-                {/* Corner markers */}
                 {['-top-1 -left-1', '-top-1 -right-1', '-bottom-1 -left-1', '-bottom-1 -right-1'].map((pos, i) => (
                   <div key={i} className={`absolute ${pos} w-2.5 h-2.5 bg-amber-500 rounded-full`} />
                 ))}
@@ -296,13 +289,71 @@ function OutsideMeasurePopup({ onClose }) {
           </div>
         </div>
 
-        {/* CTA */}
         <div className="p-5 border-t border-gray-100">
           <button
             onClick={onClose}
             className="w-full bg-primary text-white py-3.5 rounded-xl font-bold text-base hover:bg-primary-light transition-colors cursor-pointer"
           >
             I Understand — I'll Measure From Outside
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Windows popup (optional) ───────────────────────────── */
+function WindowsMeasurePopup({ onClose }) {
+  return (
+    <div className="fixed inset-0 bg-black/75 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div className="bg-white rounded-t-3xl sm:rounded-2xl w-full max-w-lg max-h-[92vh] flex flex-col overflow-hidden">
+        <div className="flex items-center justify-between p-5 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center">
+              <HelpCircle className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="font-bold text-gray-900">How to Measure From Outside</h3>
+              <p className="text-xs text-gray-500">Window measurement photo guide</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors">
+            <X className="w-5 h-5 text-gray-500" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-auto p-5 space-y-5">
+          <TutorialImages />
+
+          <div>
+            <p className="text-sm font-semibold text-gray-800 mb-3">Step-by-Step Instructions</p>
+            <div className="space-y-3">
+              {[
+                { step: '1', title: 'Go outside the home', desc: 'Stand outside where you can see the full window frame.', color: 'bg-blue-500' },
+                { step: '2', title: 'Measure the WIDTH', desc: 'Measure edge to edge — from the outer edge of the frame on the left to the outer edge on the right.', color: 'bg-accent' },
+                { step: '3', title: 'Measure the HEIGHT', desc: 'Measure from the outer bottom sill up to the outer top edge of the frame.', color: 'bg-blue-500' },
+                { step: '4', title: 'Measure 3 times', desc: 'Take left, center, and right for width; top, middle, bottom for height. Use the SMALLEST number.', color: 'bg-green-500' },
+              ].map(({ step, title, desc, color }) => (
+                <div key={step} className="flex gap-3">
+                  <div className={`w-6 h-6 ${color} text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5`}>
+                    {step}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">{title}</p>
+                    <p className="text-xs text-gray-500 leading-relaxed">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="p-5 border-t border-gray-100">
+          <button
+            onClick={onClose}
+            className="w-full bg-primary text-white py-3.5 rounded-xl font-bold text-base hover:bg-primary-light transition-colors cursor-pointer"
+          >
+            Got It — Continue
           </button>
         </div>
       </div>
