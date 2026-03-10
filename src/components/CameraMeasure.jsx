@@ -75,11 +75,17 @@ export default function CameraMeasure({ onComplete, onCancel, itemType, measureF
                   : `Measure from outside — border to border where the frame sits.`}
               </p>
 
-              {/* Visual diagram — Inside vs Outside */}
+              {/* Tutorial GIFs */}
               {isInside ? (
-                <InsideDiagram label={label} />
+                <div className="space-y-2">
+                  <img src="/inside_1.GIF" alt="Measure wall to wall from inside" className="w-full rounded-xl" />
+                  <img src="/inside2.GIF" alt="Measure sill to top from inside" className="w-full rounded-xl" />
+                </div>
               ) : (
-                <OutsideDiagram label={label} />
+                <div className="space-y-2">
+                  <img src="/outside_1.GIF" alt="Measure edge to edge from outside" className="w-full rounded-xl" />
+                  <img src="/outside_2.GIF" alt="Measure sill to top from outside" className="w-full rounded-xl" />
+                </div>
               )}
 
               {/* Tips */}
@@ -291,111 +297,3 @@ function Tip({ icon: Icon, color, text }) {
   );
 }
 
-function InsideDiagram({ label }) {
-  return (
-    <div className="bg-gray-50 rounded-xl p-5 relative">
-      <div className="text-xs font-bold text-blue-600 text-center mb-3 uppercase tracking-wide">
-        Inside Measurement
-      </div>
-
-      {/* Wall representation */}
-      <div className="relative max-w-[220px] mx-auto">
-        {/* Outer wall */}
-        <div className="bg-stone-300 rounded-lg p-3">
-          {/* Inner opening */}
-          <div className="bg-sky-100 border-2 border-stone-400 rounded aspect-[3/4] relative">
-            {/* Wall labels */}
-            <div className="absolute -left-8 top-1/2 -translate-y-1/2 text-[9px] font-bold text-stone-500 [writing-mode:vertical-lr] rotate-180">
-              WALL
-            </div>
-            <div className="absolute -right-8 top-1/2 -translate-y-1/2 text-[9px] font-bold text-stone-500 [writing-mode:vertical-lr]">
-              WALL
-            </div>
-
-            {/* Width arrow inside */}
-            <div className="absolute top-3 left-2 right-2 flex items-center">
-              <div className="w-0 h-0 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent border-r-[6px] border-r-accent" />
-              <div className="flex-1 h-0.5 bg-accent" />
-              <span className="px-1.5 text-[10px] font-bold text-accent bg-sky-100">WALL TO WALL</span>
-              <div className="flex-1 h-0.5 bg-accent" />
-              <div className="w-0 h-0 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent border-l-[6px] border-l-accent" />
-            </div>
-
-            {/* Height arrow */}
-            <div className="absolute right-3 top-2 bottom-2 flex flex-col items-center">
-              <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[6px] border-b-blue-500" />
-              <div className="flex-1 w-0.5 bg-blue-500" />
-              <span className="py-0.5 text-[9px] font-bold text-blue-500 bg-sky-100 [writing-mode:vertical-lr]">SILL TO TOP</span>
-              <div className="flex-1 w-0.5 bg-blue-500" />
-              <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[6px] border-t-blue-500" />
-            </div>
-
-            {/* Sill label */}
-            <div className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-semibold text-stone-500 bg-sky-100 px-1">
-              SILL
-            </div>
-
-            {/* Center label */}
-            <div className="flex items-center justify-center h-full">
-              <span className="text-[10px] text-stone-400 font-medium">Opening</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function OutsideDiagram({ label }) {
-  return (
-    <div className="bg-gray-50 rounded-xl p-5 relative">
-      <div className="text-xs font-bold text-amber-600 text-center mb-3 uppercase tracking-wide">
-        Outside Measurement
-      </div>
-
-      <div className="relative max-w-[220px] mx-auto">
-        {/* Frame with visible border */}
-        <div className="border-[6px] border-stone-600 rounded-lg aspect-[3/4] relative bg-sky-100">
-          {/* Frame label */}
-          <div className="absolute -top-7 left-1/2 -translate-x-1/2 text-[9px] font-bold text-stone-500 uppercase tracking-wide whitespace-nowrap">
-            {label} frame
-          </div>
-
-          {/* Width arrow - outside the frame */}
-          <div className="absolute -top-4 -left-1.5 -right-1.5 flex items-center">
-            <div className="w-0 h-0 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent border-r-[6px] border-r-accent" />
-            <div className="flex-1 h-0.5 bg-accent" />
-            <span className="px-1 text-[9px] font-bold text-accent bg-gray-50 whitespace-nowrap">BORDER TO BORDER</span>
-            <div className="flex-1 h-0.5 bg-accent" />
-            <div className="w-0 h-0 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent border-l-[6px] border-l-accent" />
-          </div>
-
-          {/* Height arrow - outside the frame */}
-          <div className="absolute -right-14 -top-1.5 -bottom-1.5 flex flex-col items-center">
-            <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[6px] border-b-blue-500" />
-            <div className="flex-1 w-0.5 bg-blue-500" />
-            <span className="py-0.5 text-[9px] font-bold text-blue-500 bg-gray-50 [writing-mode:vertical-lr] whitespace-nowrap">BORDER TO BORDER</span>
-            <div className="flex-1 w-0.5 bg-blue-500" />
-            <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[6px] border-t-blue-500" />
-          </div>
-
-          {/* Frame edge highlight */}
-          <div className="absolute inset-0 border-2 border-dashed border-stone-400/50 rounded" />
-
-          {/* Center label */}
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <span className="text-[10px] text-stone-400 font-medium block">Measure the</span>
-              <span className="text-[10px] text-stone-500 font-bold block">FULL frame</span>
-            </div>
-          </div>
-
-          {/* Corner markers on frame border */}
-          {['-top-1 -left-1', '-top-1 -right-1', '-bottom-1 -left-1', '-bottom-1 -right-1'].map((pos, i) => (
-            <div key={i} className={`absolute ${pos} w-2.5 h-2.5 bg-amber-500 rounded-full`} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
