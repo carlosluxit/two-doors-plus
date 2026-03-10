@@ -3,6 +3,7 @@ import Header from './components/Header';
 import ProgressBar from './components/ProgressBar';
 import Landing from './components/Landing';
 import StepProjectType from './components/StepProjectType';
+import StepMeasureMethod from './components/StepMeasureMethod';
 import StepMeasurements from './components/StepMeasurements';
 import StepTierSelection from './components/StepTierSelection';
 import StepClientInfo from './components/StepClientInfo';
@@ -19,14 +20,16 @@ function AppContent() {
       case 1:
         return <StepProjectType />;
       case 2:
-        return <StepMeasurements />;
+        return <StepMeasureMethod />;
       case 3:
-        return <StepTierSelection />;
+        return <StepMeasurements />;
       case 4:
-        return <StepClientInfo />;
+        return <StepTierSelection />;
       case 5:
-        return <StepVerification />;
+        return <StepClientInfo />;
       case 6:
+        return <StepVerification />;
+      case 7:
         return <StepQuote />;
       default:
         return <Landing />;

@@ -15,36 +15,33 @@ import {
   Square,
 } from 'lucide-react';
 
-const DEFAULT_WINDOW = { itemType: 'window', subType: 'single_hung', width: 36, height: 48, quantity: 1, label: '', photo: null, measureFrom: 'inside' };
-const DEFAULT_DOOR = { itemType: 'door', subType: 'single_entry', width: 36, height: 80, quantity: 1, label: '', photo: null, measureFrom: 'inside' };
-
 export default function StepMeasurements() {
   const state = useQuote();
   const dispatch = useQuoteDispatch();
-  const [measureItem, setMeasureItem] = useState(null); // { id, itemType } or null
+  const [measureItem, setMeasureItem] = useState(null);
 
   const showWindows = state.projectType === 'windows' || state.projectType === 'both';
   const showDoors = state.projectType === 'doors' || state.projectType === 'both';
+  const measureFrom = state.measureFrom || 'inside';
 
   const addItem = (type) => {
-    const defaults = type === 'window' ? DEFAULT_WINDOW : DEFAULT_DOOR;
-    dispatch({ type: 'ADD_ITEM', item: { ...defaults } });
+    const defaults =
+      type === 'window'
+        ? { itemType: 'window', subType: 'single_hung', width: 36, height: 48, quantity: 1, label: '', photo: null }
+        : { itemType: 'door', subType: 'single_entry', width: 36, height: 80, quantity: 1, label: '', photo: null };
+    dispatch({ type: 'ADD_ITEM', item: defaults });
   };
 
   const handleMeasureComplete = ({ width, height, photo }) => {
     if (measureItem) {
-      dispatch({
-        type: 'UPDATE_ITEM',
-        id: measureItem.id,
-        updates: { width, height, photo },
-      });
+      dispatch({ type: 'UPDATE_ITEM', id: measureItem.id, updates: { width, height, photo } });
       setMeasureItem(null);
     }
   };
 
-  const canProceed = state.items.length > 0 && state.items.every(
-    (item) => item.width > 0 && item.height > 0 && item.quantity > 0
-  );
+  const canProceed =
+    state.items.length > 0 &&
+    state.items.every((item) => item.width > 0 && item.height > 0 && item.quantity > 0);
 
   const windowItems = state.items.filter((i) => i.itemType === 'window');
   const doorItems = state.items.filter((i) => i.itemType === 'door');
@@ -54,9 +51,27 @@ export default function StepMeasurements() {
       <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-2">
         Add Your Windows & Doors
       </h2>
-      <p className="text-gray-500 text-center mb-2">
+      <p className="text-gray-500 text-center mb-3">
         Enter measurements in inches, or use the camera to snap a photo for reference.
       </p>
+
+      {/* Measurement method banner */}
+      <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl mb-6 text-sm font-semibold ${
+        measureFrom === 'outside'
+          ? 'bg-amber-50 border border-amber-200 text-amber-800'
+          : 'bg-blue-50 border border-blue-200 text-blue-800'
+      }`}>
+        {measureFrom === 'outside' ? (
+          <Square className="w-4 h-4 flex-shrink-0 text-amber-600" />
+        ) : (
+          <Home className="w-4 h-4 flex-shrink-0 text-blue-600" />
+        )}
+        <span>
+          Measuring from <strong>{measureFrom === 'outside' ? 'outside' : 'inside'}</strong>
+          {measureFrom === 'outside' ? ' — border to border (full frame)' : ' — wall to wall, sill to top'}
+        </span>
+      </div>
+
       <div className="flex items-center justify-center gap-2 mb-8 text-sm text-blue-600 bg-blue-50 p-3 rounded-lg">
         <Info className="w-4 h-4 flex-shrink-0" />
         <span>Approximate measurements are fine! We'll verify during the expert visit.</span>
@@ -66,7 +81,7 @@ export default function StepMeasurements() {
       {measureItem && (
         <CameraMeasure
           itemType={measureItem.itemType}
-          measureFrom={measureItem.measureFrom}
+          measureFrom={measureFrom}
           onComplete={handleMeasureComplete}
           onCancel={() => setMeasureItem(null)}
         />
@@ -100,7 +115,8 @@ export default function StepMeasurements() {
                 index={idx}
                 types={WINDOW_TYPES}
                 dispatch={dispatch}
-                onMeasure={() => setMeasureItem({ id: item.id, itemType: 'window', measureFrom: item.measureFrom || 'inside' })}
+                measureFrom={measureFrom}
+                onMeasure={() => setMeasureItem({ id: item.id, itemType: 'window' })}
               />
             ))}
           </div>
@@ -135,7 +151,8 @@ export default function StepMeasurements() {
                 index={idx}
                 types={DOOR_TYPES}
                 dispatch={dispatch}
-                onMeasure={() => setMeasureItem({ id: item.id, itemType: 'door', measureFrom: item.measureFrom || 'inside' })}
+                measureFrom={measureFrom}
+                onMeasure={() => setMeasureItem({ id: item.id, itemType: 'door' })}
               />
             ))}
           </div>
@@ -175,7 +192,7 @@ function formatSize(val) {
   return `${whole} ${f}"`;
 }
 
-function ItemCard({ item, index, types, dispatch, onMeasure }) {
+function ItemCard({ item, index, types, dispatch, measureFrom, onMeasure }) {
   const typeEntries = Object.entries(types);
   const { whole: wWhole, fraction: wFrac } = splitInches(item.width);
   const { whole: hWhole, fraction: hFrac } = splitInches(item.height);
@@ -222,32 +239,6 @@ function ItemCard({ item, index, types, dispatch, onMeasure }) {
         </div>
       </div>
 
-      {/* Measuring from toggle */}
-      <div className="flex items-center gap-1 mb-3 bg-gray-50 rounded-lg p-1">
-        <button
-          type="button"
-          onClick={() => dispatch({ type: 'UPDATE_ITEM', id: item.id, updates: { measureFrom: 'inside' } })}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
-            (item.measureFrom || 'inside') === 'inside'
-              ? 'bg-white text-primary shadow-sm'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          <Home className="w-3 h-3" /> Inside
-        </button>
-        <button
-          type="button"
-          onClick={() => dispatch({ type: 'UPDATE_ITEM', id: item.id, updates: { measureFrom: 'outside' } })}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
-            (item.measureFrom || 'inside') === 'outside'
-              ? 'bg-white text-primary shadow-sm'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          <Square className="w-3 h-3" /> Outside
-        </button>
-      </div>
-
       {/* Type + Qty row */}
       <div className="grid grid-cols-2 gap-3 mb-3">
         <div>
@@ -287,7 +278,9 @@ function ItemCard({ item, index, types, dispatch, onMeasure }) {
       <div className="bg-gray-50 rounded-lg p-2.5 mb-2">
         <div className="flex items-center gap-2 mb-1.5">
           <Ruler className="w-3 h-3 text-accent" />
-          <span className="text-xs font-semibold text-gray-600">Width</span>
+          <span className="text-xs font-semibold text-gray-600">
+            Width {measureFrom === 'outside' ? '(border to border)' : '(wall to wall)'}
+          </span>
           <span className="text-xs text-primary font-bold ml-auto">{formatSize(item.width)}</span>
         </div>
         <div className="flex items-center gap-2 mb-1.5">
@@ -308,7 +301,9 @@ function ItemCard({ item, index, types, dispatch, onMeasure }) {
       <div className="bg-gray-50 rounded-lg p-2.5">
         <div className="flex items-center gap-2 mb-1.5">
           <Ruler className="w-3 h-3 text-blue-500" />
-          <span className="text-xs font-semibold text-gray-600">Height</span>
+          <span className="text-xs font-semibold text-gray-600">
+            Height {measureFrom === 'outside' ? '(border to border)' : '(sill to top)'}
+          </span>
           <span className="text-xs text-primary font-bold ml-auto">{formatSize(item.height)}</span>
         </div>
         <div className="flex items-center gap-2 mb-1.5">

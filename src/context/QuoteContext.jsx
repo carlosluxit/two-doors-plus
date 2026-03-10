@@ -4,8 +4,9 @@ const QuoteContext = createContext(null);
 const QuoteDispatchContext = createContext(null);
 
 const initialState = {
-  step: 0, // 0=landing, 1=project type, 2=items, 3=tier, 4=client info, 5=verify, 6=quote
+  step: 0, // 0=landing, 1=project type, 2=measure method, 3=items, 4=tier, 5=client info, 6=verify, 7=quote
   projectType: null, // 'windows', 'doors', 'both'
+  measureFrom: 'inside', // 'inside' | 'outside'
   items: [],
   selectedTier: null,
   clientInfo: {
@@ -32,6 +33,8 @@ function quoteReducer(state, action) {
       return { ...state, step: Math.max(0, state.step - 1) };
     case 'SET_PROJECT_TYPE':
       return { ...state, projectType: action.projectType };
+    case 'SET_MEASURE_FROM':
+      return { ...state, measureFrom: action.measureFrom };
     case 'ADD_ITEM':
       return { ...state, items: [...state.items, { ...action.item, id: Date.now() }] };
     case 'UPDATE_ITEM':

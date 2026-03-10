@@ -18,6 +18,9 @@ export const TIERS = {
       'Clear glass with impact interlayer',
       'Energy Star certified',
       'Florida Building Code compliant',
+      'Factory certified installation',
+      'Opening reconstruction and finishing touches',
+      'City permits and inspections',
     ],
   },
   premium: {
@@ -38,6 +41,9 @@ export const TIERS = {
       'Multiple color options',
       'Enhanced energy efficiency',
       'Decorative glass options available',
+      'Factory certified installation',
+      'Opening reconstruction and finishing touches',
+      'City permits and inspections',
     ],
   },
   pro: {
@@ -60,6 +66,9 @@ export const TIERS = {
       'Decorative & custom glass',
       'Smart-home sensor ready',
       'Transferable lifetime warranty',
+      'Factory certified installation',
+      'Opening reconstruction and finishing touches',
+      'City permits and inspections',
     ],
   },
 };

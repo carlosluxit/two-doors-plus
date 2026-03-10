@@ -2,6 +2,7 @@ import { Check } from 'lucide-react';
 
 const STEPS = [
   'Project Type',
+  'How to Measure',
   'Measurements',
   'Select Tier',
   'Your Info',
@@ -10,7 +11,7 @@ const STEPS = [
 ];
 
 export default function ProgressBar({ currentStep }) {
-  if (currentStep < 1 || currentStep > 6) return null;
+  if (currentStep < 1 || currentStep > 7) return null;
 
   return (
     <div className="bg-white border-b border-gray-200 py-4 px-4">

@@ -28,7 +28,7 @@ export default function Landing() {
               South Florida's Trusted Impact Window Experts
             </div>
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight mb-6">
-              Get a <span className="text-accent">Real Quote</span> for Hurricane Impact
+              Get an <span className="text-accent">easy, Instant</span> quote for Hurricane Impact
               <br />Doors & Windows
             </h2>
             <p className="text-lg sm:text-xl text-blue-100 mb-8 max-w-2xl">

@@ -7,7 +7,7 @@ export default function Header() {
         <div className="flex items-center gap-3">
           <Shield className="w-8 h-8 text-accent" />
           <div>
-            <h1 className="text-xl font-bold tracking-tight">Two Doors Plus</h1>
+            <h1 className="text-xl font-bold tracking-tight">Doors Plus</h1>
             <p className="text-xs text-blue-200 hidden sm:block">Hurricane Impact Doors & Windows</p>
           </div>
         </div>
