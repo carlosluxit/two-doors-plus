@@ -30,7 +30,8 @@ export default function StepMeasureMethod() {
   const [showDoorsPopup, setShowDoorsPopup] = useState(false);
   const [showWindowsPopup, setShowWindowsPopup] = useState(false);
   const [showInsidePopup, setShowInsidePopup] = useState(false);
-  const [understood, setUnderstood] = useState(false);
+  const [understood, setUnderstood] = useState(false);       // doors
+  const [winUnderstood, setWinUnderstood] = useState(false); // windows
 
   useEffect(() => {
     if (hasDoors) {
@@ -40,7 +41,23 @@ export default function StepMeasureMethod() {
   }, [hasDoors]);
 
   const selected = state.measureFrom;
-  const canContinue = !hasDoors || understood;
+  const canContinue = hasDoors ? understood : winUnderstood;
+
+  function pickInside() {
+    dispatch({ type: 'SET_MEASURE_FROM', measureFrom: 'inside' });
+    setWinUnderstood(false);
+    setShowInsidePopup(true);
+  }
+
+  function pickOutside() {
+    dispatch({ type: 'SET_MEASURE_FROM', measureFrom: 'outside' });
+    if (hasDoors) {
+      setShowDoorsPopup(true);
+    } else {
+      setWinUnderstood(false);
+      setShowWindowsPopup(true);
+    }
+  }
 
   return (
     <div className="max-w-xl mx-auto px-4 py-10 animate-fade-in">
@@ -56,10 +73,7 @@ export default function StepMeasureMethod() {
         <button
           type="button"
           disabled={hasDoors}
-          onClick={() => {
-            dispatch({ type: 'SET_MEASURE_FROM', measureFrom: 'inside' });
-            setShowInsidePopup(true);
-          }}
+          onClick={pickInside}
           className={`relative rounded-2xl border-2 p-5 text-left transition-all cursor-pointer ${
             selected === 'inside' && !hasDoors
               ? 'border-primary bg-blue-50 shadow-md'
@@ -87,11 +101,7 @@ export default function StepMeasureMethod() {
         {/* Outside card */}
         <button
           type="button"
-          onClick={() => {
-            dispatch({ type: 'SET_MEASURE_FROM', measureFrom: 'outside' });
-            if (!hasDoors) setShowWindowsPopup(true);
-            if (hasDoors) setShowDoorsPopup(true);
-          }}
+          onClick={pickOutside}
           className={`relative rounded-2xl border-2 p-5 text-left transition-all cursor-pointer ${
             selected === 'outside'
               ? 'border-amber-500 bg-amber-50 shadow-md'
@@ -151,32 +161,54 @@ export default function StepMeasureMethod() {
         </div>
       )}
 
-      {/* Windows outside: tutorial banner */}
-      {!hasDoors && selected === 'outside' && (
+      {/* Windows outside banner */}
+      {!hasDoors && selected === 'outside' && !winUnderstood && (
         <button
           onClick={() => setShowWindowsPopup(true)}
           className="w-full flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-6 cursor-pointer hover:bg-amber-100 transition-colors"
         >
           <HelpCircle className="w-5 h-5 text-amber-600 flex-shrink-0" />
           <span className="text-sm text-amber-800 font-medium text-left">
-            See how to measure from outside
+            Watch how to measure from outside before continuing
           </span>
-          <span className="text-xs text-amber-600 ml-auto">View guide →</span>
+          <HelpCircle className="w-4 h-4 text-amber-600 ml-auto flex-shrink-0" />
         </button>
       )}
+      {!hasDoors && selected === 'outside' && winUnderstood && (
+        <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-xl px-4 py-3 mb-6">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-2 h-2 bg-white rounded-full" />
+            </div>
+            <span className="text-sm text-green-800 font-medium">Got it — you'll measure from outside</span>
+          </div>
+          <button onClick={() => setShowWindowsPopup(true)} className="text-xs text-green-700 underline cursor-pointer">Review</button>
+        </div>
+      )}
 
-      {/* Inside: tutorial banner */}
-      {!hasDoors && selected === 'inside' && (
+      {/* Inside banner */}
+      {!hasDoors && selected === 'inside' && !winUnderstood && (
         <button
           onClick={() => setShowInsidePopup(true)}
           className="w-full flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 mb-6 cursor-pointer hover:bg-blue-100 transition-colors"
         >
           <HelpCircle className="w-5 h-5 text-blue-600 flex-shrink-0" />
           <span className="text-sm text-blue-800 font-medium text-left">
-            See how to measure from inside
+            Watch how to measure from inside before continuing
           </span>
-          <span className="text-xs text-blue-600 ml-auto">View guide →</span>
+          <HelpCircle className="w-4 h-4 text-blue-600 ml-auto flex-shrink-0" />
         </button>
+      )}
+      {!hasDoors && selected === 'inside' && winUnderstood && (
+        <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-xl px-4 py-3 mb-6">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-2 h-2 bg-white rounded-full" />
+            </div>
+            <span className="text-sm text-green-800 font-medium">Got it — you'll measure from inside</span>
+          </div>
+          <button onClick={() => setShowInsidePopup(true)} className="text-xs text-green-700 underline cursor-pointer">Review</button>
+        </div>
       )}
 
       {/* Navigation */}
@@ -212,12 +244,12 @@ export default function StepMeasureMethod() {
 
       {/* Windows outside popup */}
       {showWindowsPopup && (
-        <WindowsMeasurePopup onClose={() => setShowWindowsPopup(false)} />
+        <WindowsMeasurePopup onClose={() => { setShowWindowsPopup(false); setWinUnderstood(true); }} />
       )}
 
       {/* Inside popup */}
       {showInsidePopup && (
-        <InsideMeasurePopup onClose={() => setShowInsidePopup(false)} />
+        <InsideMeasurePopup onClose={() => { setShowInsidePopup(false); setWinUnderstood(true); }} />
       )}
     </div>
   );
