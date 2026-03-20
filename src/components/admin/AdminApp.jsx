@@ -17,22 +17,28 @@ export default function AdminApp() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
+      setChecking(true);
       if (session) {
         await checkAdmin(session.user.id);
       } else {
         setIsAdmin(false);
       }
+      setChecking(false);
     });
     return () => subscription.unsubscribe();
   }, []);
 
   async function checkAdmin(userId) {
-    const { data } = await supabase
-      .from('admin_profiles')
-      .select('id')
-      .eq('id', userId)
-      .maybeSingle();
-    setIsAdmin(!!data);
+    try {
+      const { data } = await supabase
+        .from('admin_profiles')
+        .select('id')
+        .eq('id', userId)
+        .maybeSingle();
+      setIsAdmin(!!data);
+    } catch {
+      setIsAdmin(false);
+    }
   }
 
   if (checking) {
