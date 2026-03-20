@@ -4,11 +4,11 @@ const QuoteContext = createContext(null);
 const QuoteDispatchContext = createContext(null);
 
 const initialState = {
-  step: 0, // 0=landing, 1=project type, 2=measure method, 3=items, 4=tier, 5=client info, 6=verify, 7=quote
-  projectType: null, // 'windows', 'doors', 'both'
+  // 0=landing, 1=project type, 2=measure method, 3=items, 4=client info, 5=verify, 6=quote
+  step: 0,
+  projectType: null,   // 'windows' | 'doors' | 'both'
   measureFrom: 'inside', // 'inside' | 'outside'
   items: [],
-  selectedTier: null,
   clientInfo: {
     firstName: '',
     lastName: '',
@@ -21,6 +21,7 @@ const initialState = {
   verificationCode: '',
   quoteGenerated: false,
   quoteId: null,
+  quoteData: null, // full quote response from DB after submission
 };
 
 function quoteReducer(state, action) {
@@ -46,8 +47,6 @@ function quoteReducer(state, action) {
       };
     case 'REMOVE_ITEM':
       return { ...state, items: state.items.filter((item) => item.id !== action.id) };
-    case 'SET_TIER':
-      return { ...state, selectedTier: action.tier };
     case 'SET_CLIENT_INFO':
       return { ...state, clientInfo: { ...state.clientInfo, ...action.info } };
     case 'SET_VERIFICATION_CODE':
@@ -56,7 +55,8 @@ function quoteReducer(state, action) {
       return {
         ...state,
         quoteGenerated: true,
-        quoteId: 'TDP-' + Date.now().toString(36).toUpperCase(),
+        quoteId: action.quoteId || null,
+        quoteData: action.quoteData || null,
       };
     case 'RESET':
       return initialState;

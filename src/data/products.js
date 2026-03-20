@@ -1,197 +1,103 @@
-// Hurricane Impact Product Catalog - South Florida
-// Pricing per united inch (width + height) for standard sizes
+// Product catalog — types match price_entries.product_type in Supabase
 
-export const TIERS = {
-  economic: {
-    id: 'economic',
-    name: 'Economic',
-    tagline: 'Reliable Protection',
-    description: 'Quality hurricane impact products from trusted manufacturers. Meets all Florida building codes and Miami-Dade NOA requirements.',
-    color: '#3b82f6',
-    badge: 'Best Value',
-    manufacturer: 'EcoShield Impact Systems',
-    warranty: '10-Year Limited Warranty',
-    features: [
-      'Miami-Dade NOA Approved',
-      'Large Missile Impact Rated',
-      'Standard white vinyl frame',
-      'Clear glass with impact interlayer',
-      'Energy Star certified',
-      'Florida Building Code compliant',
-      'Factory certified installation',
-      'Opening reconstruction and finishing touches',
-      'City permits and inspections',
-    ],
-  },
-  premium: {
-    id: 'premium',
-    name: 'Premium',
-    tagline: 'Superior Performance',
-    description: 'Enhanced hurricane protection with premium materials, better energy efficiency, and more design options.',
-    color: '#8b5cf6',
-    badge: 'Most Popular',
-    manufacturer: 'StormGuard Premium Series',
-    warranty: '15-Year Comprehensive Warranty',
-    features: [
-      'Miami-Dade NOA Approved',
-      'Large Missile Impact Rated',
-      'Multi-chamber vinyl frame',
-      'Low-E argon-filled impact glass',
-      'Superior sound reduction',
-      'Multiple color options',
-      'Enhanced energy efficiency',
-      'Decorative glass options available',
-      'Factory certified installation',
-      'Opening reconstruction and finishing touches',
-      'City permits and inspections',
-    ],
-  },
-  pro: {
-    id: 'pro',
-    name: 'Pro',
-    tagline: 'Ultimate Protection',
-    description: 'Top-of-the-line hurricane impact products with maximum performance, premium aesthetics, and lifetime peace of mind.',
-    color: '#f59e0b',
-    badge: 'Premium Choice',
-    manufacturer: 'EliteGuard Pro Series',
-    warranty: 'Lifetime Transferable Warranty',
-    features: [
-      'Miami-Dade NOA Approved',
-      'Large Missile Impact Rated',
-      'Heavy-duty aluminum-clad frame',
-      'Triple-pane Low-E impact glass',
-      'Maximum sound deadening',
-      'Unlimited color & finish options',
-      'Best-in-class energy rating',
-      'Decorative & custom glass',
-      'Smart-home sensor ready',
-      'Transferable lifetime warranty',
-      'Factory certified installation',
-      'Opening reconstruction and finishing touches',
-      'City permits and inspections',
-    ],
-  },
-};
-
-// Window types and their base pricing per united inch
 export const WINDOW_TYPES = {
-  single_hung: { name: 'Single Hung', icon: '⬆️' },
-  double_hung: { name: 'Double Hung', icon: '↕️' },
-  horizontal_slider: { name: 'Horizontal Slider', icon: '↔️' },
-  casement: { name: 'Casement', icon: '🪟' },
-  picture: { name: 'Picture Window', icon: '🖼️' },
-  awning: { name: 'Awning', icon: '🏠' },
+  single_hung: { name: 'Single Hung', icon: '⬆️', category: 'window' },
+  horizontal_roller_xo: { name: 'Horizontal Roller XO', icon: '↔️', category: 'window' },
+  horizontal_roller_xox: { name: 'Horizontal Roller XOX', icon: '↔️↔️', category: 'window' },
+  geometric: { name: 'Geometric Shape', icon: '⭕', category: 'window' },
 };
 
-// Door types
 export const DOOR_TYPES = {
-  single_entry: { name: 'Single Entry Door', icon: '🚪' },
-  double_entry: { name: 'Double Entry Door', icon: '🚪🚪' },
-  sliding_glass: { name: 'Sliding Glass Door', icon: '🏠' },
-  french: { name: 'French Doors', icon: '🏰' },
+  single_door: { name: 'Single Door', icon: '🚪', category: 'door' },
+  bermuda_door: { name: 'Bermuda Door', icon: '🏝️', category: 'door' },
+  double_door: { name: 'Double Door', icon: '🚪🚪', category: 'door' },
+  picture_window: { name: 'Picture Window', icon: '🖼️', category: 'door' },
+  side_light: { name: 'Side Light', icon: '💡', category: 'door' },
 };
 
-// Pricing per united inch (width + height in inches)
-// These are realistic South Florida market rates
-export const PRICING = {
-  windows: {
-    economic: {
-      basePerUnitedInch: 4.50,
-      minPrice: 350,
-      installPerUnit: 150,
-    },
-    premium: {
-      basePerUnitedInch: 7.25,
-      minPrice: 550,
-      installPerUnit: 200,
-    },
-    pro: {
-      basePerUnitedInch: 11.00,
-      minPrice: 850,
-      installPerUnit: 275,
-    },
-  },
-  doors: {
-    economic: {
-      basePerUnitedInch: 8.50,
-      minPrice: 1200,
-      installPerUnit: 350,
-    },
-    premium: {
-      basePerUnitedInch: 13.00,
-      minPrice: 1800,
-      installPerUnit: 450,
-    },
-    pro: {
-      basePerUnitedInch: 19.50,
-      minPrice: 2800,
-      installPerUnit: 600,
-    },
-  },
+export const SLIDING_DOOR_TYPES = {
+  sgd_2_panel: { name: '2-Panel SGD', icon: '🏠', category: 'sliding_door' },
+  sgd_3_panel: { name: '3-Panel XOX', icon: '🏠', category: 'sliding_door' },
+  sgd_4_panel: { name: '4-Panel XOOX', icon: '🏠', category: 'sliding_door' },
 };
 
-// Additional costs
-export const ADDITIONAL_COSTS = {
-  permit: 250,
-  inspectionFee: 150,
-  debrisRemoval: 15, // per unit
-  trimPackage: 75, // per unit
+export const DOOR_VARIANTS = {
+  traditional: 'Traditional',
+  design: 'Design',
+  wg_traditional: 'Wood Grain Traditional',
+  wg_design: 'Wood Grain Design',
 };
 
-export function calculateUnitPrice(type, tier, widthInches, heightInches) {
-  const unitedInch = widthInches + heightInches;
-  const priceData = PRICING[type][tier];
-  const productCost = Math.max(priceData.basePerUnitedInch * unitedInch, priceData.minPrice);
-  return {
-    product: Math.round(productCost),
-    installation: priceData.installPerUnit,
-    trim: ADDITIONAL_COSTS.trimPackage,
-    debris: ADDITIONAL_COSTS.debrisRemoval,
-    unitTotal: Math.round(productCost + priceData.installPerUnit + ADDITIONAL_COSTS.trimPackage + ADDITIONAL_COSTS.debrisRemoval),
+export const MARKUP_RATE = 0.30;
+
+// Map a door variant key to the correct price column
+export function getVariantPrice(entry, variant) {
+  const map = {
+    traditional: entry.price_traditional,
+    design: entry.price_design,
+    wg_traditional: entry.price_wg_traditional,
+    wg_design: entry.price_wg_design,
   };
+  return map[variant] ?? null;
 }
 
-export function calculateFullQuote(items, tier) {
-  let totalProduct = 0;
-  let totalInstall = 0;
-  let totalTrim = 0;
-  let totalDebris = 0;
-  let unitCount = 0;
+/**
+ * Find the best-matching price entry for given measurements.
+ * For exact-size products (windows): exact W×H match.
+ * For range products (doors): width/height within range.
+ * For geometric: uses the larger of W/H as the single dimension.
+ */
+export function findPriceEntry(entries, productType, widthInches, heightInches) {
+  const candidates = entries.filter((e) => e.product_type === productType);
+  if (!candidates.length) return null;
 
-  const lineItems = items.map((item) => {
-    const type = item.itemType === 'window' ? 'windows' : 'doors';
-    const unitPrice = calculateUnitPrice(type, tier, item.width, item.height);
-    const qty = item.quantity || 1;
-    unitCount += qty;
-    totalProduct += unitPrice.product * qty;
-    totalInstall += unitPrice.installation * qty;
-    totalTrim += unitPrice.trim * qty;
-    totalDebris += unitPrice.debris * qty;
+  if (productType === 'geometric') {
+    const dim = Math.max(widthInches, heightInches);
+    return candidates.find((e) => dim >= e.width_min && dim <= e.width_max) ?? null;
+  }
 
-    return {
-      ...item,
-      unitPrice,
-      lineTotal: unitPrice.unitTotal * qty,
-      qty,
-    };
-  });
+  // Exact or range match
+  const match = candidates.find(
+    (e) =>
+      widthInches >= e.width_min &&
+      widthInches <= e.width_max &&
+      heightInches >= e.height_min &&
+      heightInches <= e.height_max
+  );
+  if (match) return match;
 
-  const subtotal = totalProduct + totalInstall + totalTrim + totalDebris;
-  const permit = ADDITIONAL_COSTS.permit;
-  const inspection = ADDITIONAL_COSTS.inspectionFee;
-  const grandTotal = subtotal + permit + inspection;
+  // For exact-size windows: find next size up (smallest entry larger than given dims)
+  const larger = candidates
+    .filter((e) => e.width_min >= widthInches && e.height_min >= heightInches)
+    .sort((a, b) => a.width_min - b.width_min || a.height_min - b.height_min);
+  return larger[0] ?? null;
+}
+
+/**
+ * Calculate a single line item price.
+ * Returns null if no matching entry found or price not set.
+ */
+export function calcLineItem(entry, variant, quantity) {
+  if (!entry) return null;
+
+  const basePrice = entry.base_price != null
+    ? entry.base_price
+    : getVariantPrice(entry, variant);
+
+  if (basePrice == null) return null;
+
+  const installFee = entry.install_fee ?? 0;
+  const unitSubtotal = basePrice + installFee;
+  const unitMarkup = unitSubtotal * MARKUP_RATE;
+  const unitTotal = unitSubtotal + unitMarkup;
+  const lineTotal = unitTotal * quantity;
 
   return {
-    lineItems,
-    unitCount,
-    totalProduct,
-    totalInstall,
-    totalTrim,
-    totalDebris,
-    subtotal,
-    permit,
-    inspection,
-    grandTotal,
-    tier: TIERS[tier],
+    basePrice,
+    installFee,
+    unitSubtotal,
+    unitMarkup: Math.round(unitMarkup * 100) / 100,
+    unitTotal: Math.round(unitTotal * 100) / 100,
+    lineTotal: Math.round(lineTotal * 100) / 100,
   };
 }

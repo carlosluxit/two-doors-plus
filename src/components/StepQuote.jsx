@@ -1,5 +1,8 @@
+import { useEffect, useState } from 'react';
 import { useQuote, useQuoteDispatch } from '../context/QuoteContext';
-import { calculateFullQuote, TIERS, WINDOW_TYPES, DOOR_TYPES } from '../data/products';
+import { usePricing } from '../context/PricingContext';
+import { WINDOW_TYPES, DOOR_TYPES, SLIDING_DOOR_TYPES, DOOR_VARIANTS, findPriceEntry, calcLineItem } from '../data/products';
+import { supabase } from '../lib/supabase';
 import {
   Download,
   Calendar,
@@ -11,25 +14,153 @@ import {
   FileText,
   Printer,
   RotateCcw,
+  Loader2,
+  AlertCircle,
+  Mail,
 } from 'lucide-react';
+
+const ALL_TYPES = { ...WINDOW_TYPES, ...DOOR_TYPES, ...SLIDING_DOOR_TYPES };
+
+function getTypeName(item) {
+  return ALL_TYPES[item.subType]?.name || item.subType;
+}
+
+function buildLineItems(items, priceEntries) {
+  return items.map((item) => {
+    const entry = findPriceEntry(priceEntries, item.subType, item.width, item.height);
+    const calc = calcLineItem(entry, item.doorStyle, item.quantity || 1);
+    return { ...item, entry, calc, qty: item.quantity || 1 };
+  });
+}
 
 export default function StepQuote() {
   const state = useQuote();
   const dispatch = useQuoteDispatch();
-  const quote = calculateFullQuote(state.items, state.selectedTier);
-  const tier = quote.tier;
+  const { priceEntries, priceList } = usePricing();
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
+  const [submitted, setSubmitted] = useState(false);
 
   const quoteDate = new Date();
   const expiryDate = new Date(quoteDate);
   expiryDate.setDate(expiryDate.getDate() + 5);
+  const formatDate = (d) => d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
-  const formatDate = (d) =>
-    d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const lineItems = buildLineItems(state.items, priceEntries);
+  const itemsSubtotal = lineItems.reduce((sum, li) => sum + (li.calc?.unitSubtotal ?? 0) * li.qty, 0);
+  const markupAmount = lineItems.reduce((sum, li) => sum + (li.calc?.unitMarkup ?? 0) * li.qty, 0);
+  const total = lineItems.reduce((sum, li) => sum + (li.calc?.lineTotal ?? 0), 0);
+  const hasPrices = total > 0;
 
-  const getTypeName = (item) => {
-    const types = item.itemType === 'window' ? WINDOW_TYPES : DOOR_TYPES;
-    return types[item.subType]?.name || item.subType;
-  };
+  // Submit quote to Supabase on mount (once)
+  useEffect(() => {
+    if (state.quoteGenerated || submitted) return;
+    submitQuote();
+  }, []);
+
+  async function submitQuote() {
+    if (submitting) return;
+    setSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      // 1. Insert quote row
+      const { data: quoteRow, error: quoteErr } = await supabase
+        .from('quotes')
+        .insert({
+          quote_number: '', // trigger fills this
+          price_list_id: priceList?.id ?? null,
+          price_list_name: priceList?.name ?? 'Manual',
+          client_first_name: state.clientInfo.firstName,
+          client_last_name: state.clientInfo.lastName,
+          client_email: state.clientInfo.email,
+          client_phone: state.clientInfo.phone,
+          client_address: state.clientInfo.address,
+          client_city: state.clientInfo.city,
+          client_zip: state.clientInfo.zip,
+          project_type: state.projectType,
+          measure_from: state.measureFrom,
+          items_subtotal: Math.round(itemsSubtotal * 100) / 100,
+          markup_rate: 0.30,
+          markup_amount: Math.round(markupAmount * 100) / 100,
+          total: Math.round(total * 100) / 100,
+          status: 'pending',
+        })
+        .select()
+        .single();
+
+      if (quoteErr) throw quoteErr;
+
+      // 2. Insert quote items
+      const quoteItems = lineItems.map((li, idx) => ({
+        quote_id: quoteRow.id,
+        item_category: li.itemCategory,
+        product_type: li.subType,
+        label: li.label || null,
+        width: li.width,
+        height: li.height,
+        quantity: li.qty,
+        door_variant: li.doorStyle || null,
+        base_price: li.calc?.basePrice ?? 0,
+        install_fee: li.calc?.installFee ?? 0,
+        unit_subtotal: li.calc?.unitSubtotal ?? 0,
+        unit_markup: li.calc?.unitMarkup ?? 0,
+        unit_total: li.calc?.unitTotal ?? 0,
+        line_total: li.calc?.lineTotal ?? 0,
+        sort_order: idx,
+      }));
+
+      const { error: itemsErr } = await supabase.from('quote_items').insert(quoteItems);
+      if (itemsErr) throw itemsErr;
+
+      // 3. Send email via Edge Function (non-blocking — don't fail if email errors)
+      try {
+        await supabase.functions.invoke('submit-quote', {
+          body: { quoteId: quoteRow.id },
+        });
+      } catch (_) {
+        // Email failure doesn't block the quote
+      }
+
+      dispatch({
+        type: 'GENERATE_QUOTE',
+        quoteId: quoteRow.quote_number,
+        quoteData: quoteRow,
+      });
+      setSubmitted(true);
+    } catch (err) {
+      console.error('Quote submission error:', err);
+      setSubmitError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (submitting) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-24 text-center animate-fade-in">
+        <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto mb-4" />
+        <h2 className="text-xl font-bold text-gray-900 mb-2">Generating Your Quote</h2>
+        <p className="text-gray-500">Saving your details and sending a confirmation email…</p>
+      </div>
+    );
+  }
+
+  if (submitError) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-24 text-center animate-fade-in">
+        <AlertCircle className="w-12 h-12 text-danger mx-auto mb-4" />
+        <h2 className="text-xl font-bold text-gray-900 mb-2">Something Went Wrong</h2>
+        <p className="text-gray-500 mb-6">{submitError}</p>
+        <button
+          onClick={submitQuote}
+          className="bg-primary text-white px-8 py-3 rounded-xl font-semibold hover:bg-primary-light cursor-pointer"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 animate-slide-up">
@@ -41,22 +172,26 @@ export default function StepQuote() {
               <Shield className="w-6 h-6 text-accent" />
               <span className="text-sm font-medium text-blue-200">Two Doors Plus USA</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold mb-1">
-              Your Guaranteed Quote
-            </h2>
+            <h2 className="text-2xl sm:text-3xl font-extrabold mb-1">Your Guaranteed Quote</h2>
             <p className="text-blue-200 text-sm">
-              Quote #{state.quoteId} &middot; {tier.name} Tier
+              Quote #{state.quoteId || '…'} &middot; {priceList?.name ?? 'Current Price List'}
             </p>
           </div>
           <div className="text-right">
-            <div className="text-4xl sm:text-5xl font-extrabold text-accent">
-              ${quote.grandTotal.toLocaleString()}
-            </div>
-            <div className="text-sm text-blue-200 mt-1">Total Project Cost</div>
+            {hasPrices ? (
+              <>
+                <div className="text-4xl sm:text-5xl font-extrabold text-accent">
+                  ${Math.round(total).toLocaleString()}
+                </div>
+                <div className="text-sm text-blue-200 mt-1">Total Project Cost</div>
+              </>
+            ) : (
+              <div className="text-lg text-blue-200 font-semibold">
+                Custom quote — team will follow up
+              </div>
+            )}
           </div>
         </div>
-
-        {/* Quote validity */}
         <div className="mt-6 flex flex-wrap gap-4 text-sm">
           <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-lg">
             <Calendar className="w-4 h-4" />
@@ -69,43 +204,29 @@ export default function StepQuote() {
         </div>
       </div>
 
-      {/* Client Info Card */}
+      {/* Email confirmation notice */}
+      {submitted && (
+        <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+          <Mail className="w-5 h-5 text-success flex-shrink-0" />
+          <div className="text-sm">
+            <span className="font-semibold text-success">Quote sent!</span>{' '}
+            <span className="text-gray-600">A copy has been emailed to {state.clientInfo.email}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Project Details */}
       <div className="bg-white border border-gray-200 rounded-xl p-5 mb-6">
         <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
           <FileText className="w-4 h-4" /> Project Details
         </h3>
         <div className="grid sm:grid-cols-2 gap-x-8 gap-y-2 text-sm">
-          <div>
-            <span className="text-gray-400">Client:</span>{' '}
-            <span className="text-gray-900 font-medium">
-              {state.clientInfo.firstName} {state.clientInfo.lastName}
-            </span>
-          </div>
-          <div>
-            <span className="text-gray-400">Email:</span>{' '}
-            <span className="text-gray-900">{state.clientInfo.email}</span>
-          </div>
-          <div>
-            <span className="text-gray-400">Phone:</span>{' '}
-            <span className="text-gray-900">{state.clientInfo.phone}</span>
-          </div>
-          <div>
-            <span className="text-gray-400">Property:</span>{' '}
-            <span className="text-gray-900">
-              {state.clientInfo.address}, {state.clientInfo.city} {state.clientInfo.zip}
-            </span>
-          </div>
-          <div>
-            <span className="text-gray-400">Tier:</span>{' '}
-            <span className="font-semibold" style={{ color: tier.color }}>
-              {tier.name}
-            </span>{' '}
-            <span className="text-gray-400">({tier.manufacturer})</span>
-          </div>
-          <div>
-            <span className="text-gray-400">Warranty:</span>{' '}
-            <span className="text-gray-900">{tier.warranty}</span>
-          </div>
+          <div><span className="text-gray-400">Client:</span>{' '}<span className="text-gray-900 font-medium">{state.clientInfo.firstName} {state.clientInfo.lastName}</span></div>
+          <div><span className="text-gray-400">Email:</span>{' '}<span className="text-gray-900">{state.clientInfo.email}</span></div>
+          <div><span className="text-gray-400">Phone:</span>{' '}<span className="text-gray-900">{state.clientInfo.phone}</span></div>
+          <div><span className="text-gray-400">Property:</span>{' '}<span className="text-gray-900">{state.clientInfo.address}{state.clientInfo.city ? `, ${state.clientInfo.city}` : ''} {state.clientInfo.zip}</span></div>
+          <div><span className="text-gray-400">Measurement:</span>{' '}<span className="text-gray-900 capitalize">{state.measureFrom}</span></div>
+          <div><span className="text-gray-400">Price list:</span>{' '}<span className="text-gray-900">{priceList?.name ?? '—'}</span></div>
         </div>
       </div>
 
@@ -120,37 +241,35 @@ export default function StepQuote() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 text-left">
-                <th className="px-5 py-3 font-semibold text-gray-600">#</th>
-                <th className="px-5 py-3 font-semibold text-gray-600">Item</th>
-                <th className="px-5 py-3 font-semibold text-gray-600">Size (W x H)</th>
-                <th className="px-5 py-3 font-semibold text-gray-600 text-center">Qty</th>
-                <th className="px-5 py-3 font-semibold text-gray-600 text-right">Product</th>
-                <th className="px-5 py-3 font-semibold text-gray-600 text-right">Install</th>
-                <th className="px-5 py-3 font-semibold text-gray-600 text-right">Line Total</th>
+                <th className="px-4 py-3 font-semibold text-gray-600">#</th>
+                <th className="px-4 py-3 font-semibold text-gray-600">Item</th>
+                <th className="px-4 py-3 font-semibold text-gray-600">Size (W×H)</th>
+                <th className="px-4 py-3 font-semibold text-gray-600 text-center">Qty</th>
+                <th className="px-4 py-3 font-semibold text-gray-600 text-right">Base</th>
+                <th className="px-4 py-3 font-semibold text-gray-600 text-right">Install</th>
+                <th className="px-4 py-3 font-semibold text-gray-600 text-right">Line Total</th>
               </tr>
             </thead>
             <tbody>
-              {quote.lineItems.map((item, i) => (
-                <tr key={item.id} className="border-t border-gray-100 hover:bg-gray-50">
-                  <td className="px-5 py-3 text-gray-400">{i + 1}</td>
-                  <td className="px-5 py-3">
-                    <div className="font-medium text-gray-900">
-                      {item.label || getTypeName(item)}
+              {lineItems.map((li, i) => (
+                <tr key={li.id} className="border-t border-gray-100 hover:bg-gray-50">
+                  <td className="px-4 py-3 text-gray-400">{i + 1}</td>
+                  <td className="px-4 py-3">
+                    <div className="font-medium text-gray-900">{li.label || getTypeName(li)}</div>
+                    <div className="text-xs text-gray-400">
+                      {getTypeName(li)}{li.doorStyle ? ` · ${DOOR_VARIANTS[li.doorStyle]}` : ''}
                     </div>
-                    <div className="text-xs text-gray-400">{getTypeName(item)}</div>
                   </td>
-                  <td className="px-5 py-3 text-gray-600">
-                    {item.width}" x {item.height}"
+                  <td className="px-4 py-3 text-gray-600">{li.width}" × {li.height}"</td>
+                  <td className="px-4 py-3 text-center text-gray-600">{li.qty}</td>
+                  <td className="px-4 py-3 text-right text-gray-900">
+                    {li.calc ? `$${(li.calc.basePrice * li.qty).toLocaleString()}` : <span className="text-amber-500 text-xs">TBD</span>}
                   </td>
-                  <td className="px-5 py-3 text-center text-gray-600">{item.qty}</td>
-                  <td className="px-5 py-3 text-right text-gray-900">
-                    ${(item.unitPrice.product * item.qty).toLocaleString()}
+                  <td className="px-4 py-3 text-right text-gray-600">
+                    {li.calc ? `$${(li.calc.installFee * li.qty).toLocaleString()}` : '—'}
                   </td>
-                  <td className="px-5 py-3 text-right text-gray-600">
-                    ${(item.unitPrice.installation * item.qty).toLocaleString()}
-                  </td>
-                  <td className="px-5 py-3 text-right font-semibold text-gray-900">
-                    ${item.lineTotal.toLocaleString()}
+                  <td className="px-4 py-3 text-right font-semibold text-gray-900">
+                    {li.calc ? `$${li.calc.lineTotal.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` : <span className="text-amber-500 text-xs">TBD</span>}
                   </td>
                 </tr>
               ))}
@@ -159,40 +278,26 @@ export default function StepQuote() {
         </div>
 
         {/* Totals */}
-        <div className="border-t-2 border-gray-200 p-5">
-          <div className="max-w-xs ml-auto space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-gray-500">Products Subtotal</span>
-              <span className="text-gray-900">${quote.totalProduct.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-500">Installation</span>
-              <span className="text-gray-900">${quote.totalInstall.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-500">Trim Package ({quote.unitCount} units)</span>
-              <span className="text-gray-900">${quote.totalTrim.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-500">Debris Removal</span>
-              <span className="text-gray-900">${quote.totalDebris.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-500">Permit Fees</span>
-              <span className="text-gray-900">${quote.permit.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-500">Inspection Fee</span>
-              <span className="text-gray-900">${quote.inspection.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between border-t pt-3 mt-3 border-gray-200">
-              <span className="font-bold text-gray-900 text-lg">Grand Total</span>
-              <span className="font-extrabold text-lg" style={{ color: tier.color }}>
-                ${quote.grandTotal.toLocaleString()}
-              </span>
+        {hasPrices && (
+          <div className="border-t-2 border-gray-200 p-5">
+            <div className="max-w-xs ml-auto space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-500">Products + Installation</span>
+                <span className="text-gray-900">${Math.round(itemsSubtotal).toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Service & Overhead (30%)</span>
+                <span className="text-gray-900">${Math.round(markupAmount).toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between border-t pt-3 mt-3 border-gray-200">
+                <span className="font-bold text-gray-900 text-lg">Grand Total</span>
+                <span className="font-extrabold text-lg text-primary">
+                  ${Math.round(total).toLocaleString()}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Guarantee Notice */}
@@ -202,9 +307,8 @@ export default function StepQuote() {
           <div>
             <h4 className="font-bold text-gray-900 mb-1">Price Guarantee</h4>
             <p className="text-sm text-gray-600">
-              This quote is guaranteed for 5 days, subject to measurement verification
-              and local code compliance confirmation during your expert visit. Final
-              pricing will be confirmed after the complimentary verification visit.
+              This quote is guaranteed for 5 days, subject to measurement verification and local code
+              compliance. Final pricing confirmed after the complimentary expert visit.
             </p>
           </div>
         </div>
@@ -243,9 +347,6 @@ export default function StepQuote() {
         >
           <Printer className="w-4 h-4" /> Print Quote
         </button>
-        <button className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer">
-          <Download className="w-4 h-4" /> Download PDF
-        </button>
         <button
           onClick={() => dispatch({ type: 'RESET' })}
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer"
@@ -254,12 +355,8 @@ export default function StepQuote() {
         </button>
       </div>
 
-      {/* Footer disclaimer */}
       <div className="text-center text-xs text-gray-400 pb-8">
-        <p>
-          This quote is an estimate based on the information provided. Final pricing subject
-          to on-site measurement verification and local building code requirements.
-        </p>
+        <p>This quote is an estimate based on the information provided. Final pricing subject to on-site measurement verification.</p>
         <p className="mt-2">&copy; 2026 Two Doors Plus USA &middot; South Florida</p>
       </div>
     </div>
