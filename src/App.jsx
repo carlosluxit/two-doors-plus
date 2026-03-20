@@ -11,9 +11,6 @@ import StepVerification from './components/StepVerification';
 import StepQuote from './components/StepQuote';
 import AdminApp from './components/admin/AdminApp';
 
-// Simple path-based admin detection (no router needed)
-const isAdmin = window.location.pathname.startsWith('/admin');
-
 function AppContent() {
   const state = useQuote();
 
@@ -41,7 +38,7 @@ function AppContent() {
 }
 
 export default function App() {
-  if (isAdmin) return <AdminApp />;
+  if (window.location.pathname.startsWith('/admin')) return <AdminApp />;
 
   return (
     <PricingProvider>
