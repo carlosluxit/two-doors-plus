@@ -3,11 +3,11 @@ import { supabase } from '../../lib/supabase';
 import { Search, RefreshCw, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 
 const STATUS_COLORS = {
-  pending:  'bg-yellow-100 text-yellow-800',
-  sent:     'bg-blue-100 text-blue-800',
-  viewed:   'bg-purple-100 text-purple-800',
-  accepted: 'bg-green-100 text-green-800',
-  expired:  'bg-gray-100 text-gray-600',
+  pending:  'bg-amber-50 text-amber-700 border-amber-200',
+  sent:     'bg-accent/10 text-accent border-accent/30',
+  viewed:   'bg-violet-50 text-violet-700 border-violet-200',
+  accepted: 'bg-success/10 text-success border-success/30',
+  expired:  'bg-stone-100 text-muted border-border',
 };
 
 export default function AdminQuotes() {
@@ -60,126 +60,126 @@ export default function AdminQuotes() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Quotes</h1>
-          <p className="text-gray-500 text-sm">{quotes.length} total quotes</p>
+          <h1 className="text-xl font-semibold text-primary">Quotes</h1>
+          <p className="text-muted text-xs">{quotes.length} total quotes</p>
         </div>
-        <button onClick={load} className="flex items-center gap-2 text-sm text-gray-600 hover:text-primary cursor-pointer">
-          <RefreshCw className="w-4 h-4" /> Refresh
+        <button onClick={load} className="flex items-center gap-2 text-xs text-muted hover:text-primary cursor-pointer transition-colors">
+          <RefreshCw className="w-3.5 h-3.5" strokeWidth={1.5} /> Refresh
         </button>
       </div>
 
       {/* Search */}
       <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" strokeWidth={1.5} />
         <input
           type="text"
-          placeholder="Search by name, email, or quote number…"
+          placeholder="Search by name, email, or quote number..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:border-primary outline-none"
+          className="w-full pl-10 pr-4 py-2.5 border border-border rounded-lg text-sm focus:border-accent outline-none transition-colors"
         />
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-primary animate-spin" /></div>
+        <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-accent animate-spin" /></div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">No quotes found.</div>
+        <div className="text-center py-16 text-muted text-sm">No quotes found.</div>
       ) : (
         <div className="space-y-2">
           {filtered.map((q) => (
-            <div key={q.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+            <div key={q.id} className="bg-white border border-border rounded-lg overflow-hidden">
               <div
-                className="flex items-center gap-4 p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-4 p-4 cursor-pointer hover:bg-stone-50 transition-colors"
                 onClick={() => toggleExpand(q.id)}
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 flex-wrap">
-                    <span className="font-mono text-sm font-bold text-gray-900">{q.quote_number}</span>
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${STATUS_COLORS[q.status] ?? 'bg-gray-100 text-gray-600'}`}>
+                    <span className="font-mono text-sm font-semibold text-primary">{q.quote_number}</span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold border capitalize ${STATUS_COLORS[q.status] ?? 'bg-stone-100 text-muted border-border'}`}>
                       {q.status}
                     </span>
                   </div>
-                  <div className="text-sm text-gray-600 mt-0.5">
+                  <div className="text-xs text-stone-600 mt-0.5">
                     {q.client_first_name} {q.client_last_name} · {q.client_email}
                   </div>
-                  <div className="text-xs text-gray-400 mt-0.5">
+                  <div className="text-[10px] text-muted mt-0.5">
                     {new Date(q.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     {q.client_city ? ` · ${q.client_city}` : ''}
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-lg font-bold text-primary">
+                  <div className="text-lg font-semibold text-accent">
                     {q.total > 0 ? `$${Math.round(q.total).toLocaleString()}` : 'TBD'}
                   </div>
-                  <div className="text-xs text-gray-400 capitalize">{q.project_type}</div>
+                  <div className="text-[10px] text-muted capitalize">{q.project_type}</div>
                 </div>
-                {expanded === q.id ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+                {expanded === q.id ? <ChevronUp className="w-4 h-4 text-muted" strokeWidth={1.5} /> : <ChevronDown className="w-4 h-4 text-muted" strokeWidth={1.5} />}
               </div>
 
               {/* Expanded detail */}
               {expanded === q.id && (
-                <div className="border-t border-gray-100 p-4 bg-gray-50 space-y-4">
+                <div className="border-t border-border p-4 bg-stone-50 space-y-4">
                   {/* Client info */}
                   <div className="grid sm:grid-cols-3 gap-3 text-sm">
-                    <div><span className="text-gray-400 block text-xs">Phone</span>{q.client_phone || '—'}</div>
-                    <div><span className="text-gray-400 block text-xs">Address</span>{q.client_address || '—'}, {q.client_city} {q.client_zip}</div>
-                    <div><span className="text-gray-400 block text-xs">Measurement</span>{q.measure_from}</div>
+                    <div><span className="text-muted block text-[10px] uppercase tracking-wide">Phone</span>{q.client_phone || '\u2014'}</div>
+                    <div><span className="text-muted block text-[10px] uppercase tracking-wide">Address</span>{q.client_address || '\u2014'}, {q.client_city} {q.client_zip}</div>
+                    <div><span className="text-muted block text-[10px] uppercase tracking-wide">Measurement</span>{q.measure_from}</div>
                   </div>
 
                   {/* Items */}
                   <div>
-                    <div className="text-xs font-semibold text-gray-500 uppercase mb-2">Items</div>
+                    <div className="text-[10px] font-semibold text-muted uppercase tracking-wide mb-2">Items</div>
                     {items[q.id] ? (
                       <table className="w-full text-xs bg-white rounded-lg overflow-hidden">
-                        <thead className="bg-gray-100">
+                        <thead className="bg-stone-100">
                           <tr>
-                            <th className="px-3 py-2 text-left">Item</th>
-                            <th className="px-3 py-2 text-left">Size</th>
-                            <th className="px-3 py-2 text-center">Qty</th>
-                            <th className="px-3 py-2 text-right">Base</th>
-                            <th className="px-3 py-2 text-right">Install</th>
-                            <th className="px-3 py-2 text-right">Total</th>
+                            <th className="px-3 py-2 text-left text-[10px] font-semibold text-muted uppercase tracking-wide">Item</th>
+                            <th className="px-3 py-2 text-left text-[10px] font-semibold text-muted uppercase tracking-wide">Size</th>
+                            <th className="px-3 py-2 text-center text-[10px] font-semibold text-muted uppercase tracking-wide">Qty</th>
+                            <th className="px-3 py-2 text-right text-[10px] font-semibold text-muted uppercase tracking-wide">Base</th>
+                            <th className="px-3 py-2 text-right text-[10px] font-semibold text-muted uppercase tracking-wide">Install</th>
+                            <th className="px-3 py-2 text-right text-[10px] font-semibold text-muted uppercase tracking-wide">Total</th>
                           </tr>
                         </thead>
                         <tbody>
                           {items[q.id].map((li) => (
-                            <tr key={li.id} className="border-t border-gray-100">
+                            <tr key={li.id} className="border-t border-border">
                               <td className="px-3 py-2">
-                                <div>{li.label || li.product_type}</div>
-                                {li.door_variant && <div className="text-gray-400">{li.door_variant}</div>}
+                                <div className="text-primary">{li.label || li.product_type}</div>
+                                {li.door_variant && <div className="text-muted">{li.door_variant}</div>}
                               </td>
-                              <td className="px-3 py-2">{li.width}" × {li.height}"</td>
-                              <td className="px-3 py-2 text-center">{li.quantity}</td>
-                              <td className="px-3 py-2 text-right">${li.base_price?.toLocaleString()}</td>
-                              <td className="px-3 py-2 text-right">${li.install_fee?.toLocaleString()}</td>
-                              <td className="px-3 py-2 text-right font-semibold">${Math.round(li.line_total).toLocaleString()}</td>
+                              <td className="px-3 py-2 text-stone-600">{li.width}" x {li.height}"</td>
+                              <td className="px-3 py-2 text-center text-stone-600">{li.quantity}</td>
+                              <td className="px-3 py-2 text-right text-stone-600">${li.base_price?.toLocaleString()}</td>
+                              <td className="px-3 py-2 text-right text-stone-600">${li.install_fee?.toLocaleString()}</td>
+                              <td className="px-3 py-2 text-right font-semibold text-primary">${Math.round(li.line_total).toLocaleString()}</td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
                     ) : (
-                      <div className="text-gray-400 text-xs">Loading items…</div>
+                      <div className="text-muted text-xs">Loading items...</div>
                     )}
                   </div>
 
                   {/* Financials */}
                   <div className="flex gap-4 text-sm">
-                    <div><span className="text-gray-400 text-xs block">Subtotal</span>${Math.round(q.items_subtotal).toLocaleString()}</div>
-                    <div><span className="text-gray-400 text-xs block">Markup (30%)</span>${Math.round(q.markup_amount).toLocaleString()}</div>
-                    <div><span className="text-gray-400 text-xs block">Total</span><span className="font-bold text-primary">${Math.round(q.total).toLocaleString()}</span></div>
+                    <div><span className="text-muted text-[10px] block uppercase tracking-wide">Subtotal</span>${Math.round(q.items_subtotal).toLocaleString()}</div>
+                    <div><span className="text-muted text-[10px] block uppercase tracking-wide">Markup (30%)</span>${Math.round(q.markup_amount).toLocaleString()}</div>
+                    <div><span className="text-muted text-[10px] block uppercase tracking-wide">Total</span><span className="font-semibold text-accent">${Math.round(q.total).toLocaleString()}</span></div>
                   </div>
 
                   {/* Status change */}
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs text-gray-500">Change status:</span>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span className="text-[10px] text-muted uppercase tracking-wide">Change status:</span>
                     {['pending','sent','viewed','accepted','expired'].map((s) => (
                       <button
                         key={s}
                         onClick={() => updateStatus(q.id, s)}
-                        className={`text-xs px-3 py-1 rounded-full border font-semibold cursor-pointer transition-colors ${
+                        className={`text-[10px] px-3 py-1 rounded-full border font-semibold cursor-pointer transition-colors capitalize ${
                           q.status === s
-                            ? STATUS_COLORS[s] + ' border-transparent'
-                            : 'bg-white border-gray-200 text-gray-500 hover:border-gray-400'
+                            ? STATUS_COLORS[s]
+                            : 'bg-white border-border text-muted hover:border-stone-400'
                         }`}
                       >
                         {s}

@@ -53,7 +53,6 @@ export default function AdminPriceLists() {
 
   const activateList = async (id) => {
     setActivating(id);
-    // Deactivate all, then activate selected
     await supabase.from('price_lists').update({ is_active: false }).neq('id', 'none');
     await supabase.from('price_lists').update({ is_active: true }).eq('id', id);
     await load();
@@ -92,7 +91,6 @@ export default function AdminPriceLists() {
     setCreatingList(true);
     const { data: activeList } = await supabase.from('price_lists').select('id').eq('is_active', true).maybeSingle();
 
-    // Create new list
     const { data: newList, error } = await supabase
       .from('price_lists')
       .insert({ name: newListName.trim(), is_active: false })
@@ -101,7 +99,6 @@ export default function AdminPriceLists() {
 
     if (error || !newList) { setCreatingList(false); return; }
 
-    // Clone entries from active list
     if (activeList) {
       const { data: sourceEntries } = await supabase.from('price_entries').select('*').eq('price_list_id', activeList.id);
       if (sourceEntries?.length) {
@@ -132,57 +129,57 @@ export default function AdminPriceLists() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Price Lists</h1>
-          <p className="text-gray-500 text-sm">Manage versioned price lists. Only one can be active at a time.</p>
+          <h1 className="text-xl font-semibold text-primary">Price Lists</h1>
+          <p className="text-muted text-xs">Manage versioned price lists. Only one can be active at a time.</p>
         </div>
-        <button onClick={load} className="flex items-center gap-2 text-sm text-gray-600 hover:text-primary cursor-pointer">
-          <RefreshCw className="w-4 h-4" /> Refresh
+        <button onClick={load} className="flex items-center gap-2 text-xs text-muted hover:text-primary cursor-pointer transition-colors">
+          <RefreshCw className="w-3.5 h-3.5" strokeWidth={1.5} /> Refresh
         </button>
       </div>
 
       {/* Create new list */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4 mb-6 flex items-center gap-3">
+      <div className="bg-white border border-border rounded-lg p-4 mb-6 flex items-center gap-3">
         <input
           type="text"
           placeholder="New price list name (e.g. Price List v2 — June 2026)"
           value={newListName}
           onChange={(e) => setNewListName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && createNewList()}
-          className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-primary outline-none"
+          className="flex-1 border border-border rounded-lg px-3 py-2 text-sm focus:border-accent outline-none transition-colors"
         />
         <button
           onClick={createNewList}
           disabled={creatingList || !newListName.trim()}
-          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary-light transition-colors cursor-pointer disabled:opacity-50"
+          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-xs font-medium hover:bg-primary-light transition-colors cursor-pointer disabled:opacity-50"
         >
-          {creatingList ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+          {creatingList ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />}
           Create (clones active list)
         </button>
       </div>
 
       {saveError && (
-        <div className="flex items-center gap-2 text-sm text-danger bg-red-50 p-3 rounded-lg mb-4">
-          <AlertCircle className="w-4 h-4" /> {saveError}
+        <div className="flex items-center gap-2 text-xs text-danger bg-red-50 p-3 rounded-lg mb-4">
+          <AlertCircle className="w-3.5 h-3.5" strokeWidth={1.5} /> {saveError}
         </div>
       )}
 
       {loading ? (
-        <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-primary animate-spin" /></div>
+        <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-accent animate-spin" /></div>
       ) : (
         <div className="space-y-3">
           {lists.map((list) => (
-            <div key={list.id} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+            <div key={list.id} className="bg-white border border-border rounded-lg overflow-hidden">
               <div className="flex items-center gap-4 p-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3">
-                    <span className="font-semibold text-gray-900">{list.name}</span>
+                    <span className="font-semibold text-primary text-sm">{list.name}</span>
                     {list.is_active && (
-                      <span className="flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">
-                        <Check className="w-3 h-3" /> Active
+                      <span className="flex items-center gap-1 text-[10px] bg-success/10 text-success px-2 py-0.5 rounded-full font-semibold">
+                        <Check className="w-3 h-3" strokeWidth={2} /> Active
                       </span>
                     )}
                   </div>
-                  <div className="text-xs text-gray-400 mt-0.5">
+                  <div className="text-[10px] text-muted mt-0.5">
                     Created {new Date(list.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     {list.description ? ` · ${list.description}` : ''}
                   </div>
@@ -192,31 +189,31 @@ export default function AdminPriceLists() {
                     <button
                       onClick={() => activateList(list.id)}
                       disabled={activating === list.id}
-                      className="text-xs px-3 py-1.5 bg-primary text-white rounded-lg font-semibold hover:bg-primary-light cursor-pointer disabled:opacity-50"
+                      className="text-[10px] px-3 py-1.5 bg-accent text-white rounded-lg font-medium hover:bg-accent-light cursor-pointer disabled:opacity-50 transition-colors"
                     >
-                      {activating === list.id ? 'Activating…' : 'Activate'}
+                      {activating === list.id ? 'Activating...' : 'Activate'}
                     </button>
                   )}
                   <button
                     onClick={() => toggleExpand(list.id)}
-                    className="text-gray-400 hover:text-primary cursor-pointer"
+                    className="text-muted hover:text-primary cursor-pointer transition-colors"
                   >
-                    {expanded === list.id ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                    {expanded === list.id ? <ChevronUp className="w-5 h-5" strokeWidth={1.5} /> : <ChevronDown className="w-5 h-5" strokeWidth={1.5} />}
                   </button>
                 </div>
               </div>
 
               {/* Expanded price editor */}
               {expanded === list.id && (
-                <div className="border-t border-gray-100 p-4 bg-gray-50">
+                <div className="border-t border-border p-4 bg-stone-50">
                   {/* Category tabs */}
                   <div className="flex gap-2 mb-4">
                     {CATEGORIES.map((cat) => (
                       <button
                         key={cat}
                         onClick={() => setExpandedCat(cat)}
-                        className={`text-xs px-3 py-1.5 rounded-lg font-semibold cursor-pointer capitalize transition-colors ${
-                          expandedCat === cat ? 'bg-primary text-white' : 'bg-white border border-gray-200 text-gray-600 hover:border-primary'
+                        className={`text-[10px] px-3 py-1.5 rounded-lg font-semibold cursor-pointer capitalize transition-colors uppercase tracking-wide ${
+                          expandedCat === cat ? 'bg-primary text-white' : 'bg-white border border-border text-stone-600 hover:border-accent'
                         }`}
                       >
                         {cat.replace('_', ' ')}
@@ -233,37 +230,37 @@ export default function AdminPriceLists() {
                         return acc;
                       }, {}) ?? {}
                     ).map(([type, typeEntries]) => (
-                      <div key={type} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                        <div className="px-4 py-2 bg-gray-100 text-xs font-bold text-gray-600 uppercase tracking-wide">
+                      <div key={type} className="bg-white rounded-lg border border-border overflow-hidden">
+                        <div className="px-4 py-2 bg-stone-100 text-[10px] font-semibold text-muted uppercase tracking-widest">
                           {PRODUCT_TYPE_LABELS[type] ?? type}
                         </div>
                         <div className="overflow-x-auto">
                           <table className="w-full text-xs">
                             <thead>
-                              <tr className="text-gray-400 border-b border-gray-100">
-                                <th className="px-3 py-2 text-left">W range</th>
-                                <th className="px-3 py-2 text-left">H range</th>
+                              <tr className="text-muted border-b border-border">
+                                <th className="px-3 py-2 text-left text-[10px] uppercase tracking-wide">W range</th>
+                                <th className="px-3 py-2 text-left text-[10px] uppercase tracking-wide">H range</th>
                                 {isDoor(typeEntries[0]) ? (
                                   <>
-                                    <th className="px-3 py-2 text-right">Traditional</th>
-                                    <th className="px-3 py-2 text-right">Design</th>
-                                    <th className="px-3 py-2 text-right">WG Traditional</th>
-                                    <th className="px-3 py-2 text-right">WG Design</th>
+                                    <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wide">Traditional</th>
+                                    <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wide">Design</th>
+                                    <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wide">WG Trad.</th>
+                                    <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wide">WG Design</th>
                                   </>
                                 ) : (
-                                  <th className="px-3 py-2 text-right">Base Price</th>
+                                  <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wide">Base Price</th>
                                 )}
-                                <th className="px-3 py-2 text-right">Install</th>
-                                <th className="px-3 py-2 text-right">Save</th>
+                                <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wide">Install</th>
+                                <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wide">Save</th>
                               </tr>
                             </thead>
                             <tbody>
                               {typeEntries.map((entry) => (
-                                <tr key={entry.id} className="border-t border-gray-50 hover:bg-gray-50">
-                                  <td className="px-3 py-2 text-gray-600 whitespace-nowrap">
+                                <tr key={entry.id} className="border-t border-stone-100 hover:bg-stone-50 transition-colors">
+                                  <td className="px-3 py-2 text-stone-600 whitespace-nowrap">
                                     {entry.width_min === entry.width_max ? `${entry.width_min}"` : `${entry.width_min}"–${entry.width_max}"`}
                                   </td>
-                                  <td className="px-3 py-2 text-gray-600 whitespace-nowrap">
+                                  <td className="px-3 py-2 text-stone-600 whitespace-nowrap">
                                     {entry.height_min === entry.height_max ? `${entry.height_min}"` : `${entry.height_min}"–${entry.height_max}"`}
                                   </td>
                                   {isDoor(entry) ? (
@@ -274,8 +271,8 @@ export default function AdminPriceLists() {
                                             type="number"
                                             value={entry[field] ?? ''}
                                             onChange={(e) => updateEntry(list.id, entry.id, field, e.target.value)}
-                                            className="w-24 border border-gray-200 rounded px-2 py-1 text-right focus:border-primary outline-none bg-white"
-                                            placeholder="—"
+                                            className="w-24 border border-border rounded px-2 py-1 text-right focus:border-accent outline-none bg-white text-sm transition-colors"
+                                            placeholder="\u2014"
                                           />
                                         </td>
                                       ))}
@@ -286,8 +283,8 @@ export default function AdminPriceLists() {
                                         type="number"
                                         value={entry.base_price ?? ''}
                                         onChange={(e) => updateEntry(list.id, entry.id, 'base_price', e.target.value)}
-                                        className="w-24 border border-gray-200 rounded px-2 py-1 text-right focus:border-primary outline-none bg-white"
-                                        placeholder="—"
+                                        className="w-24 border border-border rounded px-2 py-1 text-right focus:border-accent outline-none bg-white text-sm transition-colors"
+                                        placeholder="\u2014"
                                       />
                                     </td>
                                   )}
@@ -296,16 +293,16 @@ export default function AdminPriceLists() {
                                       type="number"
                                       value={entry.install_fee ?? ''}
                                       onChange={(e) => updateEntry(list.id, entry.id, 'install_fee', e.target.value)}
-                                      className="w-20 border border-gray-200 rounded px-2 py-1 text-right focus:border-primary outline-none bg-white"
+                                      className="w-20 border border-border rounded px-2 py-1 text-right focus:border-accent outline-none bg-white text-sm transition-colors"
                                     />
                                   </td>
                                   <td className="px-3 py-2 text-right">
                                     <button
                                       onClick={() => saveEntry(list.id, entry)}
                                       disabled={saving[entry.id]}
-                                      className="text-primary hover:text-primary-dark cursor-pointer disabled:opacity-50"
+                                      className="text-accent hover:text-accent-dark cursor-pointer disabled:opacity-50 transition-colors"
                                     >
-                                      {saving[entry.id] ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                                      {saving[entry.id] ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" strokeWidth={1.5} />}
                                     </button>
                                   </td>
                                 </tr>
@@ -317,7 +314,7 @@ export default function AdminPriceLists() {
                     ))}
 
                     {(groupedEntries(list.id)[expandedCat]?.length === 0) && (
-                      <div className="text-center py-8 text-gray-400 text-sm">No entries in this category.</div>
+                      <div className="text-center py-8 text-muted text-xs">No entries in this category.</div>
                     )}
                   </div>
                 </div>

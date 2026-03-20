@@ -1,22 +1,22 @@
 import { useQuote, useQuoteDispatch } from '../context/QuoteContext';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, PanelTop, DoorOpen, Home } from 'lucide-react';
 
 const PROJECT_TYPES = [
   {
     id: 'windows',
-    emoji: '🪟',
+    icon: PanelTop,
     title: 'Windows Only',
     desc: 'Hurricane impact windows for your home',
   },
   {
     id: 'doors',
-    emoji: '🚪',
+    icon: DoorOpen,
     title: 'Doors Only',
     desc: 'Hurricane impact entry & sliding doors',
   },
   {
     id: 'both',
-    emoji: '🏠',
+    icon: Home,
     title: 'Windows & Doors',
     desc: 'Complete hurricane protection package',
     popular: true,
@@ -26,68 +26,68 @@ const PROJECT_TYPES = [
 export default function StepProjectType() {
   const state = useQuote();
   const dispatch = useQuoteDispatch();
-
-  const handleSelect = (type) => {
-    dispatch({ type: 'SET_PROJECT_TYPE', projectType: type });
-  };
-
   const canProceed = !!state.projectType;
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-12 animate-fade-in">
-      <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-2">
+    <div className="max-w-md mx-auto px-5 py-14 animate-fade-in">
+      <h2 className="text-xl font-semibold text-primary text-center mb-1.5">
         What are you looking for?
       </h2>
-      <p className="text-gray-500 text-center mb-8">
+      <p className="text-sm text-muted text-center mb-10">
         Select the type of hurricane impact products you need.
       </p>
 
-      <div className="grid gap-4">
-        {PROJECT_TYPES.map(({ id, emoji, title, desc, popular }) => (
-          <button
-            key={id}
-            onClick={() => handleSelect(id)}
-            className={`relative flex items-center gap-4 p-5 rounded-xl border-2 text-left transition-all cursor-pointer ${
-              state.projectType === id
-                ? 'border-primary bg-primary/5 shadow-md'
-                : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
-            }`}
-          >
-            {popular && (
-              <span className="absolute -top-2.5 right-4 bg-accent text-primary-dark text-xs font-bold px-3 py-0.5 rounded-full">
-                Most Popular
-              </span>
-            )}
-            <span className="text-3xl">{emoji}</span>
-            <div>
-              <div className="font-semibold text-gray-900 text-lg">{title}</div>
-              <div className="text-sm text-gray-500">{desc}</div>
-            </div>
-            <div
-              className={`ml-auto w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                state.projectType === id ? 'border-primary bg-primary' : 'border-gray-300'
+      <div className="space-y-3">
+        {PROJECT_TYPES.map(({ id, icon: Icon, title, desc, popular }) => {
+          const selected = state.projectType === id;
+          return (
+            <button
+              key={id}
+              onClick={() => dispatch({ type: 'SET_PROJECT_TYPE', projectType: id })}
+              className={`relative w-full flex items-center gap-4 p-4 rounded-lg border text-left transition-all cursor-pointer ${
+                selected
+                  ? 'border-accent bg-accent/5'
+                  : 'border-border bg-white hover:border-stone-300'
               }`}
             >
-              {state.projectType === id && (
-                <div className="w-2.5 h-2.5 bg-white rounded-full" />
+              {popular && (
+                <span className="absolute -top-2.5 right-4 bg-accent text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full tracking-wide uppercase">
+                  Popular
+                </span>
               )}
-            </div>
-          </button>
-        ))}
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                selected ? 'bg-accent/10' : 'bg-stone-50'
+              }`}>
+                <Icon className={`w-5 h-5 ${selected ? 'text-accent' : 'text-muted'}`} strokeWidth={1.5} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-primary">{title}</div>
+                <div className="text-xs text-muted mt-0.5">{desc}</div>
+              </div>
+              <div
+                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                  selected ? 'border-accent bg-accent' : 'border-stone-300'
+                }`}
+              >
+                {selected && <div className="w-2 h-2 bg-white rounded-full" />}
+              </div>
+            </button>
+          );
+        })}
       </div>
 
-      <div className="mt-8 flex justify-center">
+      <div className="mt-10 flex justify-center">
         <button
           disabled={!canProceed}
           onClick={() => dispatch({ type: 'NEXT_STEP' })}
-          className={`inline-flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-lg transition-all cursor-pointer ${
+          className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium tracking-wide transition-all cursor-pointer ${
             canProceed
               ? 'bg-primary text-white hover:bg-primary-light'
-              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              : 'bg-stone-100 text-stone-300 cursor-not-allowed'
           }`}
         >
           Continue
-          <ArrowRight className="w-5 h-5" />
+          <ArrowRight className="w-4 h-4" strokeWidth={2} />
         </button>
       </div>
     </div>

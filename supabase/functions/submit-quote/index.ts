@@ -61,14 +61,16 @@ serve(async (req) => {
       .map((li: any) => {
         const typeName = PRODUCT_TYPE_LABELS[li.product_type] ?? li.product_type;
         const variant = li.door_variant ? ` (${DOOR_VARIANTS[li.door_variant] ?? li.door_variant})` : '';
+        const displayPrice = li.unit_total > 0 ? `$${Math.round(li.base_price * 1.30).toLocaleString()}` : 'TBD';
+        const displayInstall = li.unit_total > 0 ? `$${Math.round(li.install_fee * 1.30).toLocaleString()}` : 'TBD';
         const lineTotal = li.line_total > 0 ? `$${Math.round(li.line_total).toLocaleString()}` : 'TBD';
         return `
           <tr>
             <td style="padding:10px 16px;border-bottom:1px solid #f3f4f6;">${li.label || typeName}${variant}</td>
             <td style="padding:10px 16px;border-bottom:1px solid #f3f4f6;text-align:center;">${li.width}" × ${li.height}"</td>
             <td style="padding:10px 16px;border-bottom:1px solid #f3f4f6;text-align:center;">${li.quantity}</td>
-            <td style="padding:10px 16px;border-bottom:1px solid #f3f4f6;text-align:right;">$${Math.round(li.base_price).toLocaleString()}</td>
-            <td style="padding:10px 16px;border-bottom:1px solid #f3f4f6;text-align:right;">$${Math.round(li.install_fee).toLocaleString()}</td>
+            <td style="padding:10px 16px;border-bottom:1px solid #f3f4f6;text-align:right;">${displayPrice}</td>
+            <td style="padding:10px 16px;border-bottom:1px solid #f3f4f6;text-align:right;">${displayInstall}</td>
             <td style="padding:10px 16px;border-bottom:1px solid #f3f4f6;text-align:right;font-weight:600;">${lineTotal}</td>
           </tr>`;
       })
@@ -133,7 +135,7 @@ serve(async (req) => {
             <th style="padding:10px 16px;text-align:left;font-weight:600;">Item</th>
             <th style="padding:10px 16px;text-align:center;font-weight:600;">Size</th>
             <th style="padding:10px 16px;text-align:center;font-weight:600;">Qty</th>
-            <th style="padding:10px 16px;text-align:right;font-weight:600;">Base</th>
+            <th style="padding:10px 16px;text-align:right;font-weight:600;">Price</th>
             <th style="padding:10px 16px;text-align:right;font-weight:600;">Install</th>
             <th style="padding:10px 16px;text-align:right;font-weight:600;">Total</th>
           </tr>
@@ -145,9 +147,7 @@ serve(async (req) => {
 
       ${quote.total > 0 ? `
       <div style="margin-top:16px;text-align:right;font-size:14px;color:#374151;">
-        <div style="margin-bottom:4px;">Products + Installation: <strong>$${Math.round(quote.items_subtotal).toLocaleString()}</strong></div>
-        <div style="margin-bottom:8px;color:#6b7280;">Service & Overhead (30%): $${Math.round(quote.markup_amount).toLocaleString()}</div>
-        <div style="font-size:20px;font-weight:800;color:#1e3a5f;">Grand Total: ${totalDisplay}</div>
+        <div style="font-size:20px;font-weight:800;color:#1e3a5f;">Total (incl. installation): ${totalDisplay}</div>
       </div>` : ''}
     </div>
 

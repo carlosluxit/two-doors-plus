@@ -1,24 +1,24 @@
 // Product catalog — types match price_entries.product_type in Supabase
 
 export const WINDOW_TYPES = {
-  single_hung: { name: 'Single Hung', icon: '⬆️', category: 'window' },
-  horizontal_roller_xo: { name: 'Horizontal Roller XO', icon: '↔️', category: 'window' },
-  horizontal_roller_xox: { name: 'Horizontal Roller XOX', icon: '↔️↔️', category: 'window' },
-  geometric: { name: 'Geometric Shape', icon: '⭕', category: 'window' },
+  single_hung: { name: 'Single Hung', lucideIcon: 'ArrowUpFromLine', category: 'window' },
+  horizontal_roller_xo: { name: 'Horizontal Roller XO', lucideIcon: 'ArrowLeftRight', category: 'window' },
+  horizontal_roller_xox: { name: 'Horizontal Roller XOX', lucideIcon: 'Columns3', category: 'window' },
+  geometric: { name: 'Geometric Shape', lucideIcon: 'Hexagon', category: 'window' },
 };
 
 export const DOOR_TYPES = {
-  single_door: { name: 'Single Door', icon: '🚪', category: 'door' },
-  bermuda_door: { name: 'Bermuda Door', icon: '🏝️', category: 'door' },
-  double_door: { name: 'Double Door', icon: '🚪🚪', category: 'door' },
-  picture_window: { name: 'Picture Window', icon: '🖼️', category: 'door' },
-  side_light: { name: 'Side Light', icon: '💡', category: 'door' },
+  single_door: { name: 'Single Door', lucideIcon: 'DoorOpen', category: 'door' },
+  bermuda_door: { name: 'Bermuda Door', lucideIcon: 'PanelTop', category: 'door' },
+  double_door: { name: 'Double Door', lucideIcon: 'PanelLeftClose', category: 'door' },
+  picture_window: { name: 'Picture Window', lucideIcon: 'Frame', category: 'door' },
+  side_light: { name: 'Side Light', lucideIcon: 'PanelRight', category: 'door' },
 };
 
 export const SLIDING_DOOR_TYPES = {
-  sgd_2_panel: { name: '2-Panel SGD', icon: '🏠', category: 'sliding_door' },
-  sgd_3_panel: { name: '3-Panel XOX', icon: '🏠', category: 'sliding_door' },
-  sgd_4_panel: { name: '4-Panel XOOX', icon: '🏠', category: 'sliding_door' },
+  sgd_2_panel: { name: '2-Panel SGD', lucideIcon: 'PanelLeftOpen', category: 'sliding_door' },
+  sgd_3_panel: { name: '3-Panel XOX', lucideIcon: 'Columns3', category: 'sliding_door' },
+  sgd_4_panel: { name: '4-Panel XOOX', lucideIcon: 'LayoutGrid', category: 'sliding_door' },
 };
 
 export const DOOR_VARIANTS = {
@@ -92,6 +92,10 @@ export function calcLineItem(entry, variant, quantity) {
   const unitTotal = unitSubtotal + unitMarkup;
   const lineTotal = unitTotal * quantity;
 
+  // Customer-facing prices (markup baked in, not shown separately)
+  const displayPrice = Math.round(basePrice * (1 + MARKUP_RATE) * 100) / 100;
+  const displayInstall = Math.round(installFee * (1 + MARKUP_RATE) * 100) / 100;
+
   return {
     basePrice,
     installFee,
@@ -99,5 +103,7 @@ export function calcLineItem(entry, variant, quantity) {
     unitMarkup: Math.round(unitMarkup * 100) / 100,
     unitTotal: Math.round(unitTotal * 100) / 100,
     lineTotal: Math.round(lineTotal * 100) / 100,
+    displayPrice,
+    displayInstall,
   };
 }

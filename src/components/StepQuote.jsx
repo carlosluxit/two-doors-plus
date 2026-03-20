@@ -4,19 +4,18 @@ import { usePricing } from '../context/PricingContext';
 import { WINDOW_TYPES, DOOR_TYPES, SLIDING_DOOR_TYPES, DOOR_VARIANTS, findPriceEntry, calcLineItem } from '../data/products';
 import { supabase } from '../lib/supabase';
 import {
-  Download,
   Calendar,
   CreditCard,
   Phone,
   Shield,
   Clock,
-  CheckCircle,
   FileText,
   Printer,
   RotateCcw,
   Loader2,
   AlertCircle,
   Mail,
+  Check,
 } from 'lucide-react';
 
 const ALL_TYPES = { ...WINDOW_TYPES, ...DOOR_TYPES, ...SLIDING_DOOR_TYPES };
@@ -52,7 +51,6 @@ export default function StepQuote() {
   const total = lineItems.reduce((sum, li) => sum + (li.calc?.lineTotal ?? 0), 0);
   const hasPrices = total > 0;
 
-  // Submit quote to Supabase on mount (once)
   useEffect(() => {
     if (state.quoteGenerated || submitted) return;
     submitQuote();
@@ -64,11 +62,10 @@ export default function StepQuote() {
     setSubmitError(null);
 
     try {
-      // 1. Insert quote row
       const { data: quoteRow, error: quoteErr } = await supabase
         .from('quotes')
         .insert({
-          quote_number: '', // trigger fills this
+          quote_number: '',
           price_list_id: priceList?.id ?? null,
           price_list_name: priceList?.name ?? 'Manual',
           client_first_name: state.clientInfo.firstName,
@@ -91,7 +88,6 @@ export default function StepQuote() {
 
       if (quoteErr) throw quoteErr;
 
-      // 2. Insert quote items
       const quoteItems = lineItems.map((li, idx) => ({
         quote_id: quoteRow.id,
         item_category: li.itemCategory,
@@ -113,14 +109,11 @@ export default function StepQuote() {
       const { error: itemsErr } = await supabase.from('quote_items').insert(quoteItems);
       if (itemsErr) throw itemsErr;
 
-      // 3. Send email via Edge Function (non-blocking — don't fail if email errors)
       try {
         await supabase.functions.invoke('submit-quote', {
           body: { quoteId: quoteRow.id },
         });
-      } catch (_) {
-        // Email failure doesn't block the quote
-      }
+      } catch (_) {}
 
       dispatch({
         type: 'GENERATE_QUOTE',
@@ -138,23 +131,23 @@ export default function StepQuote() {
 
   if (submitting) {
     return (
-      <div className="max-w-md mx-auto px-4 py-24 text-center animate-fade-in">
-        <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto mb-4" />
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Generating Your Quote</h2>
-        <p className="text-gray-500">Saving your details and sending a confirmation email…</p>
+      <div className="max-w-sm mx-auto px-5 py-24 text-center animate-fade-in">
+        <Loader2 className="w-8 h-8 text-accent animate-spin mx-auto mb-4" strokeWidth={1.5} />
+        <h2 className="text-lg font-semibold text-primary mb-1.5">Generating Your Quote</h2>
+        <p className="text-sm text-muted">Saving your details and sending confirmation...</p>
       </div>
     );
   }
 
   if (submitError) {
     return (
-      <div className="max-w-md mx-auto px-4 py-24 text-center animate-fade-in">
-        <AlertCircle className="w-12 h-12 text-danger mx-auto mb-4" />
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Something Went Wrong</h2>
-        <p className="text-gray-500 mb-6">{submitError}</p>
+      <div className="max-w-sm mx-auto px-5 py-24 text-center animate-fade-in">
+        <AlertCircle className="w-8 h-8 text-danger mx-auto mb-4" strokeWidth={1.5} />
+        <h2 className="text-lg font-semibold text-primary mb-1.5">Something Went Wrong</h2>
+        <p className="text-sm text-muted mb-6">{submitError}</p>
         <button
           onClick={submitQuote}
-          className="bg-primary text-white px-8 py-3 rounded-xl font-semibold hover:bg-primary-light cursor-pointer"
+          className="bg-primary text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-primary-light cursor-pointer"
         >
           Try Again
         </button>
@@ -163,109 +156,113 @@ export default function StepQuote() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 animate-slide-up">
+    <div className="max-w-3xl mx-auto px-5 py-10 animate-slide-up">
       {/* Quote Header */}
-      <div className="bg-gradient-to-r from-primary to-primary-light text-white rounded-2xl p-6 sm:p-8 mb-6">
+      <div className="bg-primary text-white rounded-xl p-6 sm:p-8 mb-6">
         <div className="flex items-start justify-between flex-wrap gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <Shield className="w-6 h-6 text-accent" />
-              <span className="text-sm font-medium text-blue-200">Two Doors Plus USA</span>
+              <Shield className="w-4 h-4 text-accent" strokeWidth={1.5} />
+              <span className="text-[11px] font-medium text-stone-400 uppercase tracking-widest">Two Doors Plus USA</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold mb-1">Your Guaranteed Quote</h2>
-            <p className="text-blue-200 text-sm">
-              Quote #{state.quoteId || '…'} &middot; {priceList?.name ?? 'Current Price List'}
+            <h2 className="text-xl sm:text-2xl font-semibold mb-1">Your Guaranteed Quote</h2>
+            <p className="text-stone-400 text-xs">
+              Quote #{state.quoteId || '\u2026'} &middot; {priceList?.name ?? 'Current Price List'}
             </p>
           </div>
           <div className="text-right">
             {hasPrices ? (
               <>
-                <div className="text-4xl sm:text-5xl font-extrabold text-accent">
+                <div className="text-3xl sm:text-4xl font-semibold text-accent">
                   ${Math.round(total).toLocaleString()}
                 </div>
-                <div className="text-sm text-blue-200 mt-1">Total Project Cost</div>
+                <div className="text-[11px] text-stone-400 mt-1">Total Project Cost</div>
               </>
             ) : (
-              <div className="text-lg text-blue-200 font-semibold">
+              <div className="text-sm text-stone-400">
                 Custom quote — team will follow up
               </div>
             )}
           </div>
         </div>
-        <div className="mt-6 flex flex-wrap gap-4 text-sm">
-          <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-lg">
-            <Calendar className="w-4 h-4" />
-            <span>Issued: {formatDate(quoteDate)}</span>
+        <div className="mt-6 flex flex-wrap gap-3 text-xs">
+          <div className="flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-md">
+            <Calendar className="w-3.5 h-3.5 text-stone-400" strokeWidth={1.5} />
+            <span className="text-stone-300">Issued: {formatDate(quoteDate)}</span>
           </div>
-          <div className="flex items-center gap-2 bg-accent/20 text-accent px-4 py-2 rounded-lg font-semibold">
-            <Clock className="w-4 h-4" />
+          <div className="flex items-center gap-1.5 bg-accent/15 text-accent px-3 py-1.5 rounded-md font-medium">
+            <Clock className="w-3.5 h-3.5" strokeWidth={1.5} />
             <span>Valid until: {formatDate(expiryDate)}</span>
           </div>
         </div>
       </div>
 
-      {/* Email confirmation notice */}
+      {/* Email notice */}
       {submitted && (
-        <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
-          <Mail className="w-5 h-5 text-success flex-shrink-0" />
-          <div className="text-sm">
-            <span className="font-semibold text-success">Quote sent!</span>{' '}
-            <span className="text-gray-600">A copy has been emailed to {state.clientInfo.email}</span>
+        <div className="flex items-center gap-2.5 bg-success/5 border border-success/20 rounded-lg p-3.5 mb-6">
+          <Mail className="w-4 h-4 text-success flex-shrink-0" strokeWidth={1.5} />
+          <div className="text-xs">
+            <span className="font-medium text-success">Quote sent</span>{' '}
+            <span className="text-muted">to {state.clientInfo.email}</span>
           </div>
         </div>
       )}
 
       {/* Project Details */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5 mb-6">
-        <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-          <FileText className="w-4 h-4" /> Project Details
+      <div className="border border-border rounded-lg p-5 mb-6">
+        <h3 className="text-xs font-semibold text-muted uppercase tracking-widest mb-3 flex items-center gap-2">
+          <FileText className="w-3.5 h-3.5" strokeWidth={1.5} /> Project Details
         </h3>
         <div className="grid sm:grid-cols-2 gap-x-8 gap-y-2 text-sm">
-          <div><span className="text-gray-400">Client:</span>{' '}<span className="text-gray-900 font-medium">{state.clientInfo.firstName} {state.clientInfo.lastName}</span></div>
-          <div><span className="text-gray-400">Email:</span>{' '}<span className="text-gray-900">{state.clientInfo.email}</span></div>
-          <div><span className="text-gray-400">Phone:</span>{' '}<span className="text-gray-900">{state.clientInfo.phone}</span></div>
-          <div><span className="text-gray-400">Property:</span>{' '}<span className="text-gray-900">{state.clientInfo.address}{state.clientInfo.city ? `, ${state.clientInfo.city}` : ''} {state.clientInfo.zip}</span></div>
-          <div><span className="text-gray-400">Measurement:</span>{' '}<span className="text-gray-900 capitalize">{state.measureFrom}</span></div>
-          <div><span className="text-gray-400">Price list:</span>{' '}<span className="text-gray-900">{priceList?.name ?? '—'}</span></div>
+          <div><span className="text-muted text-xs">Client</span>{' '}<span className="text-primary font-medium">{state.clientInfo.firstName} {state.clientInfo.lastName}</span></div>
+          <div><span className="text-muted text-xs">Email</span>{' '}<span className="text-primary">{state.clientInfo.email}</span></div>
+          <div><span className="text-muted text-xs">Phone</span>{' '}<span className="text-primary">{state.clientInfo.phone}</span></div>
+          <div><span className="text-muted text-xs">Property</span>{' '}<span className="text-primary">{state.clientInfo.address}{state.clientInfo.city ? `, ${state.clientInfo.city}` : ''} {state.clientInfo.zip}</span></div>
+          <div><span className="text-muted text-xs">Measurement</span>{' '}<span className="text-primary capitalize">{state.measureFrom}</span></div>
+          <div><span className="text-muted text-xs">Price list</span>{' '}<span className="text-primary">{priceList?.name ?? '\u2014'}</span></div>
         </div>
       </div>
 
       {/* Bill of Materials */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden mb-6">
-        <div className="p-5 border-b border-gray-100">
-          <h3 className="font-bold text-gray-900 flex items-center gap-2">
-            <FileText className="w-4 h-4" /> Bill of Materials
+      <div className="border border-border rounded-lg overflow-hidden mb-6">
+        <div className="px-5 py-4 border-b border-border">
+          <h3 className="text-xs font-semibold text-muted uppercase tracking-widest flex items-center gap-2">
+            <FileText className="w-3.5 h-3.5" strokeWidth={1.5} /> Bill of Materials
           </h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-50 text-left">
-                <th className="px-4 py-3 font-semibold text-gray-600">#</th>
-                <th className="px-4 py-3 font-semibold text-gray-600">Item</th>
-                <th className="px-4 py-3 font-semibold text-gray-600">Size (W×H)</th>
-                <th className="px-4 py-3 font-semibold text-gray-600 text-center">Qty</th>
-                <th className="px-4 py-3 font-semibold text-gray-600 text-right">Unit Price</th>
-                <th className="px-4 py-3 font-semibold text-gray-600 text-right">Total</th>
+              <tr className="bg-stone-50 text-left">
+                <th className="px-4 py-2.5 text-[10px] font-semibold text-muted uppercase tracking-wide">#</th>
+                <th className="px-4 py-2.5 text-[10px] font-semibold text-muted uppercase tracking-wide">Item</th>
+                <th className="px-4 py-2.5 text-[10px] font-semibold text-muted uppercase tracking-wide">Size</th>
+                <th className="px-4 py-2.5 text-[10px] font-semibold text-muted uppercase tracking-wide text-center">Qty</th>
+                <th className="px-4 py-2.5 text-[10px] font-semibold text-muted uppercase tracking-wide text-right">Price</th>
+                <th className="px-4 py-2.5 text-[10px] font-semibold text-muted uppercase tracking-wide text-right">Installation</th>
+                <th className="px-4 py-2.5 text-[10px] font-semibold text-muted uppercase tracking-wide text-right">Total</th>
               </tr>
             </thead>
             <tbody>
               {lineItems.map((li, i) => (
-                <tr key={li.id} className="border-t border-gray-100 hover:bg-gray-50">
-                  <td className="px-4 py-3 text-gray-400">{i + 1}</td>
+                <tr key={li.id} className="border-t border-border hover:bg-stone-50/50">
+                  <td className="px-4 py-3 text-xs text-muted">{i + 1}</td>
                   <td className="px-4 py-3">
-                    <div className="font-medium text-gray-900">{li.label || getTypeName(li)}</div>
-                    <div className="text-xs text-gray-400">
-                      {getTypeName(li)}{li.doorStyle ? ` · ${DOOR_VARIANTS[li.doorStyle]}` : ''}
+                    <div className="text-xs font-medium text-primary">{li.label || getTypeName(li)}</div>
+                    <div className="text-[11px] text-muted">
+                      {getTypeName(li)}{li.doorStyle ? ` \u00B7 ${DOOR_VARIANTS[li.doorStyle]}` : ''}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{li.width}" × {li.height}"</td>
-                  <td className="px-4 py-3 text-center text-gray-600">{li.qty}</td>
-                  <td className="px-4 py-3 text-right text-gray-600">
-                    {li.calc ? `$${Math.round(li.calc.unitTotal).toLocaleString()}` : <span className="text-amber-500 text-xs">TBD</span>}
+                  <td className="px-4 py-3 text-xs text-stone-600">{li.width}" \u00D7 {li.height}"</td>
+                  <td className="px-4 py-3 text-center text-xs text-stone-600">{li.qty}</td>
+                  <td className="px-4 py-3 text-right text-xs text-stone-600">
+                    {li.calc ? `$${Math.round(li.calc.displayPrice).toLocaleString()}` : <span className="text-accent text-[11px]">TBD</span>}
                   </td>
-                  <td className="px-4 py-3 text-right font-semibold text-gray-900">
-                    {li.calc ? `$${Math.round(li.calc.lineTotal).toLocaleString()}` : <span className="text-amber-500 text-xs">TBD</span>}
+                  <td className="px-4 py-3 text-right text-xs text-stone-600">
+                    {li.calc ? `$${Math.round(li.calc.displayInstall).toLocaleString()}` : <span className="text-accent text-[11px]">TBD</span>}
+                  </td>
+                  <td className="px-4 py-3 text-right text-xs font-semibold text-primary">
+                    {li.calc ? `$${Math.round(li.calc.lineTotal).toLocaleString()}` : <span className="text-accent text-[11px]">TBD</span>}
                   </td>
                 </tr>
               ))}
@@ -273,13 +270,12 @@ export default function StepQuote() {
           </table>
         </div>
 
-        {/* Totals */}
         {hasPrices && (
-          <div className="border-t-2 border-gray-200 p-5">
-            <div className="max-w-xs ml-auto space-y-2 text-sm">
-              <div className="flex justify-between border-t pt-3 mt-3 border-gray-200">
-                <span className="font-bold text-gray-900 text-lg">Total (incl. installation)</span>
-                <span className="font-extrabold text-lg text-primary">
+          <div className="border-t border-border px-5 py-4">
+            <div className="max-w-xs ml-auto">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-semibold text-primary">Total</span>
+                <span className="text-lg font-semibold text-accent">
                   ${Math.round(total).toLocaleString()}
                 </span>
               </div>
@@ -288,13 +284,13 @@ export default function StepQuote() {
         )}
       </div>
 
-      {/* Guarantee Notice */}
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-6">
+      {/* Guarantee */}
+      <div className="bg-accent/5 border border-accent/20 rounded-lg p-5 mb-6">
         <div className="flex items-start gap-3">
-          <Shield className="w-6 h-6 text-accent flex-shrink-0 mt-0.5" />
+          <Shield className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" strokeWidth={1.5} />
           <div>
-            <h4 className="font-bold text-gray-900 mb-1">Price Guarantee</h4>
-            <p className="text-sm text-gray-600">
+            <h4 className="text-sm font-semibold text-primary mb-1">Price Guarantee</h4>
+            <p className="text-xs text-muted leading-relaxed">
               This quote is guaranteed for 5 days, subject to measurement verification and local code
               compliance. Final pricing confirmed after the complimentary expert visit.
             </p>
@@ -303,49 +299,49 @@ export default function StepQuote() {
       </div>
 
       {/* Next Steps */}
-      <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6">
-        <h3 className="font-bold text-gray-900 mb-4 text-lg">Ready to Move Forward?</h3>
-        <div className="grid sm:grid-cols-2 gap-4">
-          <button className="flex items-center gap-3 p-4 bg-primary text-white rounded-xl font-semibold hover:bg-primary-light transition-colors cursor-pointer">
-            <CreditCard className="w-6 h-6" />
+      <div className="border border-border rounded-lg p-5 mb-6">
+        <h3 className="text-sm font-semibold text-primary mb-4">Ready to Move Forward?</h3>
+        <div className="grid sm:grid-cols-2 gap-3">
+          <button className="flex items-center gap-3 p-3.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-light transition-colors cursor-pointer">
+            <CreditCard className="w-5 h-5" strokeWidth={1.5} />
             <div className="text-left">
               <div>Secure with Deposit</div>
-              <div className="text-xs font-normal text-blue-200">Lock in your price today</div>
+              <div className="text-[11px] font-normal text-stone-400">Lock in your price today</div>
             </div>
           </button>
-          <button className="flex items-center gap-3 p-4 bg-white border-2 border-primary text-primary rounded-xl font-semibold hover:bg-primary/5 transition-colors cursor-pointer">
-            <Calendar className="w-6 h-6" />
+          <button className="flex items-center gap-3 p-3.5 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors cursor-pointer">
+            <Calendar className="w-5 h-5" strokeWidth={1.5} />
             <div className="text-left">
               <div>Schedule Expert Visit</div>
-              <div className="text-xs font-normal text-gray-500">Free — no obligation</div>
+              <div className="text-[11px] font-normal text-muted">Free — no obligation</div>
             </div>
           </button>
         </div>
-        <div className="mt-4 flex items-center justify-center gap-2 text-sm text-gray-400">
-          <Phone className="w-4 h-4" />
+        <div className="mt-4 flex items-center justify-center gap-1.5 text-xs text-muted">
+          <Phone className="w-3.5 h-3.5" strokeWidth={1.5} />
           Or call us at (786) 555-1234
         </div>
       </div>
 
       {/* Actions */}
-      <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
+      <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
         <button
           onClick={() => window.print()}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-medium text-muted hover:text-primary hover:bg-stone-50 transition-colors cursor-pointer"
         >
-          <Printer className="w-4 h-4" /> Print Quote
+          <Printer className="w-3.5 h-3.5" strokeWidth={1.5} /> Print
         </button>
         <button
           onClick={() => dispatch({ type: 'RESET' })}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-medium text-muted hover:text-primary hover:bg-stone-50 transition-colors cursor-pointer"
         >
-          <RotateCcw className="w-4 h-4" /> Start New Quote
+          <RotateCcw className="w-3.5 h-3.5" strokeWidth={1.5} /> New Quote
         </button>
       </div>
 
-      <div className="text-center text-xs text-gray-400 pb-8">
+      <div className="text-center text-[11px] text-stone-400 pb-8">
         <p>This quote is an estimate based on the information provided. Final pricing subject to on-site measurement verification.</p>
-        <p className="mt-2">&copy; 2026 Two Doors Plus USA &middot; South Florida</p>
+        <p className="mt-1.5">&copy; 2026 Two Doors Plus USA &middot; South Florida</p>
       </div>
     </div>
   );

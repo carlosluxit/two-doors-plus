@@ -1,20 +1,20 @@
 import { Check } from 'lucide-react';
 
 const STEPS = [
-  'Project Type',
-  'How to Measure',
-  'Measurements',
-  'Your Info',
+  'Project',
+  'Method',
+  'Measure',
+  'Details',
   'Verify',
-  'Your Quote',
+  'Quote',
 ];
 
 export default function ProgressBar({ currentStep }) {
   if (currentStep < 1 || currentStep > 6) return null;
 
   return (
-    <div className="bg-white border-b border-gray-200 py-4 px-4">
-      <div className="max-w-3xl mx-auto">
+    <div className="bg-white border-b border-border py-3 px-4">
+      <div className="max-w-lg mx-auto">
         <div className="flex items-center justify-between">
           {STEPS.map((label, i) => {
             const stepNum = i + 1;
@@ -24,19 +24,19 @@ export default function ProgressBar({ currentStep }) {
               <div key={label} className="flex items-center">
                 <div className="flex flex-col items-center">
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium transition-all ${
                       isComplete
-                        ? 'bg-success text-white'
+                        ? 'bg-primary text-white'
                         : isCurrent
-                        ? 'bg-primary text-white ring-4 ring-blue-100'
-                        : 'bg-gray-200 text-gray-500'
+                        ? 'bg-accent text-white'
+                        : 'bg-stone-100 text-muted'
                     }`}
                   >
-                    {isComplete ? <Check className="w-4 h-4" /> : stepNum}
+                    {isComplete ? <Check className="w-3.5 h-3.5" strokeWidth={2} /> : stepNum}
                   </div>
                   <span
-                    className={`text-[10px] mt-1 hidden sm:block ${
-                      isCurrent ? 'text-primary font-semibold' : 'text-gray-400'
+                    className={`text-[9px] mt-1.5 tracking-wide uppercase hidden sm:block ${
+                      isCurrent ? 'text-accent font-semibold' : isComplete ? 'text-primary' : 'text-muted'
                     }`}
                   >
                     {label}
@@ -44,8 +44,8 @@ export default function ProgressBar({ currentStep }) {
                 </div>
                 {i < STEPS.length - 1 && (
                   <div
-                    className={`w-6 sm:w-12 lg:w-20 h-0.5 mx-1 ${
-                      currentStep > stepNum ? 'bg-success' : 'bg-gray-200'
+                    className={`w-5 sm:w-10 lg:w-14 h-px mx-1.5 ${
+                      currentStep > stepNum ? 'bg-primary' : 'bg-stone-200'
                     }`}
                   />
                 )}

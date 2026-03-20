@@ -11,9 +11,11 @@ import {
 } from 'lucide-react';
 import FractionPicker, { TapeMeasureTutorial, combineInches } from './FractionPicker';
 
+const FRAC_LABELS = { 0: '', 0.125: '\u215B', 0.25: '\u00BC', 0.375: '\u215C', 0.5: '\u00BD', 0.625: '\u215D', 0.75: '\u00BE', 0.875: '\u215E' };
+
 export default function CameraMeasure({ onComplete, onCancel, itemType, measureFrom = 'inside' }) {
   const webcamRef = useRef(null);
-  const [step, setStep] = useState('guide'); // 'guide' | 'camera' | 'enter'
+  const [step, setStep] = useState('guide');
   const [photo, setPhoto] = useState(null);
   const [widthWhole, setWidthWhole] = useState('');
   const [widthFrac, setWidthFrac] = useState(0);
@@ -36,110 +38,94 @@ export default function CameraMeasure({ onComplete, onCancel, itemType, measureF
   const isInside = measureFrom === 'inside';
 
   const formatMeasurement = (whole, frac) => {
-    const fractionLabels = { 0: '', 0.125: '⅛', 0.25: '¼', 0.375: '⅜', 0.5: '½', 0.625: '⅝', 0.75: '¾', 0.875: '⅞' };
     const w = parseInt(whole) || 0;
-    const f = fractionLabels[frac] || '';
-    if (w === 0 && !f) return '—';
+    const f = FRAC_LABELS[frac] || '';
+    if (w === 0 && !f) return '\u2014';
     if (!f) return `${w}"`;
     return `${w} ${f}"`;
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-2 sm:p-4">
-      <div className="bg-white rounded-2xl w-full max-w-md max-h-[95vh] flex flex-col overflow-hidden">
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-2 sm:p-4">
+      <div className="bg-white rounded-xl w-full max-w-md max-h-[95vh] flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-100">
-          <div className="flex items-center gap-3">
-            <Ruler className="w-5 h-5 text-primary" />
+        <div className="flex items-center justify-between px-4 py-3.5 border-b border-border">
+          <div className="flex items-center gap-2.5">
+            <Ruler className="w-4 h-4 text-accent" strokeWidth={1.5} />
             <div>
-              <h3 className="font-bold text-gray-900">Measure Your {itemType === 'window' ? 'Window' : 'Door'}</h3>
-              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                isInside ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
-              }`}>
+              <h3 className="text-sm font-semibold text-primary">Measure Your {itemType === 'window' ? 'Window' : 'Door'}</h3>
+              <span className="text-[10px] font-medium text-muted uppercase tracking-wide">
                 {isInside ? 'Inside' : 'Outside'} Measurement
               </span>
             </div>
           </div>
-          <button onClick={onCancel} className="p-2 hover:bg-gray-100 rounded-full cursor-pointer">
-            <X className="w-5 h-5" />
+          <button onClick={onCancel} className="p-1.5 hover:bg-stone-50 rounded-lg cursor-pointer transition-colors">
+            <X className="w-4 h-4 text-muted" strokeWidth={1.5} />
           </button>
         </div>
 
         <div className="flex-1 overflow-auto">
-          {/* STEP 1: Visual Guide */}
+          {/* Guide */}
           {step === 'guide' && (
             <div className="p-4 space-y-4">
-              <p className="text-sm text-gray-600 text-center">
+              <p className="text-xs text-muted text-center">
                 {isInside
-                  ? `Measure from inside the house — wall to wall and sill to top.`
-                  : `Measure from outside — border to border where the frame sits.`}
+                  ? 'Measure from inside — wall to wall and sill to top.'
+                  : 'Measure from outside — border to border where the frame sits.'}
               </p>
 
-              {/* Tutorial GIFs */}
               {isInside ? (
                 <div className="space-y-2">
-                  <img src="/inside_1.GIF" alt="Measure wall to wall from inside" className="w-full rounded-xl" />
-                  <img src="/inside2.GIF" alt="Measure sill to top from inside" className="w-full rounded-xl" />
+                  <img src="/inside_1.GIF" alt="Measure wall to wall" className="w-full rounded-lg" />
+                  <img src="/inside2.GIF" alt="Measure sill to top" className="w-full rounded-lg" />
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <img src="/outside_1.GIF" alt="Measure edge to edge from outside" className="w-full rounded-xl" />
-                  <img src="/outside_2.GIF" alt="Measure sill to top from outside" className="w-full rounded-xl" />
+                  <img src="/outside_1.GIF" alt="Measure edge to edge" className="w-full rounded-lg" />
+                  <img src="/outside_2.GIF" alt="Measure sill to top" className="w-full rounded-lg" />
                 </div>
               )}
 
-              {/* Tips */}
               <div className="space-y-2">
-                {isInside ? (
-                  <>
-                    <Tip icon={ArrowLeftRight} color="text-accent" text="WIDTH: Wall to wall — measure the opening from left wall to right wall" />
-                    <Tip icon={ArrowUpDown} color="text-blue-500" text="HEIGHT: Sill to top — measure from the window sill up to the top of the opening" />
-                    <Tip icon={Ruler} color="text-gray-500" text="Measure in 3 spots — use the SMALLEST number" />
-                  </>
-                ) : (
-                  <>
-                    <Tip icon={ArrowLeftRight} color="text-accent" text="WIDTH: Border to border — measure the full outside frame width" />
-                    <Tip icon={ArrowUpDown} color="text-blue-500" text="HEIGHT: Border to border — measure the full outside frame height" />
-                    <Tip icon={Ruler} color="text-gray-500" text="Include the entire frame edge in your measurement" />
-                  </>
-                )}
+                <Tip icon={ArrowLeftRight} text={`WIDTH: ${isInside ? 'Wall to wall' : 'Border to border'} measurement`} />
+                <Tip icon={ArrowUpDown} text={`HEIGHT: ${isInside ? 'Sill to top of opening' : 'Full frame height'}`} />
+                <Tip icon={Ruler} text="Measure in 3 spots — use the SMALLEST number" />
               </div>
 
-              {/* Tape Measure Tutorial */}
               <TapeMeasureTutorial />
 
               <button
                 onClick={() => setStep('camera')}
-                className="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-primary-light transition-colors cursor-pointer flex items-center justify-center gap-2"
+                className="w-full bg-primary text-white py-2.5 rounded-lg text-sm font-medium hover:bg-primary-light transition-colors cursor-pointer flex items-center justify-center gap-2"
               >
-                <Camera className="w-5 h-5" /> Take Photo of {label}
+                <Camera className="w-4 h-4" strokeWidth={1.5} /> Take Photo of {label}
               </button>
               <button
                 onClick={() => setStep('enter')}
-                className="w-full text-center text-sm text-primary hover:underline cursor-pointer py-1"
+                className="w-full text-center text-xs text-muted hover:text-primary cursor-pointer py-1"
               >
                 Skip photo — just enter measurements
               </button>
             </div>
           )}
 
-          {/* STEP 2: Camera */}
+          {/* Camera */}
           {step === 'camera' && (
             <div className="p-4">
               {cameraError ? (
-                <div className="text-center py-8">
-                  <Camera className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500 text-sm">Camera not available.</p>
+                <div className="text-center py-12">
+                  <Camera className="w-8 h-8 text-stone-300 mx-auto mb-3" strokeWidth={1.5} />
+                  <p className="text-sm text-muted">Camera not available.</p>
                   <button
                     onClick={() => setStep('enter')}
-                    className="mt-4 text-primary text-sm font-medium hover:underline cursor-pointer"
+                    className="mt-4 text-accent text-xs font-medium hover:underline cursor-pointer"
                   >
-                    Enter measurements manually instead
+                    Enter measurements manually
                   </button>
                 </div>
               ) : (
                 <>
-                  <div className="relative rounded-xl overflow-hidden">
+                  <div className="relative rounded-lg overflow-hidden">
                     <Webcam
                       ref={webcamRef}
                       audio={false}
@@ -150,9 +136,9 @@ export default function CameraMeasure({ onComplete, onCancel, itemType, measureF
                       onUserMediaError={() => setCameraError(true)}
                     />
                     <div className="absolute inset-0 pointer-events-none">
-                      <div className="absolute inset-[15%] border-2 border-white/60 border-dashed rounded-lg" />
+                      <div className="absolute inset-[15%] border border-white/40 border-dashed rounded-md" />
                       <div className="absolute bottom-3 left-0 right-0 text-center">
-                        <span className="bg-black/60 text-white text-xs px-3 py-1.5 rounded-full">
+                        <span className="bg-black/50 text-white text-[11px] px-3 py-1 rounded-full">
                           Align {label} {isInside ? 'opening' : 'frame'} inside the guide
                         </span>
                       </div>
@@ -160,41 +146,42 @@ export default function CameraMeasure({ onComplete, onCancel, itemType, measureF
                   </div>
                   <button
                     onClick={capturePhoto}
-                    className="w-full mt-4 bg-primary text-white py-3.5 rounded-xl font-semibold hover:bg-primary-light transition-colors cursor-pointer flex items-center justify-center gap-2 text-lg"
+                    className="w-full mt-3 bg-primary text-white py-2.5 rounded-lg text-sm font-medium hover:bg-primary-light transition-colors cursor-pointer flex items-center justify-center gap-2"
                   >
-                    <Camera className="w-5 h-5" /> Snap Photo
+                    <Camera className="w-4 h-4" strokeWidth={1.5} /> Snap Photo
                   </button>
                 </>
               )}
             </div>
           )}
 
-          {/* STEP 3: Enter measurements with fraction picker */}
+          {/* Enter measurements */}
           {step === 'enter' && (
-            <div className="p-4 space-y-4">
+            <div className="p-4 space-y-3">
               {photo && (
-                <div className="relative rounded-xl overflow-hidden bg-gray-100">
-                  <img src={photo} alt="Your window/door" className="w-full max-h-[40vh] object-contain rounded-xl" />
+                <div className="relative rounded-lg overflow-hidden bg-stone-50">
+                  <img src={photo} alt="Captured" className="w-full max-h-[35vh] object-contain rounded-lg" />
                   <button
                     onClick={() => { setPhoto(null); setStep('camera'); }}
-                    className="absolute top-2 right-2 bg-black/50 text-white p-1.5 rounded-full hover:bg-black/70 cursor-pointer"
+                    className="absolute top-2 right-2 bg-black/40 text-white p-1 rounded-md hover:bg-black/60 cursor-pointer"
                   >
-                    <RotateCcw className="w-4 h-4" />
+                    <RotateCcw className="w-3.5 h-3.5" strokeWidth={1.5} />
                   </button>
-                  <div className="absolute bottom-2 left-2 bg-success/90 text-white text-xs px-2 py-1 rounded-full font-medium">
-                    Photo saved for verification
+                  <div className="absolute bottom-2 left-2 bg-success/80 text-white text-[10px] px-2 py-0.5 rounded-full font-medium">
+                    Photo saved
                   </div>
                 </div>
               )}
 
-              <p className="text-sm text-gray-600 text-center font-medium">
-                Enter your {isInside ? 'inside' : 'outside'} measurements below
+              <p className="text-xs text-muted text-center font-medium">
+                Enter your {isInside ? 'inside' : 'outside'} measurements
               </p>
 
-              {/* Width input */}
-              <div className="bg-gray-50 rounded-xl p-3 space-y-2">
-                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                  <ArrowLeftRight className="w-4 h-4 text-accent" /> Width {isInside ? '(wall to wall)' : '(border to border)'}
+              {/* Width */}
+              <div className="bg-stone-50 rounded-md p-3 space-y-2">
+                <label className="flex items-center gap-2 text-[10px] font-medium text-muted uppercase tracking-wide">
+                  <ArrowLeftRight className="w-3.5 h-3.5 text-accent" strokeWidth={1.5} />
+                  Width {isInside ? '(wall to wall)' : '(border to border)'}
                 </label>
                 <div className="flex items-center gap-2">
                   <input
@@ -206,26 +193,23 @@ export default function CameraMeasure({ onComplete, onCancel, itemType, measureF
                     onChange={(e) => setWidthWhole(e.target.value)}
                     placeholder="36"
                     autoFocus
-                    className="w-24 border-2 border-gray-200 rounded-xl px-3 py-2.5 text-lg font-semibold focus:border-primary outline-none transition-colors text-center bg-white"
+                    className="w-20 border border-border rounded-md px-2.5 py-2 text-sm font-medium focus:border-accent outline-none text-center bg-white"
                   />
-                  <span className="text-sm text-gray-500 font-medium">inches</span>
-                  <span className="text-sm text-gray-400">+</span>
+                  <span className="text-[11px] text-muted">in +</span>
                 </div>
-                <div>
-                  <span className="text-xs text-gray-500 mb-1 block">Partial inches:</span>
-                  <FractionPicker value={widthFrac} onChange={setWidthFrac} />
-                </div>
+                <FractionPicker value={widthFrac} onChange={setWidthFrac} />
                 {totalWidth > 0 && (
-                  <p className="text-xs text-primary font-semibold">
+                  <p className="text-[11px] text-primary font-semibold">
                     Total: {formatMeasurement(widthWhole, widthFrac)}
                   </p>
                 )}
               </div>
 
-              {/* Height input */}
-              <div className="bg-gray-50 rounded-xl p-3 space-y-2">
-                <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                  <ArrowUpDown className="w-4 h-4 text-blue-500" /> Height {isInside ? '(sill to top)' : '(border to border)'}
+              {/* Height */}
+              <div className="bg-stone-50 rounded-md p-3 space-y-2">
+                <label className="flex items-center gap-2 text-[10px] font-medium text-muted uppercase tracking-wide">
+                  <ArrowUpDown className="w-3.5 h-3.5 text-primary" strokeWidth={1.5} />
+                  Height {isInside ? '(sill to top)' : '(border to border)'}
                 </label>
                 <div className="flex items-center gap-2">
                   <input
@@ -236,17 +220,13 @@ export default function CameraMeasure({ onComplete, onCancel, itemType, measureF
                     value={heightWhole}
                     onChange={(e) => setHeightWhole(e.target.value)}
                     placeholder="48"
-                    className="w-24 border-2 border-gray-200 rounded-xl px-3 py-2.5 text-lg font-semibold focus:border-primary outline-none transition-colors text-center bg-white"
+                    className="w-20 border border-border rounded-md px-2.5 py-2 text-sm font-medium focus:border-accent outline-none text-center bg-white"
                   />
-                  <span className="text-sm text-gray-500 font-medium">inches</span>
-                  <span className="text-sm text-gray-400">+</span>
+                  <span className="text-[11px] text-muted">in +</span>
                 </div>
-                <div>
-                  <span className="text-xs text-gray-500 mb-1 block">Partial inches:</span>
-                  <FractionPicker value={heightFrac} onChange={setHeightFrac} />
-                </div>
+                <FractionPicker value={heightFrac} onChange={setHeightFrac} />
                 {totalHeight > 0 && (
-                  <p className="text-xs text-primary font-semibold">
+                  <p className="text-[11px] text-primary font-semibold">
                     Total: {formatMeasurement(heightWhole, heightFrac)}
                   </p>
                 )}
@@ -254,26 +234,20 @@ export default function CameraMeasure({ onComplete, onCancel, itemType, measureF
 
               <button
                 disabled={!canSubmit}
-                onClick={() =>
-                  onComplete({
-                    width: totalWidth,
-                    height: totalHeight,
-                    photo,
-                  })
-                }
-                className={`w-full py-3.5 rounded-xl font-semibold text-lg transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                onClick={() => onComplete({ width: totalWidth, height: totalHeight, photo })}
+                className={`w-full py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer flex items-center justify-center gap-2 ${
                   canSubmit
                     ? 'bg-primary text-white hover:bg-primary-light'
-                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    : 'bg-stone-100 text-stone-300 cursor-not-allowed'
                 }`}
               >
-                Save Measurements <ChevronRight className="w-5 h-5" />
+                Save Measurements <ChevronRight className="w-4 h-4" strokeWidth={2} />
               </button>
 
               {!photo && (
                 <button
                   onClick={() => setStep('camera')}
-                  className="w-full text-center text-sm text-primary hover:underline cursor-pointer py-1"
+                  className="w-full text-center text-xs text-muted hover:text-primary cursor-pointer py-1"
                 >
                   Want to add a photo?
                 </button>
@@ -286,14 +260,11 @@ export default function CameraMeasure({ onComplete, onCancel, itemType, measureF
   );
 }
 
-/* ---- Helper Components ---- */
-
-function Tip({ icon: Icon, color, text }) {
+function Tip({ icon: Icon, text }) {
   return (
-    <div className="flex items-start gap-3 text-sm">
-      <Icon className={`w-4 h-4 ${color} flex-shrink-0 mt-0.5`} />
-      <span className="text-gray-700">{text}</span>
+    <div className="flex items-start gap-2.5 text-xs">
+      <Icon className="w-3.5 h-3.5 text-accent flex-shrink-0 mt-0.5" strokeWidth={1.5} />
+      <span className="text-stone-600">{text}</span>
     </div>
   );
 }
-

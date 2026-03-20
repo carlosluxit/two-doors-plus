@@ -1,12 +1,12 @@
 const FRACTIONS = [
   { label: '0', value: 0 },
-  { label: '⅛', value: 0.125 },
-  { label: '¼', value: 0.25 },
-  { label: '⅜', value: 0.375 },
-  { label: '½', value: 0.5 },
-  { label: '⅝', value: 0.625 },
-  { label: '¾', value: 0.75 },
-  { label: '⅞', value: 0.875 },
+  { label: '\u215B', value: 0.125 },
+  { label: '\u00BC', value: 0.25 },
+  { label: '\u215C', value: 0.375 },
+  { label: '\u00BD', value: 0.5 },
+  { label: '\u215D', value: 0.625 },
+  { label: '\u00BE', value: 0.75 },
+  { label: '\u215E', value: 0.875 },
 ];
 
 export function nearestFraction(decimal) {
@@ -42,10 +42,10 @@ export default function FractionPicker({ value, onChange }) {
           key={f.value}
           type="button"
           onClick={() => onChange(f.value)}
-          className={`px-2 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer min-w-[2rem] text-center ${
+          className={`px-2 py-1 rounded-md text-[11px] font-medium transition-all cursor-pointer min-w-[1.75rem] text-center ${
             value === f.value
-              ? 'bg-primary text-white shadow-sm'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              ? 'bg-primary text-white'
+              : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
           }`}
         >
           {f.label}
@@ -57,27 +57,25 @@ export default function FractionPicker({ value, onChange }) {
 
 export function TapeMeasureTutorial() {
   const marks = [
-    { pos: 0, height: 28, label: '0', bold: true },
-    { pos: 12.5, height: 10, label: '' },
-    { pos: 25, height: 16, label: '¼', bold: false },
-    { pos: 37.5, height: 10, label: '' },
-    { pos: 50, height: 22, label: '½', bold: true },
-    { pos: 62.5, height: 10, label: '' },
-    { pos: 75, height: 16, label: '¾', bold: false },
-    { pos: 87.5, height: 10, label: '' },
-    { pos: 100, height: 28, label: '1"', bold: true },
+    { pos: 0, height: 24, label: '0', bold: true },
+    { pos: 12.5, height: 8, label: '' },
+    { pos: 25, height: 14, label: '\u00BC', bold: false },
+    { pos: 37.5, height: 8, label: '' },
+    { pos: 50, height: 20, label: '\u00BD', bold: true },
+    { pos: 62.5, height: 8, label: '' },
+    { pos: 75, height: 14, label: '\u00BE', bold: false },
+    { pos: 87.5, height: 8, label: '' },
+    { pos: 100, height: 24, label: '1"', bold: true },
   ];
 
   return (
-    <div className="bg-gradient-to-b from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-200/60">
-      <p className="text-sm font-bold text-gray-800 text-center mb-3">
+    <div className="bg-stone-50 rounded-lg p-4 border border-border">
+      <p className="text-xs font-semibold text-primary text-center mb-3">
         How to Read Your Tape Measure
       </p>
 
-      {/* Tape measure visual */}
-      <div className="bg-yellow-300/80 rounded-lg px-3 pt-3 pb-1 mx-auto max-w-[280px] shadow-inner border border-yellow-400/50">
-        <div className="relative h-16">
-          {/* Tick marks */}
+      <div className="bg-accent/20 rounded-md px-3 pt-3 pb-1 mx-auto max-w-[260px] border border-accent/30">
+        <div className="relative h-14">
           {marks.map((m) => (
             <div
               key={m.pos}
@@ -85,50 +83,37 @@ export function TapeMeasureTutorial() {
               style={{ left: `${m.pos}%`, transform: 'translateX(-50%)' }}
             >
               {m.label && (
-                <span
-                  className={`text-[10px] leading-none mb-0.5 ${
-                    m.bold ? 'font-extrabold text-gray-900' : 'font-bold text-gray-700'
-                  }`}
-                >
+                <span className={`text-[9px] leading-none mb-0.5 ${m.bold ? 'font-bold text-primary' : 'font-medium text-stone-600'}`}>
                   {m.label}
                 </span>
               )}
               <div
-                className={`w-0.5 ${m.bold ? 'bg-gray-900' : 'bg-gray-700'} rounded-full`}
+                className={`w-px ${m.bold ? 'bg-primary' : 'bg-stone-500'}`}
                 style={{ height: `${m.height}px` }}
               />
             </div>
           ))}
-          {/* Base line */}
-          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900" />
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-primary" />
         </div>
-
-        {/* Inch label */}
-        <p className="text-[9px] text-gray-700 text-center mt-1 font-semibold">ONE INCH</p>
+        <p className="text-[8px] text-stone-500 text-center mt-1 font-medium tracking-widest uppercase">One Inch</p>
       </div>
 
-      {/* Quick reference */}
-      <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
-        <div className="flex items-center gap-2">
-          <span className="w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0">1</span>
-          <span className="text-gray-700"><strong className="text-gray-900">Longest</strong> lines = whole inches</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="w-5 h-5 bg-blue-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0">2</span>
-          <span className="text-gray-700"><strong className="text-gray-900">½"</strong> = next longest mark</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="w-5 h-5 bg-green-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0">3</span>
-          <span className="text-gray-700"><strong className="text-gray-900">¼" & ¾"</strong> = medium marks</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="w-5 h-5 bg-amber-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0">4</span>
-          <span className="text-gray-700"><strong className="text-gray-900">⅛"</strong> = smallest marks</span>
-        </div>
+      <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
+        {[
+          { n: '1', text: 'Longest lines = whole inches' },
+          { n: '2', text: '\u00BD" = next longest mark' },
+          { n: '3', text: '\u00BC" & \u00BE" = medium marks' },
+          { n: '4', text: '\u215B" = smallest marks' },
+        ].map(({ n, text }) => (
+          <div key={n} className="flex items-center gap-1.5">
+            <span className="w-4 h-4 bg-primary text-white rounded-full flex items-center justify-center text-[9px] font-semibold flex-shrink-0">{n}</span>
+            <span className="text-stone-600">{text}</span>
+          </div>
+        ))}
       </div>
 
-      <p className="text-[11px] text-gray-500 text-center mt-2.5 italic">
-        Count the marks between whole inches. Pick the nearest fraction below!
+      <p className="text-[10px] text-muted text-center mt-2">
+        Count the marks between whole inches, then pick the nearest fraction.
       </p>
     </div>
   );
