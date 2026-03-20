@@ -245,9 +245,8 @@ export default function StepQuote() {
                 <th className="px-4 py-3 font-semibold text-gray-600">Item</th>
                 <th className="px-4 py-3 font-semibold text-gray-600">Size (W×H)</th>
                 <th className="px-4 py-3 font-semibold text-gray-600 text-center">Qty</th>
-                <th className="px-4 py-3 font-semibold text-gray-600 text-right">Base</th>
-                <th className="px-4 py-3 font-semibold text-gray-600 text-right">Install</th>
-                <th className="px-4 py-3 font-semibold text-gray-600 text-right">Line Total</th>
+                <th className="px-4 py-3 font-semibold text-gray-600 text-right">Unit Price</th>
+                <th className="px-4 py-3 font-semibold text-gray-600 text-right">Total</th>
               </tr>
             </thead>
             <tbody>
@@ -262,14 +261,11 @@ export default function StepQuote() {
                   </td>
                   <td className="px-4 py-3 text-gray-600">{li.width}" × {li.height}"</td>
                   <td className="px-4 py-3 text-center text-gray-600">{li.qty}</td>
-                  <td className="px-4 py-3 text-right text-gray-900">
-                    {li.calc ? `$${(li.calc.basePrice * li.qty).toLocaleString()}` : <span className="text-amber-500 text-xs">TBD</span>}
-                  </td>
                   <td className="px-4 py-3 text-right text-gray-600">
-                    {li.calc ? `$${(li.calc.installFee * li.qty).toLocaleString()}` : '—'}
+                    {li.calc ? `$${Math.round(li.calc.unitTotal).toLocaleString()}` : <span className="text-amber-500 text-xs">TBD</span>}
                   </td>
                   <td className="px-4 py-3 text-right font-semibold text-gray-900">
-                    {li.calc ? `$${li.calc.lineTotal.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` : <span className="text-amber-500 text-xs">TBD</span>}
+                    {li.calc ? `$${Math.round(li.calc.lineTotal).toLocaleString()}` : <span className="text-amber-500 text-xs">TBD</span>}
                   </td>
                 </tr>
               ))}
@@ -281,16 +277,8 @@ export default function StepQuote() {
         {hasPrices && (
           <div className="border-t-2 border-gray-200 p-5">
             <div className="max-w-xs ml-auto space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-500">Products + Installation</span>
-                <span className="text-gray-900">${Math.round(itemsSubtotal).toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Service & Overhead (30%)</span>
-                <span className="text-gray-900">${Math.round(markupAmount).toLocaleString()}</span>
-              </div>
               <div className="flex justify-between border-t pt-3 mt-3 border-gray-200">
-                <span className="font-bold text-gray-900 text-lg">Grand Total</span>
+                <span className="font-bold text-gray-900 text-lg">Total (incl. installation)</span>
                 <span className="font-extrabold text-lg text-primary">
                   ${Math.round(total).toLocaleString()}
                 </span>

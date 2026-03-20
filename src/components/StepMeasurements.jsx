@@ -161,7 +161,7 @@ export default function StepMeasurements() {
         <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 mb-6 flex items-center justify-between">
           <div>
             <div className="text-sm text-gray-500">Estimated Total</div>
-            <div className="text-xs text-gray-400">Includes installation + 30% markup</div>
+            <div className="text-xs text-gray-400">Includes product + installation</div>
           </div>
           <div className="text-2xl font-extrabold text-primary">
             {runningTotal > 0 ? `$${runningTotal.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` : '—'}
@@ -378,11 +378,9 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
           </div>
         ) : priceCalc ? (
           <div className="flex items-center justify-between text-xs bg-green-50 rounded-lg px-3 py-2">
-            <span className="text-gray-500">
-              ${priceCalc.basePrice.toLocaleString()} base + ${priceCalc.installFee.toLocaleString()} install + 30%
-            </span>
+            <span className="text-gray-500">Includes product + installation</span>
             <span className="font-bold text-primary">
-              ${priceCalc.lineTotal.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} total
+              ${priceCalc.lineTotal.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </span>
           </div>
         ) : null}
