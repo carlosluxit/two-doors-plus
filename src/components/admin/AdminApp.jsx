@@ -9,32 +9,47 @@ export default function AdminApp() {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
+    // Timeout safety — if getSession hangs, show login after 3s
+    const timeout = setTimeout(() => {
+      if (mounted && checking) setChecking(false);
+    }, 3000);
+
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!mounted) return;
       setSession(session);
-      if (session) await checkAdmin(session.user.id);
+      if (session) await checkAdmin();
       setChecking(false);
+    }).catch(() => {
+      if (mounted) setChecking(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!mounted) return;
       setSession(session);
-      setChecking(true);
       if (session) {
-        await checkAdmin(session.user.id);
+        await checkAdmin();
       } else {
         setIsAdmin(false);
       }
-      setChecking(false);
     });
-    return () => subscription.unsubscribe();
+
+    return () => {
+      mounted = false;
+      clearTimeout(timeout);
+      subscription.unsubscribe();
+    };
   }, []);
 
-  async function checkAdmin(userId) {
+  async function checkAdmin() {
     try {
-      const { data } = await supabase
-        .from('admin_profiles')
-        .select('id')
-        .eq('id', userId)
-        .maybeSingle();
+      const { data, error } = await supabase.rpc('is_admin');
+      if (error) {
+        console.error('checkAdmin error:', error.message);
+        setIsAdmin(false);
+        return;
+      }
       setIsAdmin(!!data);
     } catch {
       setIsAdmin(false);
