@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useQuote, useQuoteDispatch } from '../context/QuoteContext';
 import { usePricing } from '../context/PricingContext';
-import { WINDOW_TYPES, DOOR_TYPES, SLIDING_DOOR_TYPES, DOOR_VARIANTS, findPriceEntry, calcLineItem } from '../data/products';
+import { WINDOW_TYPES, DOOR_TYPES, SLIDING_DOOR_TYPES, DOOR_VARIANTS, GLASS_TYPES, findPriceEntry, calcLineItem } from '../data/products';
 import { supabase } from '../lib/supabase';
 import {
   Calendar,
@@ -97,6 +97,7 @@ export default function StepQuote() {
         height: li.height,
         quantity: li.qty,
         door_variant: li.doorStyle || null,
+        glass_type: li.glassType || null,
         base_price: li.calc?.basePrice ?? 0,
         install_fee: li.calc?.installFee ?? 0,
         unit_subtotal: li.calc?.unitSubtotal ?? 0,
@@ -250,10 +251,18 @@ export default function StepQuote() {
                   <td className="px-4 py-3">
                     <div className="text-xs font-medium text-primary">{li.label || getTypeName(li)}</div>
                     <div className="text-[11px] text-muted">
-                      {getTypeName(li)}{li.doorStyle ? ` \u00B7 ${DOOR_VARIANTS[li.doorStyle]}` : ''}
+                      {getTypeName(li)}
+                      {li.doorStyle ? ` · ${DOOR_VARIANTS[li.doorStyle]}` : ''}
+                      {li.glassType && GLASS_TYPES[li.glassType] ? ` · ${GLASS_TYPES[li.glassType]}` : ''}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-xs text-stone-600">{li.width}" × {li.height}"</td>
+                  <td className="px-4 py-3 text-xs text-stone-600">
+                    {li.subType === 'circle'
+                      ? `${li.width}" dia.`
+                      : li.subType === 'half_moon'
+                        ? `${li.width}" + ${li.height}"`
+                        : `${li.width}" × ${li.height}"`}
+                  </td>
                   <td className="px-4 py-3 text-center text-xs text-stone-600">{li.qty}</td>
                   <td className="px-4 py-3 text-right text-xs text-stone-600">
                     {li.calc ? `$${Math.round(li.calc.displayPrice).toLocaleString()}` : <span className="text-accent text-[11px]">TBD</span>}

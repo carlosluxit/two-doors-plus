@@ -7,7 +7,7 @@ const PRODUCT_TYPE_LABELS = {
   single_hung: 'Single Hung',
   horizontal_roller_xo: 'Horizontal Roller XO',
   horizontal_roller_xox: 'Horizontal Roller XOX',
-  geometric: 'Geometric Shapes',
+  geometric: 'Geometric Shapes (Half Moon & Circle)',
   single_door: 'Single Door',
   bermuda_door: 'Bermuda Door',
   double_door: 'Double Door',
@@ -272,7 +272,7 @@ export default function AdminPriceLists() {
                                             value={entry[field] ?? ''}
                                             onChange={(e) => updateEntry(list.id, entry.id, field, e.target.value)}
                                             className="w-24 border border-border rounded px-2 py-1 text-right focus:border-accent outline-none bg-white text-sm transition-colors"
-                                            placeholder="\u2014"
+                                            placeholder="—"
                                           />
                                         </td>
                                       ))}
@@ -284,7 +284,7 @@ export default function AdminPriceLists() {
                                         value={entry.base_price ?? ''}
                                         onChange={(e) => updateEntry(list.id, entry.id, 'base_price', e.target.value)}
                                         className="w-24 border border-border rounded px-2 py-1 text-right focus:border-accent outline-none bg-white text-sm transition-colors"
-                                        placeholder="\u2014"
+                                        placeholder="—"
                                       />
                                     </td>
                                   )}

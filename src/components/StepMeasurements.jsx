@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuote, useQuoteDispatch } from '../context/QuoteContext';
 import { usePricing } from '../context/PricingContext';
-import { WINDOW_TYPES, DOOR_TYPES, SLIDING_DOOR_TYPES, DOOR_VARIANTS, findPriceEntry, calcLineItem } from '../data/products';
+import { WINDOW_TYPES, DOOR_TYPES, SLIDING_DOOR_TYPES, DOOR_VARIANTS, GLASS_TYPES, findPriceEntry, calcLineItem } from '../data/products';
 import CameraMeasure from './CameraMeasure';
 import FractionPicker, { splitInches, combineInches } from './FractionPicker';
 import {
@@ -30,7 +30,7 @@ export default function StepMeasurements() {
   const addItem = (category) => {
     let defaults;
     if (category === 'window') {
-      defaults = { itemCategory: 'window', subType: 'single_hung', width: 36, height: 48, quantity: 1, label: '', photo: null, doorStyle: null };
+      defaults = { itemCategory: 'window', subType: 'single_hung', width: 36, height: 48, quantity: 1, label: '', photo: null, doorStyle: null, glassType: 'clear' };
     } else if (category === 'door') {
       defaults = { itemCategory: 'door', subType: 'single_door', width: 36, height: 80, quantity: 1, label: '', photo: null, doorStyle: 'traditional' };
     } else {
@@ -54,7 +54,10 @@ export default function StepMeasurements() {
 
   const canProceed =
     state.items.length > 0 &&
-    state.items.every((item) => item.width > 0 && item.height > 0 && item.quantity > 0);
+    state.items.every((item) => {
+      if (item.subType === 'circle') return item.width > 0 && item.quantity > 0;
+      return item.width > 0 && item.height > 0 && item.quantity > 0;
+    });
 
   const windowItems = state.items.filter((i) => i.itemCategory === 'window');
   const doorItems = state.items.filter((i) => i.itemCategory === 'door');
@@ -221,6 +224,9 @@ function formatSize(val) {
 function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoading, onMeasure }) {
   const isWindow = item.itemCategory === 'window';
   const isDoor = item.itemCategory === 'door';
+  const isCircle = item.subType === 'circle';
+  const isHalfMoon = item.subType === 'half_moon';
+  const isGeometric = isCircle || isHalfMoon;
 
   const typeMap = isWindow ? WINDOW_TYPES : isDoor ? DOOR_TYPES : SLIDING_DOOR_TYPES;
   const typeEntries = Object.entries(typeMap);
@@ -287,6 +293,28 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
         </div>
       </div>
 
+      {/* Glass type — windows only */}
+      {isWindow && (
+        <div className="mb-3">
+          <label className="text-[10px] text-muted uppercase tracking-wide block mb-1.5">Glass Type</label>
+          <div className="grid grid-cols-4 gap-1.5">
+            {Object.entries(GLASS_TYPES).map(([key, label]) => (
+              <button
+                key={key}
+                onClick={() => dispatch({ type: 'UPDATE_ITEM', id: item.id, updates: { glassType: key } })}
+                className={`text-[11px] px-2 py-1.5 rounded-md border font-medium transition-all cursor-pointer ${
+                  (item.glassType || 'clear') === key
+                    ? 'bg-primary text-white border-primary'
+                    : 'bg-white text-stone-600 border-border hover:border-stone-300'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Door style */}
       {isDoor && (
         <div className="mb-3">
@@ -309,47 +337,77 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
         </div>
       )}
 
-      {/* Width */}
-      <div className="bg-stone-50 rounded-md p-2.5 mb-1.5">
-        <div className="flex items-center gap-2 mb-1.5">
-          <Ruler className="w-3 h-3 text-accent" strokeWidth={1.5} />
-          <span className="text-[10px] font-medium text-muted uppercase tracking-wide">
-            Width {measureFrom === 'outside' ? '(border to border)' : '(wall to wall)'}
-          </span>
-          <span className="text-xs text-primary font-semibold ml-auto">{formatSize(item.width)}</span>
+      {/* Measurements — Circle: diameter only */}
+      {isCircle ? (
+        <div className="bg-stone-50 rounded-md p-2.5">
+          <div className="flex items-center gap-2 mb-1.5">
+            <Ruler className="w-3 h-3 text-accent" strokeWidth={1.5} />
+            <span className="text-[10px] font-medium text-muted uppercase tracking-wide">Diameter</span>
+            <span className="text-xs text-primary font-semibold ml-auto">{formatSize(item.width)}</span>
+          </div>
+          <div className="flex items-center gap-2 mb-1.5">
+            <input
+              type="number" min="0" max="300"
+              value={wWhole}
+              onChange={(e) => updateDim('width', e.target.value, wFrac)}
+              className="w-16 border border-border rounded-md px-2 py-1.5 text-xs font-medium focus:border-accent outline-none text-center bg-white"
+            />
+            <span className="text-[10px] text-muted">in +</span>
+          </div>
+          <FractionPicker value={wFrac} onChange={(f) => updateDim('width', wWhole, f)} />
         </div>
-        <div className="flex items-center gap-2 mb-1.5">
-          <input
-            type="number" min="0" max="300"
-            value={wWhole}
-            onChange={(e) => updateDim('width', e.target.value, wFrac)}
-            className="w-16 border border-border rounded-md px-2 py-1.5 text-xs font-medium focus:border-accent outline-none text-center bg-white"
-          />
-          <span className="text-[10px] text-muted">in +</span>
-        </div>
-        <FractionPicker value={wFrac} onChange={(f) => updateDim('width', wWhole, f)} />
-      </div>
+      ) : (
+        <>
+          {/* Width / Half Moon Width */}
+          <div className="bg-stone-50 rounded-md p-2.5 mb-1.5">
+            <div className="flex items-center gap-2 mb-1.5">
+              <Ruler className="w-3 h-3 text-accent" strokeWidth={1.5} />
+              <span className="text-[10px] font-medium text-muted uppercase tracking-wide">
+                {isHalfMoon ? 'Width' : `Width ${measureFrom === 'outside' ? '(border to border)' : '(wall to wall)'}`}
+              </span>
+              <span className="text-xs text-primary font-semibold ml-auto">{formatSize(item.width)}</span>
+            </div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <input
+                type="number" min="0" max="300"
+                value={wWhole}
+                onChange={(e) => updateDim('width', e.target.value, wFrac)}
+                className="w-16 border border-border rounded-md px-2 py-1.5 text-xs font-medium focus:border-accent outline-none text-center bg-white"
+              />
+              <span className="text-[10px] text-muted">in +</span>
+            </div>
+            <FractionPicker value={wFrac} onChange={(f) => updateDim('width', wWhole, f)} />
+          </div>
 
-      {/* Height */}
-      <div className="bg-stone-50 rounded-md p-2.5">
-        <div className="flex items-center gap-2 mb-1.5">
-          <Ruler className="w-3 h-3 text-primary" strokeWidth={1.5} />
-          <span className="text-[10px] font-medium text-muted uppercase tracking-wide">
-            Height {measureFrom === 'outside' ? '(border to border)' : '(sill to top)'}
-          </span>
-          <span className="text-xs text-primary font-semibold ml-auto">{formatSize(item.height)}</span>
+          {/* Height / Half Moon Center to Top */}
+          <div className="bg-stone-50 rounded-md p-2.5">
+            <div className="flex items-center gap-2 mb-1.5">
+              <Ruler className="w-3 h-3 text-primary" strokeWidth={1.5} />
+              <span className="text-[10px] font-medium text-muted uppercase tracking-wide">
+                {isHalfMoon ? 'Center to Top' : `Height ${measureFrom === 'outside' ? '(border to border)' : '(sill to top)'}`}
+              </span>
+              <span className="text-xs text-primary font-semibold ml-auto">{formatSize(item.height)}</span>
+            </div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <input
+                type="number" min="0" max="300"
+                value={hWhole}
+                onChange={(e) => updateDim('height', e.target.value, hFrac)}
+                className="w-16 border border-border rounded-md px-2 py-1.5 text-xs font-medium focus:border-accent outline-none text-center bg-white"
+              />
+              <span className="text-[10px] text-muted">in +</span>
+            </div>
+            <FractionPicker value={hFrac} onChange={(f) => updateDim('height', hWhole, f)} />
+          </div>
+        </>
+      )}
+
+      {/* Half moon sum indicator */}
+      {isHalfMoon && (
+        <div className="mt-1.5 px-2.5 py-1.5 bg-accent/5 border border-accent/20 rounded-md text-[11px] text-stone-600">
+          Width + Center to Top = <span className="font-semibold text-primary">{formatSize(item.width + item.height)}</span> (used for pricing)
         </div>
-        <div className="flex items-center gap-2 mb-1.5">
-          <input
-            type="number" min="0" max="300"
-            value={hWhole}
-            onChange={(e) => updateDim('height', e.target.value, hFrac)}
-            className="w-16 border border-border rounded-md px-2 py-1.5 text-xs font-medium focus:border-accent outline-none text-center bg-white"
-          />
-          <span className="text-[10px] text-muted">in +</span>
-        </div>
-        <FractionPicker value={hFrac} onChange={(f) => updateDim('height', hWhole, f)} />
-      </div>
+      )}
 
       {/* Price */}
       <div className="mt-3">

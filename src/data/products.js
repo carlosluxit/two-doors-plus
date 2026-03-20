@@ -4,7 +4,15 @@ export const WINDOW_TYPES = {
   single_hung: { name: 'Single Hung', lucideIcon: 'ArrowUpFromLine', category: 'window' },
   horizontal_roller_xo: { name: 'Horizontal Roller XO', lucideIcon: 'ArrowLeftRight', category: 'window' },
   horizontal_roller_xox: { name: 'Horizontal Roller XOX', lucideIcon: 'Columns3', category: 'window' },
-  geometric: { name: 'Geometric Shape', lucideIcon: 'Hexagon', category: 'window' },
+  half_moon: { name: 'Half Moon', lucideIcon: 'Hexagon', category: 'window' },
+  circle: { name: 'Circle', lucideIcon: 'Circle', category: 'window' },
+};
+
+export const GLASS_TYPES = {
+  clear: 'Clear',
+  tint: 'Tint',
+  lowe_366: 'Lowe-366',
+  frosted: 'Frosted',
 };
 
 export const DOOR_TYPES = {
@@ -48,6 +56,19 @@ export function getVariantPrice(entry, variant) {
  * For geometric: uses the larger of W/H as the single dimension.
  */
 export function findPriceEntry(entries, productType, widthInches, heightInches) {
+  // Half moon: width + center-to-top = sum determines price range
+  if (productType === 'half_moon') {
+    const geo = entries.filter((e) => e.product_type === 'geometric');
+    const dim = widthInches + heightInches;
+    return geo.find((e) => dim >= e.width_min && dim <= e.width_max) ?? null;
+  }
+
+  // Circle: diameter determines price range
+  if (productType === 'circle') {
+    const geo = entries.filter((e) => e.product_type === 'geometric');
+    return geo.find((e) => widthInches >= e.width_min && widthInches <= e.width_max) ?? null;
+  }
+
   const candidates = entries.filter((e) => e.product_type === productType);
   if (!candidates.length) return null;
 
