@@ -235,23 +235,23 @@ export default function AdminPriceLists() {
                           {PRODUCT_TYPE_LABELS[type] ?? type}
                         </div>
                         <div className="overflow-x-auto">
-                          <table className="w-full text-xs">
+                          <table className={`text-xs ${isDoor(typeEntries[0]) ? 'min-w-[700px]' : 'min-w-[400px]'} w-full`}>
                             <thead>
                               <tr className="text-muted border-b border-border">
                                 <th className="px-3 py-2 text-left text-[10px] uppercase tracking-wide">W range</th>
                                 <th className="px-3 py-2 text-left text-[10px] uppercase tracking-wide">H range</th>
                                 {isDoor(typeEntries[0]) ? (
                                   <>
-                                    <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wide">Traditional</th>
-                                    <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wide">Design</th>
-                                    <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wide">WG Trad.</th>
-                                    <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wide">WG Design</th>
+                                    <th className="px-3 py-2 text-center text-[10px] uppercase tracking-wide">Traditional</th>
+                                    <th className="px-3 py-2 text-center text-[10px] uppercase tracking-wide">Design</th>
+                                    <th className="px-3 py-2 text-center text-[10px] uppercase tracking-wide">WG Trad.</th>
+                                    <th className="px-3 py-2 text-center text-[10px] uppercase tracking-wide">WG Design</th>
                                   </>
                                 ) : (
-                                  <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wide">Base Price</th>
+                                  <th className="px-3 py-2 text-center text-[10px] uppercase tracking-wide">Base Price</th>
                                 )}
-                                <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wide">Install</th>
-                                <th className="px-3 py-2 text-right text-[10px] uppercase tracking-wide">Save</th>
+                                <th className="px-3 py-2 text-center text-[10px] uppercase tracking-wide">Install</th>
+                                <th className="px-3 py-2 text-center text-[10px] uppercase tracking-wide w-12">Save</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -266,7 +266,7 @@ export default function AdminPriceLists() {
                                   {isDoor(entry) ? (
                                     <>
                                       {['price_traditional','price_design','price_wg_traditional','price_wg_design'].map((field) => (
-                                        <td key={field} className="px-3 py-2">
+                                        <td key={field} className="px-2 py-2">
                                           <input
                                             type="number"
                                             value={entry[field] ?? ''}
@@ -278,7 +278,7 @@ export default function AdminPriceLists() {
                                       ))}
                                     </>
                                   ) : (
-                                    <td className="px-3 py-2">
+                                    <td className="px-2 py-2">
                                       <input
                                         type="number"
                                         value={entry.base_price ?? ''}
@@ -288,15 +288,16 @@ export default function AdminPriceLists() {
                                       />
                                     </td>
                                   )}
-                                  <td className="px-3 py-2">
+                                  <td className="px-2 py-2">
                                     <input
                                       type="number"
                                       value={entry.install_fee ?? ''}
                                       onChange={(e) => updateEntry(list.id, entry.id, 'install_fee', e.target.value)}
-                                      className="w-20 border border-border rounded px-2 py-1 text-right focus:border-accent outline-none bg-white text-sm transition-colors"
+                                      className="w-24 border border-border rounded px-2 py-1 text-right focus:border-accent outline-none bg-white text-sm transition-colors"
+                                      placeholder="—"
                                     />
                                   </td>
-                                  <td className="px-3 py-2 text-right">
+                                  <td className="px-2 py-2 text-center">
                                     <button
                                       onClick={() => saveEntry(list.id, entry)}
                                       disabled={saving[entry.id]}
