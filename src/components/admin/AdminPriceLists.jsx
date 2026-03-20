@@ -205,7 +205,7 @@ export default function AdminPriceLists() {
 
               {/* Expanded price editor */}
               {expanded === list.id && (
-                <div className="border-t border-border p-4 bg-stone-50">
+                <div className="border-t border-border p-4 bg-slate-50">
                   {/* Category tabs */}
                   <div className="flex gap-2 mb-4">
                     {CATEGORIES.map((cat) => (
@@ -213,7 +213,7 @@ export default function AdminPriceLists() {
                         key={cat}
                         onClick={() => setExpandedCat(cat)}
                         className={`text-[10px] px-3 py-1.5 rounded-lg font-semibold cursor-pointer capitalize transition-colors uppercase tracking-wide ${
-                          expandedCat === cat ? 'bg-primary text-white' : 'bg-white border border-border text-stone-600 hover:border-accent'
+                          expandedCat === cat ? 'bg-primary text-white' : 'bg-white border border-border text-slate-600 hover:border-accent'
                         }`}
                       >
                         {cat.replace('_', ' ')}
@@ -231,7 +231,7 @@ export default function AdminPriceLists() {
                       }, {}) ?? {}
                     ).map(([type, typeEntries]) => (
                       <div key={type} className="bg-white rounded-lg border border-border overflow-hidden">
-                        <div className="px-4 py-2 bg-stone-100 text-[10px] font-semibold text-muted uppercase tracking-widest">
+                        <div className="px-4 py-2 bg-slate-100 text-[10px] font-semibold text-muted uppercase tracking-widest">
                           {PRODUCT_TYPE_LABELS[type] ?? type}
                         </div>
                         <div className="overflow-x-auto">
@@ -256,11 +256,11 @@ export default function AdminPriceLists() {
                             </thead>
                             <tbody>
                               {typeEntries.map((entry) => (
-                                <tr key={entry.id} className="border-t border-stone-100 hover:bg-stone-50 transition-colors">
-                                  <td className="px-3 py-2 text-stone-600 whitespace-nowrap">
+                                <tr key={entry.id} className="border-t border-slate-100 hover:bg-slate-50 transition-colors">
+                                  <td className="px-3 py-2 text-slate-600 whitespace-nowrap">
                                     {entry.width_min === entry.width_max ? `${entry.width_min}"` : `${entry.width_min}"–${entry.width_max}"`}
                                   </td>
-                                  <td className="px-3 py-2 text-stone-600 whitespace-nowrap">
+                                  <td className="px-3 py-2 text-slate-600 whitespace-nowrap">
                                     {entry.height_min === entry.height_max ? `${entry.height_min}"` : `${entry.height_min}"–${entry.height_max}"`}
                                   </td>
                                   {isDoor(entry) ? (

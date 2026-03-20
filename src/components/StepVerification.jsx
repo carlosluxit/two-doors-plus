@@ -67,7 +67,7 @@ export default function StepVerification() {
         <h2 className="text-lg font-semibold text-primary mb-1.5">Verified</h2>
         <p className="text-sm text-muted">Generating your guaranteed quote...</p>
         <div className="mt-6">
-          <div className="w-40 h-1 bg-stone-100 rounded-full mx-auto overflow-hidden">
+          <div className="w-40 h-1 bg-slate-100 rounded-full mx-auto overflow-hidden">
             <div className="h-full bg-accent rounded-full animate-subtle-pulse" style={{ width: '70%' }} />
           </div>
         </div>
@@ -97,7 +97,7 @@ export default function StepVerification() {
                 className={`w-full flex items-center gap-3.5 p-3.5 rounded-lg border text-left transition-all cursor-pointer ${
                   method === id
                     ? 'border-accent bg-accent/5'
-                    : 'border-border hover:border-stone-300'
+                    : 'border-border hover:border-slate-300'
                 }`}
               >
                 <Icon className={`w-4 h-4 ${method === id ? 'text-accent' : 'text-muted'}`} strokeWidth={1.5} />
@@ -157,7 +157,7 @@ export default function StepVerification() {
             Didn't receive it? Resend code
           </button>
 
-          <p className="text-center text-[10px] text-stone-300 mt-2">
+          <p className="text-center text-[10px] text-slate-300 mt-2">
             (Demo: Enter any 6 digits to continue)
           </p>
         </>
@@ -166,7 +166,7 @@ export default function StepVerification() {
       <div className="mt-10">
         <button
           onClick={() => dispatch({ type: 'PREV_STEP' })}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm text-muted hover:text-primary hover:bg-stone-50 transition-colors cursor-pointer"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm text-muted hover:text-primary hover:bg-slate-50 transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" strokeWidth={1.5} /> Back
         </button>

@@ -47,7 +47,7 @@ export default function StepProjectType() {
               className={`relative w-full flex items-center gap-4 p-4 rounded-lg border text-left transition-all cursor-pointer ${
                 selected
                   ? 'border-accent bg-accent/5'
-                  : 'border-border bg-white hover:border-stone-300'
+                  : 'border-border bg-white hover:border-slate-300'
               }`}
             >
               {popular && (
@@ -56,7 +56,7 @@ export default function StepProjectType() {
                 </span>
               )}
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                selected ? 'bg-accent/10' : 'bg-stone-50'
+                selected ? 'bg-accent/10' : 'bg-slate-50'
               }`}>
                 <Icon className={`w-5 h-5 ${selected ? 'text-accent' : 'text-muted'}`} strokeWidth={1.5} />
               </div>
@@ -66,7 +66,7 @@ export default function StepProjectType() {
               </div>
               <div
                 className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                  selected ? 'border-accent bg-accent' : 'border-stone-300'
+                  selected ? 'border-accent bg-accent' : 'border-slate-300'
                 }`}
               >
                 {selected && <div className="w-2 h-2 bg-white rounded-full" />}
@@ -83,7 +83,7 @@ export default function StepProjectType() {
           className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium tracking-wide transition-all cursor-pointer ${
             canProceed
               ? 'bg-primary text-white hover:bg-primary-light'
-              : 'bg-stone-100 text-stone-300 cursor-not-allowed'
+              : 'bg-slate-100 text-slate-300 cursor-not-allowed'
           }`}
         >
           Continue

@@ -20,29 +20,33 @@ export default function Landing() {
 
   return (
     <div className="animate-fade-in">
-      {/* Hero */}
-      <section className="bg-primary">
-        <div className="max-w-5xl mx-auto px-5 py-20 sm:py-28 lg:py-32">
+      {/* Hero with background image */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0">
+          <img src="/hero-home.jpg" alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/85 to-primary/60" />
+        </div>
+        <div className="relative max-w-5xl mx-auto px-5 py-24 sm:py-32 lg:py-40">
           <div className="max-w-2xl">
-            <p className="text-accent text-sm font-medium tracking-widest uppercase mb-6">
+            <p className="text-accent text-sm font-semibold tracking-widest uppercase mb-6">
               South Florida's Trusted Experts
             </p>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight text-white mb-6">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight text-white mb-6">
               Hurricane Impact Doors & Windows.{' '}
               <span className="text-accent">Transparent pricing.</span>
             </h2>
-            <p className="text-stone-400 text-base sm:text-lg mb-10 max-w-lg leading-relaxed">
-              No bait-and-switch lead forms. Get a real, guaranteed quote
-              in under two minutes — your information is never sold.
+            <p className="text-slate-300 text-lg sm:text-xl mb-10 max-w-lg leading-relaxed">
+              See your exact price in under two minutes. Guaranteed pricing,
+              professional installation, and a free expert verification visit.
             </p>
             <button
               onClick={start}
-              className="group inline-flex items-center gap-3 bg-accent hover:bg-accent-light text-primary px-7 py-3.5 rounded-lg text-sm font-semibold tracking-wide transition-all cursor-pointer"
+              className="group inline-flex items-center gap-3 bg-accent hover:bg-accent-light text-white px-8 py-4 rounded-xl text-base font-semibold tracking-wide transition-all cursor-pointer shadow-xl shadow-accent/30 hover:shadow-2xl hover:shadow-accent/40 hover:-translate-y-0.5"
             >
               Get Your Free Quote
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" strokeWidth={2} />
+              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" strokeWidth={2} />
             </button>
-            <p className="text-stone-500 text-xs mt-5">
+            <p className="text-slate-400 text-sm mt-6">
               500+ South Florida homeowners quoted this month
             </p>
           </div>
@@ -50,15 +54,17 @@ export default function Landing() {
       </section>
 
       {/* Trust Bar */}
-      <section className="border-b border-border">
-        <div className="max-w-5xl mx-auto px-5 py-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <section className="border-b border-border bg-white">
+        <div className="max-w-5xl mx-auto px-5 py-10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {TRUST_ITEMS.map(({ icon: Icon, label, desc }) => (
-              <div key={label} className="flex items-start gap-3">
-                <Icon className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" strokeWidth={1.5} />
+              <div key={label} className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Icon className="w-6 h-6 text-accent" strokeWidth={1.5} />
+                </div>
                 <div>
-                  <div className="text-sm font-medium text-primary">{label}</div>
-                  <div className="text-xs text-muted mt-0.5">{desc}</div>
+                  <div className="text-sm font-bold text-primary">{label}</div>
+                  <div className="text-xs text-muted mt-1">{desc}</div>
                 </div>
               </div>
             ))}
@@ -67,19 +73,20 @@ export default function Landing() {
       </section>
 
       {/* How It Works */}
-      <section className="py-20">
-        <div className="max-w-3xl mx-auto px-5">
-          <h3 className="text-2xl font-semibold text-center text-primary mb-14">
+      <section className="py-24">
+        <div className="max-w-4xl mx-auto px-5">
+          <p className="text-accent text-xs font-semibold tracking-widest uppercase text-center mb-3">Simple Process</p>
+          <h3 className="text-3xl font-bold text-center text-primary mb-16">
             How It Works
           </h3>
-          <div className="grid md:grid-cols-3 gap-10">
+          <div className="grid md:grid-cols-3 gap-12">
             {STEPS_INFO.map(({ num, icon: Icon, title, desc }) => (
               <div key={num} className="text-center">
-                <div className="w-10 h-10 border border-border rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Icon className="w-4 h-4 text-accent" strokeWidth={1.5} />
+                <div className="w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
+                  <Icon className="w-7 h-7 text-accent" strokeWidth={1.5} />
                 </div>
-                <h4 className="text-sm font-semibold text-primary mb-1.5">{title}</h4>
-                <p className="text-xs text-muted leading-relaxed">{desc}</p>
+                <h4 className="text-base font-bold text-primary mb-2">{title}</h4>
+                <p className="text-sm text-muted leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
@@ -87,26 +94,27 @@ export default function Landing() {
       </section>
 
       {/* What Makes Us Different */}
-      <section className="py-20 bg-stone-50">
+      <section className="py-24 bg-primary">
         <div className="max-w-3xl mx-auto px-5">
-          <h3 className="text-2xl font-semibold text-center text-primary mb-4">
+          <p className="text-accent text-xs font-semibold tracking-widest uppercase text-center mb-3">The Difference</p>
+          <h3 className="text-3xl font-bold text-center text-white mb-5">
             Why Homeowners Choose Us
           </h3>
-          <p className="text-center text-muted text-sm mb-12 max-w-md mx-auto">
-            Most "instant quote" tools collect your info and sell it to multiple companies. We give you real pricing.
+          <p className="text-center text-slate-400 text-sm mb-14 max-w-md mx-auto">
+            Real prices, real products, and a team that stands behind every installation.
           </p>
-          <div className="grid sm:grid-cols-2 gap-3">
+          <div className="grid sm:grid-cols-2 gap-4">
             {[
-              'True instant pricing — not a bait-and-switch lead form',
-              'Your information is never sold to third parties',
-              'Guaranteed price valid for 5 days',
+              'Instant, transparent pricing you can trust',
+              'Your information stays private — always',
+              'Guaranteed price locked in for 5 days',
               'All products Miami-Dade NOA approved',
-              'Professional verification visit — no high-pressure sales',
-              'Financing options available',
+              'Free professional verification visit at your home',
+              'Flexible financing options available',
             ].map((item) => (
-              <div key={item} className="flex items-start gap-3 p-3.5 rounded-lg">
-                <CheckCircle className="w-4 h-4 text-success flex-shrink-0 mt-0.5" strokeWidth={1.5} />
-                <span className="text-sm text-stone-700">{item}</span>
+              <div key={item} className="flex items-start gap-4 p-4 rounded-xl bg-white/5 border border-white/10">
+                <CheckCircle className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" strokeWidth={2} />
+                <span className="text-sm text-slate-200 leading-relaxed">{item}</span>
               </div>
             ))}
           </div>
@@ -114,26 +122,27 @@ export default function Landing() {
       </section>
 
       {/* Reviews */}
-      <section className="py-20">
-        <div className="max-w-3xl mx-auto px-5">
-          <h3 className="text-2xl font-semibold text-center text-primary mb-14">
+      <section className="py-24 bg-white">
+        <div className="max-w-4xl mx-auto px-5">
+          <p className="text-accent text-xs font-semibold tracking-widest uppercase text-center mb-3">Testimonials</p>
+          <h3 className="text-3xl font-bold text-center text-primary mb-16">
             What Homeowners Say
           </h3>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-8">
             {[
               { name: 'Maria G.', loc: 'Miami Beach', text: 'Finally a company that gives you a real price upfront. No games, no 10 salespeople calling me.' },
               { name: 'James R.', loc: 'Coral Gables', text: 'Got my quote in 2 minutes. The verification visit was professional and no pressure at all.' },
               { name: 'Ana S.', loc: 'Fort Lauderdale', text: 'The windows are amazing. Price was exactly what they quoted online. Highly recommend!' },
             ].map((review) => (
-              <div key={review.name} className="border border-border rounded-lg p-5">
-                <div className="flex gap-0.5 mb-3">
+              <div key={review.name} className="border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex gap-1 mb-4">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3.5 h-3.5 fill-accent text-accent" />
+                    <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
                   ))}
                 </div>
-                <p className="text-sm text-stone-600 leading-relaxed mb-4">&ldquo;{review.text}&rdquo;</p>
-                <div className="text-xs font-medium text-primary">{review.name}</div>
-                <div className="text-[11px] text-muted">{review.loc}</div>
+                <p className="text-base text-slate-700 leading-relaxed mb-5">&ldquo;{review.text}&rdquo;</p>
+                <div className="text-sm font-bold text-primary">{review.name}</div>
+                <div className="text-xs text-muted mt-0.5">{review.loc}</div>
               </div>
             ))}
           </div>
@@ -141,27 +150,31 @@ export default function Landing() {
       </section>
 
       {/* Bottom CTA */}
-      <section className="bg-primary py-20">
-        <div className="max-w-lg mx-auto px-5 text-center">
-          <h3 className="text-2xl font-semibold text-white mb-3">Ready to Protect Your Home?</h3>
-          <p className="text-stone-400 text-sm mb-8">
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0">
+          <img src="/hero-measure.jpg" alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-primary/90" />
+        </div>
+        <div className="relative max-w-lg mx-auto px-5 py-24 text-center">
+          <h3 className="text-3xl font-bold text-white mb-4">Ready to Protect Your Home?</h3>
+          <p className="text-slate-300 text-base mb-10">
             Get your guaranteed quote in under 2 minutes. No obligations, no pressure.
           </p>
           <button
             onClick={start}
-            className="group inline-flex items-center gap-3 bg-accent hover:bg-accent-light text-primary px-7 py-3.5 rounded-lg text-sm font-semibold tracking-wide transition-all cursor-pointer"
+            className="group inline-flex items-center gap-3 bg-accent hover:bg-accent-light text-white px-8 py-4 rounded-xl text-base font-semibold tracking-wide transition-all cursor-pointer shadow-xl shadow-accent/30 hover:shadow-2xl hover:shadow-accent/40 hover:-translate-y-0.5"
           >
             Start My Free Quote
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" strokeWidth={2} />
+            <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" strokeWidth={2} />
           </button>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-primary-dark py-8">
+      <footer className="bg-primary-dark py-10">
         <div className="max-w-5xl mx-auto px-5 text-center">
-          <p className="text-stone-500 text-xs">&copy; 2026 Two Doors Plus USA. All rights reserved.</p>
-          <p className="text-stone-600 text-[11px] mt-1.5">South Florida's Trusted Hurricane Impact Door & Window Experts</p>
+          <p className="text-slate-400 text-sm">&copy; 2026 Doors Plus + USA. All rights reserved.</p>
+          <p className="text-slate-500 text-xs mt-2">South Florida's Trusted Hurricane Impact Door & Window Experts</p>
         </div>
       </footer>
     </div>

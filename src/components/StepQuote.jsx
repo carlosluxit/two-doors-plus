@@ -164,10 +164,10 @@ export default function StepQuote() {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Shield className="w-4 h-4 text-accent" strokeWidth={1.5} />
-              <span className="text-[11px] font-medium text-stone-400 uppercase tracking-widest">Two Doors Plus USA</span>
+              <span className="text-[11px] font-medium text-slate-400 uppercase tracking-widest">Doors Plus + USA</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-semibold mb-1">Your Guaranteed Quote</h2>
-            <p className="text-stone-400 text-xs">
+            <p className="text-slate-400 text-xs">
               Quote #{state.quoteId || '\u2026'}
             </p>
           </div>
@@ -177,10 +177,10 @@ export default function StepQuote() {
                 <div className="text-3xl sm:text-4xl font-semibold text-accent">
                   ${Math.round(total).toLocaleString()}
                 </div>
-                <div className="text-[11px] text-stone-400 mt-1">Total Project Cost</div>
+                <div className="text-[11px] text-slate-400 mt-1">Total Project Cost</div>
               </>
             ) : (
-              <div className="text-sm text-stone-400">
+              <div className="text-sm text-slate-400">
                 Custom quote — team will follow up
               </div>
             )}
@@ -188,8 +188,8 @@ export default function StepQuote() {
         </div>
         <div className="mt-6 flex flex-wrap gap-3 text-xs">
           <div className="flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-md">
-            <Calendar className="w-3.5 h-3.5 text-stone-400" strokeWidth={1.5} />
-            <span className="text-stone-300">Issued: {formatDate(quoteDate)}</span>
+            <Calendar className="w-3.5 h-3.5 text-slate-400" strokeWidth={1.5} />
+            <span className="text-slate-300">Issued: {formatDate(quoteDate)}</span>
           </div>
           <div className="flex items-center gap-1.5 bg-accent/15 text-accent px-3 py-1.5 rounded-md font-medium">
             <Clock className="w-3.5 h-3.5" strokeWidth={1.5} />
@@ -234,7 +234,7 @@ export default function StepQuote() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-stone-50 text-left">
+              <tr className="bg-slate-50 text-left">
                 <th className="px-4 py-2.5 text-[10px] font-semibold text-muted uppercase tracking-wide">#</th>
                 <th className="px-4 py-2.5 text-[10px] font-semibold text-muted uppercase tracking-wide">Item</th>
                 <th className="px-4 py-2.5 text-[10px] font-semibold text-muted uppercase tracking-wide">Size</th>
@@ -246,7 +246,7 @@ export default function StepQuote() {
             </thead>
             <tbody>
               {lineItems.map((li, i) => (
-                <tr key={li.id} className="border-t border-border hover:bg-stone-50/50">
+                <tr key={li.id} className="border-t border-border hover:bg-slate-50/50">
                   <td className="px-4 py-3 text-xs text-muted">{i + 1}</td>
                   <td className="px-4 py-3">
                     <div className="text-xs font-medium text-primary">{li.label || getTypeName(li)}</div>
@@ -256,18 +256,18 @@ export default function StepQuote() {
                       {li.glassType && GLASS_TYPES[li.glassType] ? ` · ${GLASS_TYPES[li.glassType]}` : ''}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-xs text-stone-600">
+                  <td className="px-4 py-3 text-xs text-slate-600">
                     {li.subType === 'circle'
                       ? `${li.width}" dia.`
                       : li.subType === 'half_moon'
                         ? `${li.width}" + ${li.height}"`
                         : `${li.width}" × ${li.height}"`}
                   </td>
-                  <td className="px-4 py-3 text-center text-xs text-stone-600">{li.qty}</td>
-                  <td className="px-4 py-3 text-right text-xs text-stone-600">
+                  <td className="px-4 py-3 text-center text-xs text-slate-600">{li.qty}</td>
+                  <td className="px-4 py-3 text-right text-xs text-slate-600">
                     {li.calc ? `$${Math.round(li.calc.displayPrice).toLocaleString()}` : <span className="text-accent text-[11px]">TBD</span>}
                   </td>
-                  <td className="px-4 py-3 text-right text-xs text-stone-600">
+                  <td className="px-4 py-3 text-right text-xs text-slate-600">
                     {li.calc ? `$${Math.round(li.calc.displayInstall).toLocaleString()}` : <span className="text-accent text-[11px]">TBD</span>}
                   </td>
                   <td className="px-4 py-3 text-right text-xs font-semibold text-primary">
@@ -315,7 +315,7 @@ export default function StepQuote() {
             <CreditCard className="w-5 h-5" strokeWidth={1.5} />
             <div className="text-left">
               <div>Secure with Deposit</div>
-              <div className="text-[11px] font-normal text-stone-400">Lock in your price today</div>
+              <div className="text-[11px] font-normal text-slate-400">Lock in your price today</div>
             </div>
           </button>
           <button className="flex items-center gap-3 p-3.5 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors cursor-pointer">
@@ -336,21 +336,21 @@ export default function StepQuote() {
       <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
         <button
           onClick={() => window.print()}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-medium text-muted hover:text-primary hover:bg-stone-50 transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-medium text-muted hover:text-primary hover:bg-slate-50 transition-colors cursor-pointer"
         >
           <Printer className="w-3.5 h-3.5" strokeWidth={1.5} /> Print
         </button>
         <button
           onClick={() => dispatch({ type: 'RESET' })}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-medium text-muted hover:text-primary hover:bg-stone-50 transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-medium text-muted hover:text-primary hover:bg-slate-50 transition-colors cursor-pointer"
         >
           <RotateCcw className="w-3.5 h-3.5" strokeWidth={1.5} /> New Quote
         </button>
       </div>
 
-      <div className="text-center text-[11px] text-stone-400 pb-8">
+      <div className="text-center text-[11px] text-slate-400 pb-8">
         <p>This quote is an estimate based on the information provided. Final pricing subject to on-site measurement verification.</p>
-        <p className="mt-1.5">&copy; 2026 Two Doors Plus USA &middot; South Florida</p>
+        <p className="mt-1.5">&copy; 2026 Doors Plus + USA &middot; South Florida</p>
       </div>
     </div>
   );

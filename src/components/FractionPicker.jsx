@@ -45,7 +45,7 @@ export default function FractionPicker({ value, onChange }) {
           className={`px-2 py-1 rounded-md text-[11px] font-medium transition-all cursor-pointer min-w-[1.75rem] text-center ${
             value === f.value
               ? 'bg-primary text-white'
-              : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
+              : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
           }`}
         >
           {f.label}
@@ -69,7 +69,7 @@ export function TapeMeasureTutorial() {
   ];
 
   return (
-    <div className="bg-stone-50 rounded-lg p-4 border border-border">
+    <div className="bg-slate-50 rounded-lg p-4 border border-border">
       <p className="text-xs font-semibold text-primary text-center mb-3">
         How to Read Your Tape Measure
       </p>
@@ -83,19 +83,19 @@ export function TapeMeasureTutorial() {
               style={{ left: `${m.pos}%`, transform: 'translateX(-50%)' }}
             >
               {m.label && (
-                <span className={`text-[9px] leading-none mb-0.5 ${m.bold ? 'font-bold text-primary' : 'font-medium text-stone-600'}`}>
+                <span className={`text-[9px] leading-none mb-0.5 ${m.bold ? 'font-bold text-primary' : 'font-medium text-slate-600'}`}>
                   {m.label}
                 </span>
               )}
               <div
-                className={`w-px ${m.bold ? 'bg-primary' : 'bg-stone-500'}`}
+                className={`w-px ${m.bold ? 'bg-primary' : 'bg-slate-500'}`}
                 style={{ height: `${m.height}px` }}
               />
             </div>
           ))}
           <div className="absolute bottom-0 left-0 right-0 h-px bg-primary" />
         </div>
-        <p className="text-[8px] text-stone-500 text-center mt-1 font-medium tracking-widest uppercase">One Inch</p>
+        <p className="text-[8px] text-slate-500 text-center mt-1 font-medium tracking-widest uppercase">One Inch</p>
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
@@ -107,7 +107,7 @@ export function TapeMeasureTutorial() {
         ].map(({ n, text }) => (
           <div key={n} className="flex items-center gap-1.5">
             <span className="w-4 h-4 bg-primary text-white rounded-full flex items-center justify-center text-[9px] font-semibold flex-shrink-0">{n}</span>
-            <span className="text-stone-600">{text}</span>
+            <span className="text-slate-600">{text}</span>
           </div>
         ))}
       </div>

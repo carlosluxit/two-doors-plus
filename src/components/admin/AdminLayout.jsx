@@ -23,7 +23,7 @@ export default function AdminLayout({ session }) {
         <div className="p-5 border-b border-white/10">
           <div className="flex items-center gap-2 mb-0.5">
             <Shield className="w-5 h-5 text-accent" strokeWidth={1.5} />
-            <span className="font-semibold text-sm">Two Doors Plus</span>
+            <span className="font-semibold text-sm">Doors Plus +</span>
           </div>
           <div className="text-[10px] text-white/40 uppercase tracking-wide">Admin Panel</div>
         </div>

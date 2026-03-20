@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 44" fill="none">
+  <!-- Shield outline -->
+  <path d="M20 2 L36 10 L36 24 C36 32 28 40 20 42 C12 40 4 32 4 24 L4 10 Z" stroke="#0284c7" stroke-width="2.5" fill="#0284c7" fill-opacity="0.08"/>
+  <!-- Door shape inside shield -->
+  <rect x="13" y="12" width="14" height="22" rx="2" stroke="#0284c7" stroke-width="2" fill="none"/>
+  <!-- Door panels -->
+  <rect x="15.5" y="14.5" width="9" height="8" rx="1" fill="#0284c7" fill-opacity="0.15" stroke="#0284c7" stroke-width="1"/>
+  <rect x="15.5" y="25" width="9" height="6.5" rx="1" fill="#0284c7" fill-opacity="0.15" stroke="#0284c7" stroke-width="1"/>
+  <!-- Door handle -->
+  <circle cx="24" cy="25" r="1.2" fill="#0284c7"/>
+  <!-- Plus symbol -->
+  <rect x="29" y="8" width="7" height="2" rx="1" fill="#0284c7"/>
+  <rect x="31.5" y="5.5" width="2" height="7" rx="1" fill="#0284c7"/>
+</svg>

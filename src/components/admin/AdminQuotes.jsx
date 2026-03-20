@@ -7,7 +7,7 @@ const STATUS_COLORS = {
   sent:     'bg-accent/10 text-accent border-accent/30',
   viewed:   'bg-violet-50 text-violet-700 border-violet-200',
   accepted: 'bg-success/10 text-success border-success/30',
-  expired:  'bg-stone-100 text-muted border-border',
+  expired:  'bg-slate-100 text-muted border-border',
 };
 
 export default function AdminQuotes() {
@@ -70,7 +70,7 @@ export default function AdminQuotes() {
 
       {/* Search */}
       <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" strokeWidth={1.5} />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" strokeWidth={1.5} />
         <input
           type="text"
           placeholder="Search by name, email, or quote number..."
@@ -89,17 +89,17 @@ export default function AdminQuotes() {
           {filtered.map((q) => (
             <div key={q.id} className="bg-white border border-border rounded-lg overflow-hidden">
               <div
-                className="flex items-center gap-4 p-4 cursor-pointer hover:bg-stone-50 transition-colors"
+                className="flex items-center gap-4 p-4 cursor-pointer hover:bg-slate-50 transition-colors"
                 onClick={() => toggleExpand(q.id)}
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 flex-wrap">
                     <span className="font-mono text-sm font-semibold text-primary">{q.quote_number}</span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold border capitalize ${STATUS_COLORS[q.status] ?? 'bg-stone-100 text-muted border-border'}`}>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold border capitalize ${STATUS_COLORS[q.status] ?? 'bg-slate-100 text-muted border-border'}`}>
                       {q.status}
                     </span>
                   </div>
-                  <div className="text-xs text-stone-600 mt-0.5">
+                  <div className="text-xs text-slate-600 mt-0.5">
                     {q.client_first_name} {q.client_last_name} · {q.client_email}
                   </div>
                   <div className="text-[10px] text-muted mt-0.5">
@@ -118,7 +118,7 @@ export default function AdminQuotes() {
 
               {/* Expanded detail */}
               {expanded === q.id && (
-                <div className="border-t border-border p-4 bg-stone-50 space-y-4">
+                <div className="border-t border-border p-4 bg-slate-50 space-y-4">
                   {/* Client info */}
                   <div className="grid sm:grid-cols-3 gap-3 text-sm">
                     <div><span className="text-muted block text-[10px] uppercase tracking-wide">Phone</span>{q.client_phone || '\u2014'}</div>
@@ -131,7 +131,7 @@ export default function AdminQuotes() {
                     <div className="text-[10px] font-semibold text-muted uppercase tracking-wide mb-2">Items</div>
                     {items[q.id] ? (
                       <table className="w-full text-xs bg-white rounded-lg overflow-hidden">
-                        <thead className="bg-stone-100">
+                        <thead className="bg-slate-100">
                           <tr>
                             <th className="px-3 py-2 text-left text-[10px] font-semibold text-muted uppercase tracking-wide">Item</th>
                             <th className="px-3 py-2 text-left text-[10px] font-semibold text-muted uppercase tracking-wide">Size</th>
@@ -148,10 +148,10 @@ export default function AdminQuotes() {
                                 <div className="text-primary">{li.label || li.product_type}</div>
                                 {li.door_variant && <div className="text-muted">{li.door_variant}</div>}
                               </td>
-                              <td className="px-3 py-2 text-stone-600">{li.width}" x {li.height}"</td>
-                              <td className="px-3 py-2 text-center text-stone-600">{li.quantity}</td>
-                              <td className="px-3 py-2 text-right text-stone-600">${li.base_price?.toLocaleString()}</td>
-                              <td className="px-3 py-2 text-right text-stone-600">${li.install_fee?.toLocaleString()}</td>
+                              <td className="px-3 py-2 text-slate-600">{li.width}" x {li.height}"</td>
+                              <td className="px-3 py-2 text-center text-slate-600">{li.quantity}</td>
+                              <td className="px-3 py-2 text-right text-slate-600">${li.base_price?.toLocaleString()}</td>
+                              <td className="px-3 py-2 text-right text-slate-600">${li.install_fee?.toLocaleString()}</td>
                               <td className="px-3 py-2 text-right font-semibold text-primary">${Math.round(li.line_total).toLocaleString()}</td>
                             </tr>
                           ))}
@@ -179,7 +179,7 @@ export default function AdminQuotes() {
                         className={`text-[10px] px-3 py-1 rounded-full border font-semibold cursor-pointer transition-colors capitalize ${
                           q.status === s
                             ? STATUS_COLORS[s]
-                            : 'bg-white border-border text-muted hover:border-stone-400'
+                            : 'bg-white border-border text-muted hover:border-slate-400'
                         }`}
                       >
                         {s}

@@ -49,7 +49,7 @@ export default function StepClientInfo() {
       <div className="flex items-center justify-between mt-10">
         <button
           onClick={() => dispatch({ type: 'PREV_STEP' })}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm text-muted hover:text-primary hover:bg-stone-50 transition-colors cursor-pointer"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm text-muted hover:text-primary hover:bg-slate-50 transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" strokeWidth={1.5} /> Back
         </button>
@@ -59,7 +59,7 @@ export default function StepClientInfo() {
           className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium tracking-wide transition-all cursor-pointer ${
             canProceed
               ? 'bg-primary text-white hover:bg-primary-light'
-              : 'bg-stone-100 text-stone-300 cursor-not-allowed'
+              : 'bg-slate-100 text-slate-300 cursor-not-allowed'
           }`}
         >
           Continue <ArrowRight className="w-4 h-4" strokeWidth={2} />
@@ -75,7 +75,7 @@ function InputField({ icon: Icon, label, type = 'text', value, onChange, placeho
       <label className="text-[10px] text-muted uppercase tracking-wide block mb-1.5">{label}</label>
       <div className="relative">
         {Icon && (
-          <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400" strokeWidth={1.5} />
+          <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" strokeWidth={1.5} />
         )}
         <input
           type={type}
@@ -83,7 +83,7 @@ function InputField({ icon: Icon, label, type = 'text', value, onChange, placeho
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           maxLength={maxLength}
-          className={`w-full border border-border rounded-md py-2.5 text-sm focus:border-accent outline-none transition-colors placeholder:text-stone-300 ${
+          className={`w-full border border-border rounded-md py-2.5 text-sm focus:border-accent outline-none transition-colors placeholder:text-slate-300 ${
             Icon ? 'pl-9 pr-3' : 'px-3'
           }`}
         />

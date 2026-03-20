@@ -59,7 +59,7 @@ export default function CameraMeasure({ onComplete, onCancel, itemType, measureF
               </span>
             </div>
           </div>
-          <button onClick={onCancel} className="p-1.5 hover:bg-stone-50 rounded-lg cursor-pointer transition-colors">
+          <button onClick={onCancel} className="p-1.5 hover:bg-slate-50 rounded-lg cursor-pointer transition-colors">
             <X className="w-4 h-4 text-muted" strokeWidth={1.5} />
           </button>
         </div>
@@ -114,7 +114,7 @@ export default function CameraMeasure({ onComplete, onCancel, itemType, measureF
             <div className="p-4">
               {cameraError ? (
                 <div className="text-center py-12">
-                  <Camera className="w-8 h-8 text-stone-300 mx-auto mb-3" strokeWidth={1.5} />
+                  <Camera className="w-8 h-8 text-slate-300 mx-auto mb-3" strokeWidth={1.5} />
                   <p className="text-sm text-muted">Camera not available.</p>
                   <button
                     onClick={() => setStep('enter')}
@@ -159,7 +159,7 @@ export default function CameraMeasure({ onComplete, onCancel, itemType, measureF
           {step === 'enter' && (
             <div className="p-4 space-y-3">
               {photo && (
-                <div className="relative rounded-lg overflow-hidden bg-stone-50">
+                <div className="relative rounded-lg overflow-hidden bg-slate-50">
                   <img src={photo} alt="Captured" className="w-full max-h-[35vh] object-contain rounded-lg" />
                   <button
                     onClick={() => { setPhoto(null); setStep('camera'); }}
@@ -178,7 +178,7 @@ export default function CameraMeasure({ onComplete, onCancel, itemType, measureF
               </p>
 
               {/* Width */}
-              <div className="bg-stone-50 rounded-md p-3 space-y-2">
+              <div className="bg-slate-50 rounded-md p-3 space-y-2">
                 <label className="flex items-center gap-2 text-[10px] font-medium text-muted uppercase tracking-wide">
                   <ArrowLeftRight className="w-3.5 h-3.5 text-accent" strokeWidth={1.5} />
                   Width {isInside ? '(wall to wall)' : '(border to border)'}
@@ -206,7 +206,7 @@ export default function CameraMeasure({ onComplete, onCancel, itemType, measureF
               </div>
 
               {/* Height */}
-              <div className="bg-stone-50 rounded-md p-3 space-y-2">
+              <div className="bg-slate-50 rounded-md p-3 space-y-2">
                 <label className="flex items-center gap-2 text-[10px] font-medium text-muted uppercase tracking-wide">
                   <ArrowUpDown className="w-3.5 h-3.5 text-primary" strokeWidth={1.5} />
                   Height {isInside ? '(sill to top)' : '(border to border)'}
@@ -238,7 +238,7 @@ export default function CameraMeasure({ onComplete, onCancel, itemType, measureF
                 className={`w-full py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer flex items-center justify-center gap-2 ${
                   canSubmit
                     ? 'bg-primary text-white hover:bg-primary-light'
-                    : 'bg-stone-100 text-stone-300 cursor-not-allowed'
+                    : 'bg-slate-100 text-slate-300 cursor-not-allowed'
                 }`}
               >
                 Save Measurements <ChevronRight className="w-4 h-4" strokeWidth={2} />
@@ -264,7 +264,7 @@ function Tip({ icon: Icon, text }) {
   return (
     <div className="flex items-start gap-2.5 text-xs">
       <Icon className="w-3.5 h-3.5 text-accent flex-shrink-0 mt-0.5" strokeWidth={1.5} />
-      <span className="text-stone-600">{text}</span>
+      <span className="text-slate-600">{text}</span>
     </div>
   );
 }

@@ -29,7 +29,7 @@ export default function ProgressBar({ currentStep }) {
                         ? 'bg-primary text-white'
                         : isCurrent
                         ? 'bg-accent text-white'
-                        : 'bg-stone-100 text-muted'
+                        : 'bg-slate-100 text-muted'
                     }`}
                   >
                     {isComplete ? <Check className="w-3.5 h-3.5" strokeWidth={2} /> : stepNum}
@@ -45,7 +45,7 @@ export default function ProgressBar({ currentStep }) {
                 {i < STEPS.length - 1 && (
                   <div
                     className={`w-5 sm:w-10 lg:w-14 h-px mx-1.5 ${
-                      currentStep > stepNum ? 'bg-primary' : 'bg-stone-200'
+                      currentStep > stepNum ? 'bg-primary' : 'bg-slate-200'
                     }`}
                   />
                 )}

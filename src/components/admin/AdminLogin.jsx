@@ -25,7 +25,7 @@ export default function AdminLogin() {
           <div className="w-14 h-14 bg-primary rounded-xl flex items-center justify-center mx-auto mb-4">
             <Shield className="w-7 h-7 text-accent" strokeWidth={1.5} />
           </div>
-          <h1 className="text-xl font-semibold text-primary">Two Doors Plus</h1>
+          <h1 className="text-xl font-semibold text-primary">Doors Plus +</h1>
           <p className="text-muted text-xs uppercase tracking-wide mt-1">Admin Portal</p>
         </div>
 

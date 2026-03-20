@@ -94,7 +94,7 @@ serve(async (req) => {
 
     <!-- Header -->
     <div style="background:linear-gradient(135deg,#1e3a5f,#2d5a8e);padding:40px 32px;text-align:center;">
-      <div style="font-size:13px;color:#93c5fd;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Two Doors Plus USA</div>
+      <div style="font-size:13px;color:#93c5fd;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Doors Plus + USA</div>
       <h1 style="color:#fff;margin:0 0 8px;font-size:28px;font-weight:800;">Your Quote is Ready</h1>
       <div style="font-size:14px;color:#93c5fd;">Quote #${quote.quote_number}</div>
       <div style="margin-top:20px;background:rgba(255,255,255,0.1);border-radius:12px;padding:16px 24px;display:inline-block;">
@@ -165,7 +165,7 @@ serve(async (req) => {
         📞 Call to Schedule: (786) 555-1234
       </a>
       <div style="font-size:12px;color:#9ca3af;margin-top:8px;">
-        Two Doors Plus USA · South Florida's Hurricane Impact Window & Door Specialists
+        Doors Plus + USA · South Florida's Hurricane Impact Window & Door Specialists
       </div>
     </div>
   </div>
@@ -181,7 +181,7 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'Two Doors Plus <quotes@twodoorsplus.com>',
+          from: 'Doors Plus + <quotes@twodoorsplus.com>',
           to: [quote.client_email],
           bcc: ['admin@twodoorsplus.com'],
           subject: `Your Hurricane Impact Quote — ${quote.quote_number}`,

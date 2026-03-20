@@ -76,12 +76,12 @@ export default function StepMeasureMethod() {
             selected === 'inside' && !hasDoors
               ? 'border-accent bg-accent/5'
               : hasDoors
-              ? 'border-border bg-stone-50 opacity-40 cursor-not-allowed'
-              : 'border-border bg-white hover:border-stone-300'
+              ? 'border-border bg-slate-50 opacity-40 cursor-not-allowed'
+              : 'border-border bg-white hover:border-slate-300'
           }`}
         >
           <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${
-            selected === 'inside' && !hasDoors ? 'bg-accent/10 text-accent' : 'bg-stone-50 text-muted'
+            selected === 'inside' && !hasDoors ? 'bg-accent/10 text-accent' : 'bg-slate-50 text-muted'
           }`}>
             <Home className="w-4.5 h-4.5" strokeWidth={1.5} />
           </div>
@@ -103,11 +103,11 @@ export default function StepMeasureMethod() {
           className={`relative rounded-lg border p-4 text-left transition-all cursor-pointer ${
             selected === 'outside'
               ? 'border-accent bg-accent/5'
-              : 'border-border bg-white hover:border-stone-300'
+              : 'border-border bg-white hover:border-slate-300'
           }`}
         >
           <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${
-            selected === 'outside' ? 'bg-accent/10 text-accent' : 'bg-stone-50 text-muted'
+            selected === 'outside' ? 'bg-accent/10 text-accent' : 'bg-slate-50 text-muted'
           }`}>
             <Square className="w-4.5 h-4.5" strokeWidth={1.5} />
           </div>
@@ -135,7 +135,7 @@ export default function StepMeasureMethod() {
           className="w-full flex items-center gap-3 border border-accent/30 bg-accent/5 rounded-lg px-4 py-3 mb-6 cursor-pointer hover:bg-accent/10 transition-colors"
         >
           <AlertTriangle className="w-4 h-4 text-accent flex-shrink-0" strokeWidth={1.5} />
-          <span className="text-xs text-stone-700 font-medium text-left">
+          <span className="text-xs text-slate-700 font-medium text-left">
             Doors must be measured from outside — tap to see how
           </span>
         </button>
@@ -145,7 +145,7 @@ export default function StepMeasureMethod() {
         <div className="flex items-center justify-between border border-success/30 bg-success/5 rounded-lg px-4 py-3 mb-6">
           <div className="flex items-center gap-2">
             <Check className="w-4 h-4 text-success" strokeWidth={2} />
-            <span className="text-xs text-stone-700 font-medium">Got it — you'll measure from outside</span>
+            <span className="text-xs text-slate-700 font-medium">Got it — you'll measure from outside</span>
           </div>
           <button onClick={() => setShowDoorsPopup(true)} className="text-[11px] text-muted underline cursor-pointer">Review</button>
         </div>
@@ -158,7 +158,7 @@ export default function StepMeasureMethod() {
           className="w-full flex items-center gap-3 border border-accent/30 bg-accent/5 rounded-lg px-4 py-3 mb-6 cursor-pointer hover:bg-accent/10 transition-colors"
         >
           <Info className="w-4 h-4 text-accent flex-shrink-0" strokeWidth={1.5} />
-          <span className="text-xs text-stone-700 font-medium text-left">
+          <span className="text-xs text-slate-700 font-medium text-left">
             Watch how to measure from outside before continuing
           </span>
         </button>
@@ -167,7 +167,7 @@ export default function StepMeasureMethod() {
         <div className="flex items-center justify-between border border-success/30 bg-success/5 rounded-lg px-4 py-3 mb-6">
           <div className="flex items-center gap-2">
             <Check className="w-4 h-4 text-success" strokeWidth={2} />
-            <span className="text-xs text-stone-700 font-medium">Got it — you'll measure from outside</span>
+            <span className="text-xs text-slate-700 font-medium">Got it — you'll measure from outside</span>
           </div>
           <button onClick={() => setShowWindowsPopup(true)} className="text-[11px] text-muted underline cursor-pointer">Review</button>
         </div>
@@ -180,7 +180,7 @@ export default function StepMeasureMethod() {
           className="w-full flex items-center gap-3 border border-primary/20 bg-primary/5 rounded-lg px-4 py-3 mb-6 cursor-pointer hover:bg-primary/10 transition-colors"
         >
           <Info className="w-4 h-4 text-primary flex-shrink-0" strokeWidth={1.5} />
-          <span className="text-xs text-stone-700 font-medium text-left">
+          <span className="text-xs text-slate-700 font-medium text-left">
             Watch how to measure from inside before continuing
           </span>
         </button>
@@ -189,7 +189,7 @@ export default function StepMeasureMethod() {
         <div className="flex items-center justify-between border border-success/30 bg-success/5 rounded-lg px-4 py-3 mb-6">
           <div className="flex items-center gap-2">
             <Check className="w-4 h-4 text-success" strokeWidth={2} />
-            <span className="text-xs text-stone-700 font-medium">Got it — you'll measure from inside</span>
+            <span className="text-xs text-slate-700 font-medium">Got it — you'll measure from inside</span>
           </div>
           <button onClick={() => setShowInsidePopup(true)} className="text-[11px] text-muted underline cursor-pointer">Review</button>
         </div>
@@ -199,7 +199,7 @@ export default function StepMeasureMethod() {
       <div className="flex items-center justify-between">
         <button
           onClick={() => dispatch({ type: 'PREV_STEP' })}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm text-muted hover:text-primary hover:bg-stone-50 transition-colors cursor-pointer"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm text-muted hover:text-primary hover:bg-slate-50 transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" strokeWidth={1.5} /> Back
         </button>
@@ -209,7 +209,7 @@ export default function StepMeasureMethod() {
           className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium tracking-wide transition-all cursor-pointer ${
             canContinue
               ? 'bg-primary text-white hover:bg-primary-light'
-              : 'bg-stone-100 text-stone-300 cursor-not-allowed'
+              : 'bg-slate-100 text-slate-300 cursor-not-allowed'
           }`}
         >
           Continue <ArrowRight className="w-4 h-4" strokeWidth={2} />
@@ -290,7 +290,7 @@ function MeasurePopup({ type, onClose }) {
               <p className="text-[11px] text-muted">{config.subtitle}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 hover:bg-stone-50 rounded-lg cursor-pointer transition-colors">
+          <button onClick={onClose} className="p-1.5 hover:bg-slate-50 rounded-lg cursor-pointer transition-colors">
             <X className="w-4 h-4 text-muted" strokeWidth={1.5} />
           </button>
         </div>
@@ -298,8 +298,8 @@ function MeasurePopup({ type, onClose }) {
         <div className="flex-1 overflow-auto px-5 py-5 space-y-5">
           {config.showWhy && (
             <div className="bg-accent/5 border border-accent/20 rounded-lg p-4">
-              <p className="text-xs font-semibold text-stone-800 mb-1">Why measure from outside?</p>
-              <p className="text-xs text-stone-600 leading-relaxed">
+              <p className="text-xs font-semibold text-slate-800 mb-1">Why measure from outside?</p>
+              <p className="text-xs text-slate-600 leading-relaxed">
                 Hurricane impact doors require precise outside frame measurements to ensure a proper fit
                 during installation.
               </p>
@@ -307,12 +307,12 @@ function MeasurePopup({ type, onClose }) {
           )}
 
           <div>
-            <p className="text-xs font-semibold text-stone-600 uppercase tracking-wide mb-2">Photo Guide</p>
+            <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">Photo Guide</p>
             <config.images />
           </div>
 
           <div>
-            <p className="text-xs font-semibold text-stone-600 uppercase tracking-wide mb-3">Instructions</p>
+            <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-3">Instructions</p>
             <div className="space-y-3">
               {config.steps.map(({ title, desc }, i) => (
                 <div key={i} className="flex gap-3">
@@ -329,21 +329,21 @@ function MeasurePopup({ type, onClose }) {
           </div>
 
           {config.showDiagram && (
-            <div className="bg-stone-50 rounded-lg p-4">
+            <div className="bg-slate-50 rounded-lg p-4">
               <p className="text-[10px] font-semibold text-muted text-center mb-3 uppercase tracking-widest">Diagram</p>
               <div className="max-w-[180px] mx-auto">
-                <div className="border-4 border-stone-500 rounded-md aspect-[3/4] relative bg-stone-100">
+                <div className="border-4 border-slate-500 rounded-md aspect-[3/4] relative bg-slate-100">
                   <div className="absolute -top-4 -left-1 -right-1 flex items-center">
                     <div className="w-0 h-0 border-t-[3px] border-t-transparent border-b-[3px] border-b-transparent border-r-[5px] border-r-accent" />
                     <div className="flex-1 h-px bg-accent" />
-                    <span className="px-1 text-[8px] font-bold text-accent bg-stone-50 tracking-wider">WIDTH</span>
+                    <span className="px-1 text-[8px] font-bold text-accent bg-slate-50 tracking-wider">WIDTH</span>
                     <div className="flex-1 h-px bg-accent" />
                     <div className="w-0 h-0 border-t-[3px] border-t-transparent border-b-[3px] border-b-transparent border-l-[5px] border-l-accent" />
                   </div>
                   <div className="absolute -right-10 -top-1 -bottom-1 flex flex-col items-center">
                     <div className="w-0 h-0 border-l-[3px] border-l-transparent border-r-[3px] border-r-transparent border-b-[5px] border-b-primary" />
                     <div className="flex-1 w-px bg-primary" />
-                    <span className="py-0.5 text-[8px] font-bold text-primary bg-stone-50 [writing-mode:vertical-lr] tracking-wider">HEIGHT</span>
+                    <span className="py-0.5 text-[8px] font-bold text-primary bg-slate-50 [writing-mode:vertical-lr] tracking-wider">HEIGHT</span>
                     <div className="flex-1 w-px bg-primary" />
                     <div className="w-0 h-0 border-l-[3px] border-l-transparent border-r-[3px] border-r-transparent border-t-[5px] border-t-primary" />
                   </div>

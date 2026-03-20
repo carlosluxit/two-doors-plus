@@ -77,7 +77,7 @@ export default function StepMeasurements() {
       </p>
 
       {/* Measurement method banner */}
-      <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-lg border border-accent/20 bg-accent/5 mb-3 text-xs text-stone-700">
+      <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-lg border border-accent/20 bg-accent/5 mb-3 text-xs text-slate-700">
         <Ruler className="w-3.5 h-3.5 text-accent flex-shrink-0" strokeWidth={1.5} />
         <span>
           Measuring from <span className="font-semibold">{measureFrom}</span>
@@ -85,7 +85,7 @@ export default function StepMeasurements() {
         </span>
       </div>
 
-      <div className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-stone-50 mb-8 text-[11px] text-muted">
+      <div className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-slate-50 mb-8 text-[11px] text-muted">
         <Info className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.5} />
         <span>Approximate measurements are fine — we'll verify during the expert visit.</span>
       </div>
@@ -167,7 +167,7 @@ export default function StepMeasurements() {
       <div className="flex items-center justify-between">
         <button
           onClick={() => dispatch({ type: 'PREV_STEP' })}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm text-muted hover:text-primary hover:bg-stone-50 transition-colors cursor-pointer"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm text-muted hover:text-primary hover:bg-slate-50 transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" strokeWidth={1.5} /> Back
         </button>
@@ -177,7 +177,7 @@ export default function StepMeasurements() {
           className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium tracking-wide transition-all cursor-pointer ${
             canProceed
               ? 'bg-primary text-white hover:bg-primary-light'
-              : 'bg-stone-100 text-stone-300 cursor-not-allowed'
+              : 'bg-slate-100 text-slate-300 cursor-not-allowed'
           }`}
         >
           Continue <ArrowRight className="w-4 h-4" strokeWidth={2} />
@@ -204,7 +204,7 @@ function Section({ label, icon: Icon, count, onAdd, addLabel, emptyMsg, children
         </button>
       </div>
       {count === 0 && (
-        <div className="text-center py-8 bg-stone-50 rounded-lg border border-dashed border-stone-200">
+        <div className="text-center py-8 bg-slate-50 rounded-lg border border-dashed border-slate-200">
           <p className="text-xs text-muted">{emptyMsg}</p>
         </div>
       )}
@@ -243,11 +243,11 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
   const noPriceYet = entry && priceCalc === null;
 
   return (
-    <div className="bg-white border border-border rounded-lg p-4 transition-all hover:border-stone-300">
+    <div className="bg-white border border-border rounded-lg p-4 transition-all hover:border-slate-300">
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2.5">
-          <span className="text-[11px] font-semibold text-muted bg-stone-100 w-6 h-6 rounded-full flex items-center justify-center">
+          <span className="text-[11px] font-semibold text-muted bg-slate-100 w-6 h-6 rounded-full flex items-center justify-center">
             {index + 1}
           </span>
           <input
@@ -255,7 +255,7 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
             placeholder={`${isWindow ? 'Window' : isDoor ? 'Door' : 'Sliding Door'} label`}
             value={item.label}
             onChange={(e) => dispatch({ type: 'UPDATE_ITEM', id: item.id, updates: { label: e.target.value } })}
-            className="border-0 border-b border-transparent focus:border-stone-300 outline-none text-sm py-0.5 px-1 w-40 sm:w-48 text-primary placeholder:text-stone-300"
+            className="border-0 border-b border-transparent focus:border-slate-300 outline-none text-sm py-0.5 px-1 w-40 sm:w-48 text-primary placeholder:text-slate-300"
           />
         </div>
         <div className="flex items-center gap-0.5">
@@ -305,7 +305,7 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
                 className={`text-[11px] px-2 py-1.5 rounded-md border font-medium transition-all cursor-pointer ${
                   (item.glassType || 'clear') === key
                     ? 'bg-primary text-white border-primary'
-                    : 'bg-white text-stone-600 border-border hover:border-stone-300'
+                    : 'bg-white text-slate-600 border-border hover:border-slate-300'
                 }`}
               >
                 {label}
@@ -327,7 +327,7 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
                 className={`text-[11px] px-2.5 py-1.5 rounded-md border font-medium transition-all cursor-pointer ${
                   item.doorStyle === key
                     ? 'bg-primary text-white border-primary'
-                    : 'bg-white text-stone-600 border-border hover:border-stone-300'
+                    : 'bg-white text-slate-600 border-border hover:border-slate-300'
                 }`}
               >
                 {label}
@@ -337,9 +337,25 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
         </div>
       )}
 
+      {/* Geometric shape explanation */}
+      {isCircle && (
+        <div className="mb-3 px-3 py-2.5 bg-blue-50 border border-blue-200 rounded-lg text-[11px] text-slate-700 leading-relaxed">
+          <span className="font-semibold text-primary block mb-1">How to measure a Circle window</span>
+          Measure the full diameter (edge to edge) of the circular opening. The diameter determines the price range.
+        </div>
+      )}
+      {isHalfMoon && (
+        <div className="mb-3 px-3 py-2.5 bg-blue-50 border border-blue-200 rounded-lg text-[11px] text-slate-700 leading-relaxed">
+          <span className="font-semibold text-primary block mb-1">How to measure a Half Moon window</span>
+          <span className="block mb-1"><span className="font-medium">1.</span> Measure the full <span className="font-semibold">width</span> of the flat bottom edge.</span>
+          <span className="block"><span className="font-medium">2.</span> From the <span className="font-semibold">center</span> of that width, measure straight <span className="font-semibold">up to the top</span> of the arch.</span>
+          <span className="block mt-1 text-muted">The sum of both measurements determines the price range.</span>
+        </div>
+      )}
+
       {/* Measurements — Circle: diameter only */}
       {isCircle ? (
-        <div className="bg-stone-50 rounded-md p-2.5">
+        <div className="bg-slate-50 rounded-md p-2.5">
           <div className="flex items-center gap-2 mb-1.5">
             <Ruler className="w-3 h-3 text-accent" strokeWidth={1.5} />
             <span className="text-[10px] font-medium text-muted uppercase tracking-wide">Diameter</span>
@@ -359,7 +375,7 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
       ) : (
         <>
           {/* Width / Half Moon Width */}
-          <div className="bg-stone-50 rounded-md p-2.5 mb-1.5">
+          <div className="bg-slate-50 rounded-md p-2.5 mb-1.5">
             <div className="flex items-center gap-2 mb-1.5">
               <Ruler className="w-3 h-3 text-accent" strokeWidth={1.5} />
               <span className="text-[10px] font-medium text-muted uppercase tracking-wide">
@@ -380,7 +396,7 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
           </div>
 
           {/* Height / Half Moon Center to Top */}
-          <div className="bg-stone-50 rounded-md p-2.5">
+          <div className="bg-slate-50 rounded-md p-2.5">
             <div className="flex items-center gap-2 mb-1.5">
               <Ruler className="w-3 h-3 text-primary" strokeWidth={1.5} />
               <span className="text-[10px] font-medium text-muted uppercase tracking-wide">
@@ -404,7 +420,7 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
 
       {/* Half moon sum indicator */}
       {isHalfMoon && (
-        <div className="mt-1.5 px-2.5 py-1.5 bg-accent/5 border border-accent/20 rounded-md text-[11px] text-stone-600">
+        <div className="mt-1.5 px-2.5 py-1.5 bg-accent/5 border border-accent/20 rounded-md text-[11px] text-slate-600">
           Width + Center to Top = <span className="font-semibold text-primary">{formatSize(item.width + item.height)}</span> (used for pricing)
         </div>
       )}
@@ -424,7 +440,7 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
             <span>No exact match — we'll verify measurements & price</span>
           </div>
         ) : priceCalc ? (
-          <div className="text-[11px] bg-stone-50 rounded-md px-3 py-2 space-y-0.5">
+          <div className="text-[11px] bg-slate-50 rounded-md px-3 py-2 space-y-0.5">
             <div className="flex justify-between text-muted">
               <span>Price</span>
               <span>${Math.round(priceCalc.displayPrice * (item.quantity || 1)).toLocaleString()}</span>
@@ -433,7 +449,7 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
               <span>Installation</span>
               <span>${Math.round(priceCalc.displayInstall * (item.quantity || 1)).toLocaleString()}</span>
             </div>
-            <div className="flex justify-between font-semibold text-primary border-t border-stone-200 pt-1 mt-1">
+            <div className="flex justify-between font-semibold text-primary border-t border-slate-200 pt-1 mt-1">
               <span>Total</span>
               <span>${priceCalc.lineTotal.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
             </div>
@@ -444,7 +460,7 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
       {/* Photo */}
       {item.photo && (
         <div className="mt-3 flex items-center gap-3">
-          <img src={item.photo} alt="Captured" className="w-16 h-12 object-contain rounded-md border border-border bg-stone-50" />
+          <img src={item.photo} alt="Captured" className="w-16 h-12 object-contain rounded-md border border-border bg-slate-50" />
           <span className="text-[11px] text-success font-medium">Photo captured</span>
           <button
             onClick={() => dispatch({ type: 'UPDATE_ITEM', id: item.id, updates: { photo: null } })}
