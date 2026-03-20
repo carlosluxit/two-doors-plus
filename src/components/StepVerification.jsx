@@ -43,7 +43,6 @@ export default function StepVerification() {
       setVerified(true);
       dispatch({ type: 'SET_VERIFICATION_CODE', code: fullCode });
       setTimeout(() => {
-        dispatch({ type: 'GENERATE_QUOTE' });
         dispatch({ type: 'NEXT_STEP' });
       }, 1500);
     } else {
