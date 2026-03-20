@@ -20,19 +20,19 @@ export default function StepClientInfo() {
     clientInfo.zip.trim();
 
   return (
-    <div className="max-w-md mx-auto px-5 py-14 animate-fade-in">
-      <h2 className="text-xl font-semibold text-primary text-center mb-1.5">
+    <div className="max-w-lg mx-auto px-5 py-14 animate-fade-in">
+      <h2 className="text-2xl font-semibold text-primary text-center mb-2">
         Your Information
       </h2>
-      <p className="text-sm text-muted text-center mb-3">
+      <p className="text-base text-muted text-center mb-3">
         We need your details to generate your guaranteed quote.
       </p>
-      <div className="flex items-center justify-center gap-2 mb-10 text-[11px] text-success">
-        <Lock className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={1.5} />
+      <div className="flex items-center justify-center gap-2 mb-10 text-xs text-success">
+        <Lock className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} />
         <span>Your information is never sold to third parties.</span>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-5">
         <div className="grid grid-cols-2 gap-3">
           <InputField icon={User} label="First Name" value={clientInfo.firstName} onChange={(v) => update('firstName', v)} placeholder="John" />
           <InputField icon={User} label="Last Name" value={clientInfo.lastName} onChange={(v) => update('lastName', v)} placeholder="Smith" />
@@ -72,10 +72,10 @@ export default function StepClientInfo() {
 function InputField({ icon: Icon, label, type = 'text', value, onChange, placeholder, maxLength }) {
   return (
     <div>
-      <label className="text-[10px] text-muted uppercase tracking-wide block mb-1.5">{label}</label>
+      <label className="text-xs font-medium text-slate-600 uppercase tracking-wide block mb-2">{label}</label>
       <div className="relative">
         {Icon && (
-          <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" strokeWidth={1.5} />
+          <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" strokeWidth={1.5} />
         )}
         <input
           type={type}
@@ -83,8 +83,8 @@ function InputField({ icon: Icon, label, type = 'text', value, onChange, placeho
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           maxLength={maxLength}
-          className={`w-full border border-border rounded-md py-2.5 text-sm focus:border-accent outline-none transition-colors placeholder:text-slate-300 ${
-            Icon ? 'pl-9 pr-3' : 'px-3'
+          className={`w-full border border-border rounded-lg py-3.5 text-base focus:border-accent focus:ring-1 focus:ring-accent/20 outline-none transition-all placeholder:text-slate-400 ${
+            Icon ? 'pl-11 pr-4' : 'px-4'
           }`}
         />
       </div>

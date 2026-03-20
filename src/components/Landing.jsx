@@ -28,9 +28,14 @@ export default function Landing() {
         </div>
         <div className="relative max-w-5xl mx-auto px-5 py-24 sm:py-32 lg:py-40">
           <div className="max-w-2xl">
-            <p className="text-accent text-sm font-semibold tracking-widest uppercase mb-6">
-              South Florida's Trusted Experts
-            </p>
+            <div className="flex flex-wrap gap-2.5 mb-8">
+              {TRUST_ITEMS.map(({ icon: Icon, label }) => (
+                <span key={label} className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/15 text-white text-xs font-medium px-3.5 py-2 rounded-full">
+                  <Icon className="w-3.5 h-3.5 text-accent" strokeWidth={2} />
+                  {label}
+                </span>
+              ))}
+            </div>
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight text-white mb-6">
               Hurricane Impact Doors & Windows.{' '}
               <span className="text-accent">Transparent pricing.</span>
@@ -53,25 +58,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Trust Bar */}
-      <section className="border-b border-border bg-white">
-        <div className="max-w-5xl mx-auto px-5 py-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {TRUST_ITEMS.map(({ icon: Icon, label, desc }) => (
-              <div key={label} className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Icon className="w-6 h-6 text-accent" strokeWidth={1.5} />
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-primary">{label}</div>
-                  <div className="text-xs text-muted mt-1">{desc}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* How It Works */}
       <section className="py-24">
         <div className="max-w-4xl mx-auto px-5">
@@ -89,6 +75,15 @@ export default function Landing() {
                 <p className="text-sm text-muted leading-relaxed">{desc}</p>
               </div>
             ))}
+          </div>
+          <div className="text-center mt-14">
+            <button
+              onClick={start}
+              className="group inline-flex items-center gap-3 bg-accent hover:bg-accent-light text-white px-8 py-4 rounded-xl text-base font-semibold tracking-wide transition-all cursor-pointer shadow-lg shadow-accent/20 hover:shadow-xl hover:shadow-accent/30 hover:-translate-y-0.5"
+            >
+              Get Started Now
+              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" strokeWidth={2} />
+            </button>
           </div>
         </div>
       </section>

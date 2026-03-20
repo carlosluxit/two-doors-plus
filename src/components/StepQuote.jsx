@@ -62,9 +62,12 @@ export default function StepQuote() {
     setSubmitError(null);
 
     try {
-      const { data: quoteRow, error: quoteErr } = await supabase
+      const quoteId = crypto.randomUUID();
+
+      const { error: quoteErr } = await supabase
         .from('quotes')
         .insert({
+          id: quoteId,
           quote_number: '',
           price_list_id: priceList?.id ?? null,
           price_list_name: priceList?.name ?? 'Manual',
@@ -82,14 +85,12 @@ export default function StepQuote() {
           markup_amount: Math.round(markupAmount * 100) / 100,
           total: Math.round(total * 100) / 100,
           status: 'pending',
-        })
-        .select()
-        .single();
+        });
 
       if (quoteErr) throw quoteErr;
 
       const quoteItems = lineItems.map((li, idx) => ({
-        quote_id: quoteRow.id,
+        quote_id: quoteId,
         item_category: li.itemCategory,
         product_type: li.subType,
         label: li.label || null,
@@ -112,14 +113,14 @@ export default function StepQuote() {
 
       try {
         await supabase.functions.invoke('submit-quote', {
-          body: { quoteId: quoteRow.id },
+          body: { quoteId },
         });
       } catch (_) {}
 
       dispatch({
         type: 'GENERATE_QUOTE',
-        quoteId: quoteRow.quote_number,
-        quoteData: quoteRow,
+        quoteId: quoteId.slice(0, 8).toUpperCase(),
+        quoteData: { id: quoteId },
       });
       setSubmitted(true);
     } catch (err) {
