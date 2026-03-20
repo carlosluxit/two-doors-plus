@@ -167,7 +167,7 @@ export default function StepQuote() {
             </div>
             <h2 className="text-xl sm:text-2xl font-semibold mb-1">Your Guaranteed Quote</h2>
             <p className="text-stone-400 text-xs">
-              Quote #{state.quoteId || '\u2026'} &middot; {priceList?.name ?? 'Current Price List'}
+              Quote #{state.quoteId || '\u2026'}
             </p>
           </div>
           <div className="text-right">
@@ -219,7 +219,7 @@ export default function StepQuote() {
           <div><span className="text-muted text-xs">Phone</span>{' '}<span className="text-primary">{state.clientInfo.phone}</span></div>
           <div><span className="text-muted text-xs">Property</span>{' '}<span className="text-primary">{state.clientInfo.address}{state.clientInfo.city ? `, ${state.clientInfo.city}` : ''} {state.clientInfo.zip}</span></div>
           <div><span className="text-muted text-xs">Measurement</span>{' '}<span className="text-primary capitalize">{state.measureFrom}</span></div>
-          <div><span className="text-muted text-xs">Price list</span>{' '}<span className="text-primary">{priceList?.name ?? '\u2014'}</span></div>
+          <div></div>
         </div>
       </div>
 
@@ -253,7 +253,7 @@ export default function StepQuote() {
                       {getTypeName(li)}{li.doorStyle ? ` \u00B7 ${DOOR_VARIANTS[li.doorStyle]}` : ''}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-xs text-stone-600">{li.width}" \u00D7 {li.height}"</td>
+                  <td className="px-4 py-3 text-xs text-stone-600">{li.width}" × {li.height}"</td>
                   <td className="px-4 py-3 text-center text-xs text-stone-600">{li.qty}</td>
                   <td className="px-4 py-3 text-right text-xs text-stone-600">
                     {li.calc ? `$${Math.round(li.calc.displayPrice).toLocaleString()}` : <span className="text-accent text-[11px]">TBD</span>}
