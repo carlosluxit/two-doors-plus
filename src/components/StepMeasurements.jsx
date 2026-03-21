@@ -280,6 +280,8 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
     dispatch({ type: 'UPDATE_ITEM', id: item.id, updates: { [dim]: combineInches(whole, frac) } });
   };
 
+  const selectOnFocus = (e) => e.target.select();
+
   const entry = priceEntries.length ? findPriceEntry(priceEntries, item.subType, item.width, item.height) : null;
   const priceCalc = entry ? calcLineItem(entry, item.doorStyle, item.quantity || 1) : null;
   const noPriceYet = entry && priceCalc === null;
@@ -327,8 +329,9 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
         <div>
           <label className="text-[10px] text-muted uppercase tracking-wide block mb-1">Qty</label>
           <input
-            type="number" min="1" max="50"
+            type="number" min="1" max="50" inputMode="numeric"
             value={item.quantity}
+            onFocus={selectOnFocus}
             onChange={(e) => dispatch({ type: 'UPDATE_ITEM', id: item.id, updates: { quantity: parseInt(e.target.value) || 1 } })}
             className="w-full border border-border rounded-md px-2.5 py-2 text-xs focus:border-accent outline-none text-center"
           />
@@ -405,8 +408,9 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
           </div>
           <div className="flex items-center gap-2 mb-1.5">
             <input
-              type="number" min="0" max="300"
+              type="number" min="0" max="300" inputMode="numeric"
               value={wWhole}
+              onFocus={selectOnFocus}
               onChange={(e) => updateDim('width', e.target.value, wFrac)}
               className="w-16 border border-border rounded-md px-2 py-1.5 text-xs font-medium focus:border-accent outline-none text-center bg-white"
             />
@@ -427,8 +431,9 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
             </div>
             <div className="flex items-center gap-2 mb-1.5">
               <input
-                type="number" min="0" max="300"
+                type="number" min="0" max="300" inputMode="numeric"
                 value={wWhole}
+                onFocus={selectOnFocus}
                 onChange={(e) => updateDim('width', e.target.value, wFrac)}
                 className="w-16 border border-border rounded-md px-2 py-1.5 text-xs font-medium focus:border-accent outline-none text-center bg-white"
               />
@@ -448,8 +453,9 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
             </div>
             <div className="flex items-center gap-2 mb-1.5">
               <input
-                type="number" min="0" max="300"
+                type="number" min="0" max="300" inputMode="numeric"
                 value={hWhole}
+                onFocus={selectOnFocus}
                 onChange={(e) => updateDim('height', e.target.value, hFrac)}
                 className="w-16 border border-border rounded-md px-2 py-1.5 text-xs font-medium focus:border-accent outline-none text-center bg-white"
               />
