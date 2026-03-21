@@ -38,10 +38,7 @@ export default function Landing() {
             </div>
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight text-white mb-6">
               Hurricane Impact Doors & Windows.{' '}
-              <span className="relative inline-block">
-                <span className="relative z-10 text-white">Transparent pricing.</span>
-                <span className="absolute bottom-1 left-0 w-full h-3 bg-amber-400/40 -skew-x-2 rounded-sm" />
-              </span>
+              <span className="text-amber-400">Transparent pricing.</span>
             </h2>
             <p className="text-slate-300 text-lg sm:text-xl mb-10 max-w-lg leading-relaxed">
               See your exact price in under two minutes. Guaranteed pricing,
