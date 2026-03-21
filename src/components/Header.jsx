@@ -5,7 +5,7 @@ export default function Header() {
     <header className="bg-white border-b border-border sticky top-0 z-50">
       <div className="max-w-5xl mx-auto px-5 py-3.5 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <img src="/logo.svg" alt="Doors Plus +" className="w-8 h-9" />
+          <img src="/logo.svg" alt="Doors Plus" className="w-10 h-11" />
           <div>
             <h1 className="text-lg font-semibold tracking-tight text-primary">Doors Plus</h1>
             <p className="text-[11px] text-muted hidden sm:block tracking-wide uppercase">Hurricane Impact Doors & Windows</p>
