@@ -370,6 +370,11 @@ export default function AdminQuotes() {
                     <div><span className="text-muted block text-[10px] uppercase tracking-wide">Measurement</span>{q.measure_from}</div>
                   </div>
 
+                  {/* Internal note — price list */}
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-xs text-amber-800">
+                    <span className="font-semibold">Internal:</span> Price list used — {q.price_list_name || 'Unknown'}
+                  </div>
+
                   {/* Items */}
                   <div>
                     <div className="text-[10px] font-semibold text-muted uppercase tracking-wide mb-2">Items</div>
