@@ -35,6 +35,32 @@ const DOOR_VARIANTS = {
   wg_design: 'Wood Grain Design',
 };
 
+const GLASS_TYPES = {
+  clear: 'Clear',
+  tint: 'Tint',
+  lowe_366: 'Lowe-366',
+  frosted: 'Frosted',
+};
+
+const CATEGORY_LABELS = {
+  window: 'Window',
+  door: 'Door',
+  sliding_door: 'Sliding Door',
+};
+
+function formatItemDetails(li) {
+  const parts = [];
+  if (li.door_variant) parts.push(DOOR_VARIANTS[li.door_variant] || li.door_variant);
+  if (li.glass_type) parts.push(GLASS_TYPES[li.glass_type] || li.glass_type);
+  return parts.join(' · ');
+}
+
+function formatSize(li) {
+  if (li.product_type === 'circle') return `${li.width}" diameter`;
+  if (li.product_type === 'half_moon') return `${li.width}" W + ${li.height}" H`;
+  return `${li.width}" × ${li.height}"`;
+}
+
 function generatePDF(quote, quoteItems) {
   const fmtDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   const expiryDate = new Date(quote.created_at);
@@ -42,15 +68,20 @@ function generatePDF(quote, quoteItems) {
 
   const itemRows = (quoteItems || []).map((li, i) => {
     const typeName = PRODUCT_TYPE_LABELS[li.product_type] || li.product_type;
-    const variant = li.door_variant ? ` (${DOOR_VARIANTS[li.door_variant] || li.door_variant})` : '';
+    const category = CATEGORY_LABELS[li.item_category] || li.item_category;
+    const details = formatItemDetails(li);
+    const size = formatSize(li);
     const displayPrice = li.unit_total > 0 ? `$${Math.round(li.base_price * 1.30).toLocaleString()}` : 'TBD';
     const displayInstall = li.unit_total > 0 ? `$${Math.round(li.install_fee * 1.30).toLocaleString()}` : 'TBD';
     const lineTotal = li.line_total > 0 ? `$${Math.round(li.line_total).toLocaleString()}` : 'TBD';
     return `
       <tr>
         <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;">${i + 1}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;">${li.label || typeName}${variant}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:center;">${li.width}" × ${li.height}"</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;">
+          <div style="font-weight:600;">${li.label ? `"${li.label}"` : typeName}</div>
+          <div style="font-size:11px;color:#6b7280;">${typeName}${details ? ` · ${details}` : ''}</div>
+        </td>
+        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:center;">${size}</td>
         <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:center;">${li.quantity}</td>
         <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:right;">${displayPrice}</td>
         <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:right;">${displayInstall}</td>
@@ -345,6 +376,7 @@ export default function AdminQuotes() {
                       <table className="w-full text-xs bg-white rounded-lg overflow-hidden">
                         <thead className="bg-slate-100">
                           <tr>
+                            <th className="px-3 py-2 text-left text-[10px] font-semibold text-muted uppercase tracking-wide">#</th>
                             <th className="px-3 py-2 text-left text-[10px] font-semibold text-muted uppercase tracking-wide">Item</th>
                             <th className="px-3 py-2 text-left text-[10px] font-semibold text-muted uppercase tracking-wide">Size</th>
                             <th className="px-3 py-2 text-center text-[10px] font-semibold text-muted uppercase tracking-wide">Qty</th>
@@ -354,19 +386,27 @@ export default function AdminQuotes() {
                           </tr>
                         </thead>
                         <tbody>
-                          {items[q.id].map((li) => (
-                            <tr key={li.id} className="border-t border-border">
-                              <td className="px-3 py-2">
-                                <div className="text-primary">{li.label || PRODUCT_TYPE_LABELS[li.product_type] || li.product_type}</div>
-                                {li.door_variant && <div className="text-muted">{DOOR_VARIANTS[li.door_variant] || li.door_variant}</div>}
-                              </td>
-                              <td className="px-3 py-2 text-slate-600">{li.width}" x {li.height}"</td>
-                              <td className="px-3 py-2 text-center text-slate-600">{li.quantity}</td>
-                              <td className="px-3 py-2 text-right text-slate-600">${li.base_price?.toLocaleString()}</td>
-                              <td className="px-3 py-2 text-right text-slate-600">${li.install_fee?.toLocaleString()}</td>
-                              <td className="px-3 py-2 text-right font-semibold text-primary">${Math.round(li.line_total).toLocaleString()}</td>
-                            </tr>
-                          ))}
+                          {items[q.id].map((li, idx) => {
+                            const typeName = PRODUCT_TYPE_LABELS[li.product_type] || li.product_type;
+                            const details = formatItemDetails(li);
+                            const size = formatSize(li);
+                            return (
+                              <tr key={li.id} className="border-t border-border">
+                                <td className="px-3 py-2 text-muted">{idx + 1}</td>
+                                <td className="px-3 py-2">
+                                  {li.label && <div className="text-primary font-semibold">"{li.label}"</div>}
+                                  <div className="text-primary">{typeName}</div>
+                                  {details && <div className="text-muted text-[10px]">{details}</div>}
+                                  <div className="text-[10px] text-slate-400 capitalize">{CATEGORY_LABELS[li.item_category] || li.item_category}</div>
+                                </td>
+                                <td className="px-3 py-2 text-slate-600">{size}</td>
+                                <td className="px-3 py-2 text-center text-slate-600">{li.quantity}</td>
+                                <td className="px-3 py-2 text-right text-slate-600">${li.base_price?.toLocaleString()}</td>
+                                <td className="px-3 py-2 text-right text-slate-600">${li.install_fee?.toLocaleString()}</td>
+                                <td className="px-3 py-2 text-right font-semibold text-primary">${Math.round(li.line_total).toLocaleString()}</td>
+                              </tr>
+                            );
+                          })}
                         </tbody>
                       </table>
                     ) : (
