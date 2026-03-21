@@ -1,18 +1,24 @@
 import { useQuote, useQuoteDispatch } from '../context/QuoteContext';
-import { ArrowRight, PanelTop, DoorOpen, Home } from 'lucide-react';
+import { ArrowRight, PanelTop, DoorOpen, Home, PanelLeftOpen } from 'lucide-react';
 
 const PROJECT_TYPES = [
   {
     id: 'windows',
     icon: PanelTop,
     title: 'Windows Only',
-    desc: 'Hurricane impact windows for your home',
+    desc: 'Hurricane impact windows (3 minimum)',
   },
   {
     id: 'doors',
     icon: DoorOpen,
     title: 'Doors Only',
-    desc: 'Hurricane impact entry & sliding doors',
+    desc: 'Hurricane impact entry doors — no minimum',
+  },
+  {
+    id: 'sliding_doors',
+    icon: PanelLeftOpen,
+    title: 'Sliding Doors',
+    desc: 'Sliding glass doors — no minimum',
   },
   {
     id: 'both',

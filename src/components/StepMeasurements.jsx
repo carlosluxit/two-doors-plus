@@ -14,6 +14,7 @@ import {
   Info,
   PanelTop,
   DoorOpen,
+  PanelLeftOpen,
   AlertCircle,
 } from 'lucide-react';
 
@@ -25,6 +26,7 @@ export default function StepMeasurements() {
 
   const showWindows = state.projectType === 'windows' || state.projectType === 'both';
   const showDoors = state.projectType === 'doors' || state.projectType === 'both';
+  const showSlidingDoors = state.projectType === 'sliding_doors' || state.projectType === 'both';
   const measureFrom = state.measureFrom || 'inside';
 
   const addItem = (category) => {
@@ -54,6 +56,7 @@ export default function StepMeasurements() {
 
   const canProceed =
     state.items.length > 0 &&
+    !needsMoreWindows &&
     state.items.every((item) => {
       if (item.subType === 'circle') return item.width > 0 && item.quantity > 0;
       return item.width > 0 && item.height > 0 && item.quantity > 0;
@@ -61,6 +64,12 @@ export default function StepMeasurements() {
 
   const windowItems = state.items.filter((i) => i.itemCategory === 'window');
   const doorItems = state.items.filter((i) => i.itemCategory === 'door');
+  const slidingDoorItems = state.items.filter((i) => i.itemCategory === 'sliding_door');
+
+  // 3-window minimum for windows-only orders
+  const windowsOnly = state.projectType === 'windows';
+  const windowCount = windowItems.reduce((sum, i) => sum + (i.quantity || 1), 0);
+  const needsMoreWindows = windowsOnly && windowCount < 3;
 
   const runningTotal = state.items.reduce((sum, item) => {
     const p = getItemPrice(item);
@@ -148,6 +157,39 @@ export default function StepMeasurements() {
             />
           ))}
         </Section>
+      )}
+
+      {/* Sliding Doors Section */}
+      {showSlidingDoors && (
+        <Section
+          label="Sliding Doors"
+          icon={PanelLeftOpen}
+          count={slidingDoorItems.length}
+          onAdd={() => addItem('sliding_door')}
+          addLabel="Add Sliding Door"
+          emptyMsg='No sliding doors added yet.'
+        >
+          {slidingDoorItems.map((item, idx) => (
+            <ItemCard
+              key={item.id}
+              item={item}
+              index={idx}
+              dispatch={dispatch}
+              measureFrom={measureFrom}
+              priceEntries={priceEntries}
+              pricingLoading={pricingLoading}
+              onMeasure={() => setMeasureItem({ id: item.id, itemCategory: 'sliding_door' })}
+            />
+          ))}
+        </Section>
+      )}
+
+      {/* 3-window minimum warning */}
+      {needsMoreWindows && windowItems.length > 0 && (
+        <div className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg border border-amber-200 bg-amber-50 mb-4 text-xs text-amber-800">
+          <AlertCircle className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} />
+          <span>Minimum 3 windows required for windows-only orders. You have {windowCount} — add {3 - windowCount} more.</span>
+        </div>
       )}
 
       {/* Running total */}
