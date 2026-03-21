@@ -94,6 +94,7 @@ serve(async (req) => {
 
     <!-- Header -->
     <div style="background:linear-gradient(135deg,#1e3a5f,#2d5a8e);padding:40px 32px;text-align:center;">
+      <img src="https://two-doors-plus.vercel.app/logo.svg" alt="Doors Plus +" style="width:48px;height:50px;margin-bottom:12px;" />
       <div style="font-size:13px;color:#93c5fd;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Doors Plus + USA</div>
       <h1 style="color:#fff;margin:0 0 8px;font-size:28px;font-weight:800;">Your Quote is Ready</h1>
       <div style="font-size:14px;color:#93c5fd;">Quote #${quote.quote_number}</div>
@@ -181,9 +182,8 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'Doors Plus + <quotes@twodoorsplus.com>',
-          to: [quote.client_email],
-          bcc: ['admin@twodoorsplus.com'],
+          from: 'Doors Plus + <onboarding@resend.dev>',
+          to: ['carlos@luxit.io'],
           subject: `Your Hurricane Impact Quote — ${quote.quote_number}`,
           html,
         }),

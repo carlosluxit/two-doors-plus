@@ -92,6 +92,8 @@ function generatePDF(quote, quoteItems) {
 
   const totalDisplay = quote.total > 0 ? `$${Math.round(quote.total).toLocaleString()}` : 'Custom Quote';
 
+  const logoSvg = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 42 44" fill="none"><path d="M20 2 L36 10 L36 24 C36 32 28 40 20 42 C12 40 4 32 4 24 L4 10 Z" stroke="#0284c7" stroke-width="2.5" fill="#0284c7" fill-opacity="0.08"/><rect x="13" y="12" width="14" height="22" rx="2" stroke="#0284c7" stroke-width="2" fill="none"/><rect x="15.5" y="14.5" width="9" height="8" rx="1" fill="#0284c7" fill-opacity="0.15" stroke="#0284c7" stroke-width="1"/><rect x="15.5" y="25" width="9" height="6.5" rx="1" fill="#0284c7" fill-opacity="0.15" stroke="#0284c7" stroke-width="1"/><circle cx="24" cy="25" r="1.2" fill="#0284c7"/><circle cx="33" cy="8" r="8" fill="#0284c7"/><circle cx="33" cy="8" r="6" fill="#ffffff"/><rect x="29.5" y="6.75" width="7" height="2.5" rx="0.8" fill="#f59e0b"/><rect x="31.75" y="4.5" width="2.5" height="7" rx="0.8" fill="#f59e0b"/></svg>')}`;
+
   const html = `
 <!DOCTYPE html>
 <html>
@@ -122,7 +124,13 @@ function generatePDF(quote, quoteItems) {
   <div class="header">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;">
       <div>
-        <div class="brand">Doors Plus + USA</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <img src="${logoSvg}" alt="Doors Plus +" style="width:36px;height:38px;" />
+          <div>
+            <div style="font-size:16px;font-weight:700;color:#fff;">Doors Plus +</div>
+            <div style="font-size:9px;color:#93c5fd;text-transform:uppercase;letter-spacing:0.08em;">Hurricane Impact Doors & Windows</div>
+          </div>
+        </div>
         <h1>Guaranteed Quote</h1>
         <div class="quote-num">${quote.quote_number}</div>
       </div>
