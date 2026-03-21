@@ -7,7 +7,7 @@ export default function Header() {
         <div className="flex items-center gap-2.5">
           <img src="/logo.svg" alt="Doors Plus +" className="w-8 h-9" />
           <div>
-            <h1 className="text-lg font-semibold tracking-tight text-primary">Doors Plus <span className="text-accent">+</span></h1>
+            <h1 className="text-lg font-semibold tracking-tight text-primary">Doors Plus <span className="text-amber-400">+</span></h1>
             <p className="text-[11px] text-muted hidden sm:block tracking-wide uppercase">Hurricane Impact Doors & Windows</p>
           </div>
         </div>
