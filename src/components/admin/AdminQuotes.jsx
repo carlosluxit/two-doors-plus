@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Search, RefreshCw, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { Search, RefreshCw, ChevronDown, ChevronUp, Loader2, Archive, Trash2, Download, ArchiveRestore, AlertTriangle } from 'lucide-react';
 
 const STATUS_COLORS = {
   pending:  'bg-amber-50 text-amber-700 border-amber-200',
@@ -8,7 +8,152 @@ const STATUS_COLORS = {
   viewed:   'bg-violet-50 text-violet-700 border-violet-200',
   accepted: 'bg-success/10 text-success border-success/30',
   expired:  'bg-slate-100 text-muted border-border',
+  archived: 'bg-slate-100 text-muted border-border',
 };
+
+const PRODUCT_TYPE_LABELS = {
+  single_hung: 'Single Hung Window',
+  horizontal_roller_xo: 'Horizontal Roller XO',
+  horizontal_roller_xox: 'Horizontal Roller XOX',
+  half_moon: 'Half Moon Window',
+  circle: 'Circle Window',
+  geometric: 'Geometric Window',
+  single_door: 'Single Door',
+  bermuda_door: 'Bermuda Door',
+  double_door: 'Double Door',
+  picture_window: 'Picture Window',
+  side_light: 'Side Light',
+  sgd_2_panel: '2-Panel Sliding Door',
+  sgd_3_panel: '3-Panel Sliding Door',
+  sgd_4_panel: '4-Panel Sliding Door',
+};
+
+const DOOR_VARIANTS = {
+  traditional: 'Traditional',
+  design: 'Design',
+  wg_traditional: 'Wood Grain Traditional',
+  wg_design: 'Wood Grain Design',
+};
+
+function generatePDF(quote, quoteItems) {
+  const fmtDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const expiryDate = new Date(quote.created_at);
+  expiryDate.setDate(expiryDate.getDate() + 5);
+
+  const itemRows = (quoteItems || []).map((li, i) => {
+    const typeName = PRODUCT_TYPE_LABELS[li.product_type] || li.product_type;
+    const variant = li.door_variant ? ` (${DOOR_VARIANTS[li.door_variant] || li.door_variant})` : '';
+    const displayPrice = li.unit_total > 0 ? `$${Math.round(li.base_price * 1.30).toLocaleString()}` : 'TBD';
+    const displayInstall = li.unit_total > 0 ? `$${Math.round(li.install_fee * 1.30).toLocaleString()}` : 'TBD';
+    const lineTotal = li.line_total > 0 ? `$${Math.round(li.line_total).toLocaleString()}` : 'TBD';
+    return `
+      <tr>
+        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;">${i + 1}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;">${li.label || typeName}${variant}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:center;">${li.width}" × ${li.height}"</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:center;">${li.quantity}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:right;">${displayPrice}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:right;">${displayInstall}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:right;font-weight:600;">${lineTotal}</td>
+      </tr>`;
+  }).join('');
+
+  const totalDisplay = quote.total > 0 ? `$${Math.round(quote.total).toLocaleString()}` : 'Custom Quote';
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Quote ${quote.quote_number}</title>
+<style>
+  @media print { body { margin: 0; } @page { margin: 0.5in; } }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #111827; margin: 0; padding: 24px; }
+  .header { background: linear-gradient(135deg, #0f2942, #1a3d5c); color: white; padding: 32px; border-radius: 12px; margin-bottom: 24px; }
+  .header h1 { margin: 0 0 4px; font-size: 22px; }
+  .header .brand { font-size: 11px; color: #93c5fd; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .header .quote-num { font-size: 13px; color: #93c5fd; }
+  .header .total { font-size: 32px; font-weight: 800; color: #0ea5e9; }
+  .header .total-label { font-size: 11px; color: #93c5fd; }
+  .section { border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+  .section h2 { margin: 0 0 12px; font-size: 13px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; }
+  .info-grid .label { color: #9ca3af; font-size: 11px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #f9fafb; padding: 8px 12px; text-align: left; font-size: 10px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+  .total-row { text-align: right; font-size: 18px; font-weight: 700; color: #0f2942; padding-top: 12px; }
+  .guarantee { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 16px; font-size: 12px; color: #92400e; margin-bottom: 16px; }
+  .footer { text-align: center; font-size: 11px; color: #9ca3af; margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e7eb; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div>
+        <div class="brand">Doors Plus + USA</div>
+        <h1>Guaranteed Quote</h1>
+        <div class="quote-num">${quote.quote_number}</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="total">${totalDisplay}</div>
+        <div class="total-label">Total Project Cost</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;font-size:12px;color:#93c5fd;">
+      Issued: ${fmtDate(quote.created_at)} · Valid until: ${fmtDate(expiryDate)}
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Project Details</h2>
+    <div class="info-grid">
+      <div><div class="label">Client</div>${quote.client_first_name} ${quote.client_last_name}</div>
+      <div><div class="label">Email</div>${quote.client_email}</div>
+      <div><div class="label">Phone</div>${quote.client_phone || '—'}</div>
+      <div><div class="label">Property</div>${quote.client_address || ''}${quote.client_city ? `, ${quote.client_city}` : ''} ${quote.client_zip || ''}</div>
+      <div><div class="label">Project Type</div><span style="text-transform:capitalize">${quote.project_type || '—'}</span></div>
+      <div><div class="label">Measurement</div><span style="text-transform:capitalize">${quote.measure_from || '—'}</span></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Bill of Materials</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Item</th>
+          <th style="text-align:center;">Size</th>
+          <th style="text-align:center;">Qty</th>
+          <th style="text-align:right;">Price</th>
+          <th style="text-align:right;">Install</th>
+          <th style="text-align:right;">Total</th>
+        </tr>
+      </thead>
+      <tbody>${itemRows}</tbody>
+    </table>
+    ${quote.total > 0 ? `<div class="total-row">Total: ${totalDisplay}</div>` : ''}
+  </div>
+
+  <div class="guarantee">
+    <strong>5-Day Price Guarantee</strong> — This quote is guaranteed until ${fmtDate(expiryDate)},
+    subject to on-site measurement verification. Final pricing confirmed after the complimentary expert visit.
+  </div>
+
+  <div class="footer">
+    <div style="font-weight:600;color:#0f2942;margin-bottom:4px;">Doors Plus + USA</div>
+    South Florida's Hurricane Impact Window & Door Specialists · (786) 555-1234
+  </div>
+</body>
+</html>`;
+
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(html);
+  printWindow.document.close();
+  printWindow.onload = () => {
+    printWindow.print();
+  };
+}
 
 export default function AdminQuotes() {
   const [quotes, setQuotes] = useState([]);
@@ -16,6 +161,8 @@ export default function AdminQuotes() {
   const [search, setSearch] = useState('');
   const [expanded, setExpanded] = useState(null);
   const [items, setItems] = useState({});
+  const [showArchived, setShowArchived] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
   const load = async () => {
     setLoading(true);
@@ -47,7 +194,52 @@ export default function AdminQuotes() {
     setQuotes((prev) => prev.map((q) => q.id === id ? { ...q, status } : q));
   };
 
-  const filtered = quotes.filter((q) => {
+  const archiveQuote = async (id) => {
+    await supabase.from('quotes').update({ status: 'archived' }).eq('id', id);
+    setQuotes((prev) => prev.map((q) => q.id === id ? { ...q, status: 'archived' } : q));
+    setExpanded(null);
+  };
+
+  const restoreQuote = async (id) => {
+    await supabase.from('quotes').update({ status: 'pending' }).eq('id', id);
+    setQuotes((prev) => prev.map((q) => q.id === id ? { ...q, status: 'pending' } : q));
+  };
+
+  const deleteQuote = async (id) => {
+    await supabase.from('quote_items').delete().eq('quote_id', id);
+    await supabase.from('quotes').delete().eq('id', id);
+    setQuotes((prev) => prev.filter((q) => q.id !== id));
+    setExpanded(null);
+    setConfirmDelete(null);
+  };
+
+  const downloadPDF = async (q) => {
+    await loadItems(q.id);
+    // Small delay to ensure items are loaded
+    setTimeout(() => {
+      const quoteItems = items[q.id];
+      if (quoteItems) {
+        generatePDF(q, quoteItems);
+      }
+    }, 100);
+  };
+
+  // Need a ref-based approach for PDF since items may load async
+  const downloadPDFDirect = async (q) => {
+    let quoteItems = items[q.id];
+    if (!quoteItems) {
+      const { data } = await supabase.from('quote_items').select('*').eq('quote_id', q.id).order('sort_order');
+      quoteItems = data ?? [];
+      setItems((prev) => ({ ...prev, [q.id]: quoteItems }));
+    }
+    generatePDF(q, quoteItems);
+  };
+
+  const activeQuotes = quotes.filter((q) => q.status !== 'archived');
+  const archivedQuotes = quotes.filter((q) => q.status === 'archived');
+  const displayQuotes = showArchived ? archivedQuotes : activeQuotes;
+
+  const filtered = displayQuotes.filter((q) => {
     const s = search.toLowerCase();
     return (
       q.quote_number?.toLowerCase().includes(s) ||
@@ -61,11 +253,29 @@ export default function AdminQuotes() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-semibold text-primary">Quotes</h1>
-          <p className="text-muted text-xs">{quotes.length} total quotes</p>
+          <p className="text-muted text-xs">
+            {showArchived
+              ? `${archivedQuotes.length} archived`
+              : `${activeQuotes.length} active quotes`
+            }
+          </p>
         </div>
-        <button onClick={load} className="flex items-center gap-2 text-xs text-muted hover:text-primary cursor-pointer transition-colors">
-          <RefreshCw className="w-3.5 h-3.5" strokeWidth={1.5} /> Refresh
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowArchived(!showArchived)}
+            className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border cursor-pointer transition-colors ${
+              showArchived
+                ? 'bg-primary text-white border-primary'
+                : 'bg-white text-muted border-border hover:border-slate-400'
+            }`}
+          >
+            <Archive className="w-3.5 h-3.5" strokeWidth={1.5} />
+            {showArchived ? 'View Active' : `Archive (${archivedQuotes.length})`}
+          </button>
+          <button onClick={load} className="flex items-center gap-2 text-xs text-muted hover:text-primary cursor-pointer transition-colors">
+            <RefreshCw className="w-3.5 h-3.5" strokeWidth={1.5} /> Refresh
+          </button>
+        </div>
       </div>
 
       {/* Search */}
@@ -83,7 +293,9 @@ export default function AdminQuotes() {
       {loading ? (
         <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-accent animate-spin" /></div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16 text-muted text-sm">No quotes found.</div>
+        <div className="text-center py-16 text-muted text-sm">
+          {showArchived ? 'No archived quotes.' : 'No quotes found.'}
+        </div>
       ) : (
         <div className="space-y-2">
           {filtered.map((q) => (
@@ -145,8 +357,8 @@ export default function AdminQuotes() {
                           {items[q.id].map((li) => (
                             <tr key={li.id} className="border-t border-border">
                               <td className="px-3 py-2">
-                                <div className="text-primary">{li.label || li.product_type}</div>
-                                {li.door_variant && <div className="text-muted">{li.door_variant}</div>}
+                                <div className="text-primary">{li.label || PRODUCT_TYPE_LABELS[li.product_type] || li.product_type}</div>
+                                {li.door_variant && <div className="text-muted">{DOOR_VARIANTS[li.door_variant] || li.door_variant}</div>}
                               </td>
                               <td className="px-3 py-2 text-slate-600">{li.width}" x {li.height}"</td>
                               <td className="px-3 py-2 text-center text-slate-600">{li.quantity}</td>
@@ -169,22 +381,80 @@ export default function AdminQuotes() {
                     <div><span className="text-muted text-[10px] block uppercase tracking-wide">Total</span><span className="font-semibold text-accent">${Math.round(q.total).toLocaleString()}</span></div>
                   </div>
 
-                  {/* Status change */}
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <span className="text-[10px] text-muted uppercase tracking-wide">Change status:</span>
-                    {['pending','sent','viewed','accepted','expired'].map((s) => (
+                  {/* Status change — only for active quotes */}
+                  {q.status !== 'archived' && (
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <span className="text-[10px] text-muted uppercase tracking-wide">Change status:</span>
+                      {['pending','sent','viewed','accepted','expired'].map((s) => (
+                        <button
+                          key={s}
+                          onClick={() => updateStatus(q.id, s)}
+                          className={`text-[10px] px-3 py-1 rounded-full border font-semibold cursor-pointer transition-colors capitalize ${
+                            q.status === s
+                              ? STATUS_COLORS[s]
+                              : 'bg-white border-border text-muted hover:border-slate-400'
+                          }`}
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 pt-2 border-t border-border">
+                    {/* PDF Download */}
+                    <button
+                      onClick={() => downloadPDFDirect(q)}
+                      className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 cursor-pointer transition-colors font-medium"
+                    >
+                      <Download className="w-3.5 h-3.5" strokeWidth={1.5} /> Download PDF
+                    </button>
+
+                    {/* Archive / Restore */}
+                    {q.status === 'archived' ? (
                       <button
-                        key={s}
-                        onClick={() => updateStatus(q.id, s)}
-                        className={`text-[10px] px-3 py-1 rounded-full border font-semibold cursor-pointer transition-colors capitalize ${
-                          q.status === s
-                            ? STATUS_COLORS[s]
-                            : 'bg-white border-border text-muted hover:border-slate-400'
-                        }`}
+                        onClick={() => restoreQuote(q.id)}
+                        className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-success/10 text-success hover:bg-success/20 cursor-pointer transition-colors font-medium"
                       >
-                        {s}
+                        <ArchiveRestore className="w-3.5 h-3.5" strokeWidth={1.5} /> Restore
                       </button>
-                    ))}
+                    ) : (
+                      <button
+                        onClick={() => archiveQuote(q.id)}
+                        className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-100 text-muted hover:bg-slate-200 cursor-pointer transition-colors font-medium"
+                      >
+                        <Archive className="w-3.5 h-3.5" strokeWidth={1.5} /> Archive
+                      </button>
+                    )}
+
+                    {/* Delete */}
+                    {confirmDelete === q.id ? (
+                      <div className="flex items-center gap-2 ml-auto">
+                        <span className="text-xs text-danger flex items-center gap-1">
+                          <AlertTriangle className="w-3.5 h-3.5" strokeWidth={1.5} /> Delete permanently?
+                        </span>
+                        <button
+                          onClick={() => deleteQuote(q.id)}
+                          className="text-xs px-3 py-1.5 rounded-lg bg-danger text-white hover:bg-red-700 cursor-pointer transition-colors font-medium"
+                        >
+                          Yes, Delete
+                        </button>
+                        <button
+                          onClick={() => setConfirmDelete(null)}
+                          className="text-xs px-3 py-1.5 rounded-lg bg-slate-100 text-muted hover:bg-slate-200 cursor-pointer transition-colors font-medium"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setConfirmDelete(q.id)}
+                        className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg text-danger/60 hover:bg-danger/10 hover:text-danger cursor-pointer transition-colors font-medium ml-auto"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} /> Delete
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
