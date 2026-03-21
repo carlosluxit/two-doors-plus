@@ -72,7 +72,7 @@ function generatePDF(quote, quoteItems) {
     const details = formatItemDetails(li);
     const size = formatSize(li);
     const displayPrice = li.unit_total > 0 ? `$${Math.round(li.base_price * 1.30).toLocaleString()}` : 'TBD';
-    const displayInstall = li.unit_total > 0 ? `$${Math.round(li.install_fee * 1.30).toLocaleString()}` : 'TBD';
+    const displayInstall = li.unit_total > 0 ? `$${Math.round(li.install_fee).toLocaleString()}` : 'TBD';
     const lineTotal = li.line_total > 0 ? `$${Math.round(li.line_total).toLocaleString()}` : 'TBD';
     return `
       <tr>

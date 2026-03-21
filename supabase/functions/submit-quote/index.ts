@@ -62,7 +62,7 @@ serve(async (req) => {
         const typeName = PRODUCT_TYPE_LABELS[li.product_type] ?? li.product_type;
         const variant = li.door_variant ? ` (${DOOR_VARIANTS[li.door_variant] ?? li.door_variant})` : '';
         const displayPrice = li.unit_total > 0 ? `$${Math.round(li.base_price * 1.30).toLocaleString()}` : 'TBD';
-        const displayInstall = li.unit_total > 0 ? `$${Math.round(li.install_fee * 1.30).toLocaleString()}` : 'TBD';
+        const displayInstall = li.unit_total > 0 ? `$${Math.round(li.install_fee).toLocaleString()}` : 'TBD';
         const lineTotal = li.line_total > 0 ? `$${Math.round(li.line_total).toLocaleString()}` : 'TBD';
         return `
           <tr>

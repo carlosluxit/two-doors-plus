@@ -109,13 +109,13 @@ export function calcLineItem(entry, variant, quantity) {
 
   const installFee = entry.install_fee ?? 0;
   const unitSubtotal = basePrice + installFee;
-  const unitMarkup = unitSubtotal * MARKUP_RATE;
-  const unitTotal = unitSubtotal + unitMarkup;
+  const unitMarkup = basePrice * MARKUP_RATE;
+  const unitTotal = basePrice + unitMarkup + installFee;
   const lineTotal = unitTotal * quantity;
 
-  // Customer-facing prices (markup baked in, not shown separately)
+  // Customer-facing prices (markup on product only, install at cost)
   const displayPrice = Math.round(basePrice * (1 + MARKUP_RATE) * 100) / 100;
-  const displayInstall = Math.round(installFee * (1 + MARKUP_RATE) * 100) / 100;
+  const displayInstall = installFee;
 
   return {
     basePrice,
