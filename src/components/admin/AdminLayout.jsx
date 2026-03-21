@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import AdminQuotes from './AdminQuotes';
 import AdminPriceLists from './AdminPriceLists';
-import { Shield, FileText, DollarSign, LogOut } from 'lucide-react';
+import { FileText, DollarSign, LogOut } from 'lucide-react';
 
 const TABS = [
   { id: 'quotes', label: 'Quotes', icon: FileText },
@@ -21,9 +21,9 @@ export default function AdminLayout({ session }) {
       {/* Sidebar */}
       <aside className="w-56 bg-primary text-white flex flex-col">
         <div className="p-5 border-b border-white/10">
-          <div className="flex items-center gap-2 mb-0.5">
-            <Shield className="w-5 h-5 text-accent" strokeWidth={1.5} />
-            <span className="font-semibold text-sm">Doors Plus +</span>
+          <div className="flex items-center gap-2.5 mb-0.5">
+            <img src="/logo.svg" alt="Doors Plus" className="w-8 h-9" />
+            <span className="font-semibold text-sm">Doors Plus</span>
           </div>
           <div className="text-[10px] text-white/40 uppercase tracking-wide">Admin Panel</div>
         </div>
