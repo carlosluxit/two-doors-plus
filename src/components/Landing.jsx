@@ -38,7 +38,10 @@ export default function Landing() {
             </div>
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight text-white mb-6">
               Hurricane Impact Doors & Windows.{' '}
-              <span className="text-accent">Transparent pricing.</span>
+              <span className="relative inline-block">
+                <span className="relative z-10 text-white">Transparent pricing.</span>
+                <span className="absolute bottom-1 left-0 w-full h-3 bg-amber-400/40 -skew-x-2 rounded-sm" />
+              </span>
             </h2>
             <p className="text-slate-300 text-lg sm:text-xl mb-10 max-w-lg leading-relaxed">
               See your exact price in under two minutes. Guaranteed pricing,
@@ -46,7 +49,7 @@ export default function Landing() {
             </p>
             <button
               onClick={start}
-              className="group inline-flex items-center gap-3 bg-accent hover:bg-accent-light text-white px-8 py-4 rounded-xl text-base font-semibold tracking-wide transition-all cursor-pointer shadow-xl shadow-accent/30 hover:shadow-2xl hover:shadow-accent/40 hover:-translate-y-0.5"
+              className="group relative inline-flex items-center gap-3 bg-amber-400 hover:bg-amber-300 text-primary px-8 py-4 rounded-xl text-base font-bold tracking-wide transition-all cursor-pointer shadow-xl shadow-amber-400/30 hover:shadow-2xl hover:shadow-amber-400/40 hover:-translate-y-0.5"
             >
               Get Your Free Quote
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" strokeWidth={2} />
@@ -157,7 +160,7 @@ export default function Landing() {
           </p>
           <button
             onClick={start}
-            className="group inline-flex items-center gap-3 bg-accent hover:bg-accent-light text-white px-8 py-4 rounded-xl text-base font-semibold tracking-wide transition-all cursor-pointer shadow-xl shadow-accent/30 hover:shadow-2xl hover:shadow-accent/40 hover:-translate-y-0.5"
+            className="group inline-flex items-center gap-3 bg-amber-400 hover:bg-amber-300 text-primary px-8 py-4 rounded-xl text-base font-bold tracking-wide transition-all cursor-pointer shadow-xl shadow-amber-400/30 hover:shadow-2xl hover:shadow-amber-400/40 hover:-translate-y-0.5"
           >
             Start My Free Quote
             <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" strokeWidth={2} />
