@@ -54,14 +54,6 @@ export default function StepMeasurements() {
     return calcLineItem(entry, item.doorStyle, item.quantity || 1);
   };
 
-  const canProceed =
-    state.items.length > 0 &&
-    !needsMoreWindows &&
-    state.items.every((item) => {
-      if (item.subType === 'circle') return item.width > 0 && item.quantity > 0;
-      return item.width > 0 && item.height > 0 && item.quantity > 0;
-    });
-
   const windowItems = state.items.filter((i) => i.itemCategory === 'window');
   const doorItems = state.items.filter((i) => i.itemCategory === 'door');
   const slidingDoorItems = state.items.filter((i) => i.itemCategory === 'sliding_door');
@@ -70,6 +62,14 @@ export default function StepMeasurements() {
   const windowsOnly = state.projectType === 'windows';
   const windowCount = windowItems.reduce((sum, i) => sum + (i.quantity || 1), 0);
   const needsMoreWindows = windowsOnly && windowCount < 3;
+
+  const canProceed =
+    state.items.length > 0 &&
+    !needsMoreWindows &&
+    state.items.every((item) => {
+      if (item.subType === 'circle') return item.width > 0 && item.quantity > 0;
+      return item.width > 0 && item.height > 0 && item.quantity > 0;
+    });
 
   const runningTotal = state.items.reduce((sum, item) => {
     const p = getItemPrice(item);
