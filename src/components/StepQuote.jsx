@@ -111,6 +111,13 @@ export default function StepQuote() {
       const { error: itemsErr } = await supabase.from('quote_items').insert(quoteItems);
       if (itemsErr) throw itemsErr;
 
+      // Read back the DB-generated quote number (e.g. DP-001)
+      const { data: savedQuote } = await supabase
+        .from('quotes')
+        .select('quote_number')
+        .eq('id', quoteId)
+        .single();
+
       try {
         await supabase.functions.invoke('submit-quote', {
           body: { quoteId },
@@ -119,7 +126,7 @@ export default function StepQuote() {
 
       dispatch({
         type: 'GENERATE_QUOTE',
-        quoteId: quoteId.slice(0, 8).toUpperCase(),
+        quoteId: savedQuote?.quote_number || quoteId.slice(0, 8).toUpperCase(),
         quoteData: { id: quoteId },
       });
       setSubmitted(true);
