@@ -78,8 +78,9 @@ function generatePDF(quote, quoteItems) {
       <tr>
         <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;">${i + 1}</td>
         <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;">
-          <div style="font-weight:600;">${li.label ? `"${li.label}"` : typeName}</div>
-          <div style="font-size:11px;color:#6b7280;">${typeName}${details ? ` · ${details}` : ''}</div>
+          ${li.label ? `<div style="font-size:11px;color:#6b7280;"><strong>Label:</strong> ${li.label}</div>` : ''}
+          <div style="font-weight:600;">${typeName}</div>
+          ${details ? `<div style="font-size:11px;color:#6b7280;">${details}</div>` : ''}
         </td>
         <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:center;">${size}</td>
         <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:center;">${li.quantity}</td>
@@ -394,10 +395,9 @@ export default function AdminQuotes() {
                               <tr key={li.id} className="border-t border-border">
                                 <td className="px-3 py-2 text-muted">{idx + 1}</td>
                                 <td className="px-3 py-2">
-                                  {li.label && <div className="text-primary font-semibold">"{li.label}"</div>}
-                                  <div className="text-primary">{typeName}</div>
+                                  {li.label && <div className="text-[10px] text-muted"><span className="font-semibold">Label:</span> {li.label}</div>}
+                                  <div className="text-primary font-medium">{typeName}</div>
                                   {details && <div className="text-muted text-[10px]">{details}</div>}
-                                  <div className="text-[10px] text-slate-400 capitalize">{CATEGORY_LABELS[li.item_category] || li.item_category}</div>
                                 </td>
                                 <td className="px-3 py-2 text-slate-600">{size}</td>
                                 <td className="px-3 py-2 text-center text-slate-600">{li.quantity}</td>
