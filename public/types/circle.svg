@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Outer frame -->
+  <circle cx="100" cy="100" r="80" stroke="#0f2942" stroke-width="3" fill="#f0f9ff"/>
+  <!-- Inner glass -->
+  <circle cx="100" cy="100" r="70" stroke="#0284c7" stroke-width="1.5" fill="#e0f2fe" fill-opacity="0.4"/>
+  <!-- Cross dividers -->
+  <line x1="100" y1="30" x2="100" y2="170" stroke="#0284c7" stroke-width="1" opacity="0.5"/>
+  <line x1="30" y1="100" x2="170" y2="100" stroke="#0284c7" stroke-width="1" opacity="0.5"/>
+  <!-- Diameter dimension -->
+  <line x1="20" y1="188" x2="180" y2="188" stroke="#0284c7" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="20" y1="180" x2="20" y2="196" stroke="#0284c7" stroke-width="1"/>
+  <line x1="180" y1="180" x2="180" y2="196" stroke="#0284c7" stroke-width="1"/>
+  <text x="100" y="198" text-anchor="middle" font-size="10" fill="#0284c7" font-family="system-ui">Diameter</text>
+</svg>

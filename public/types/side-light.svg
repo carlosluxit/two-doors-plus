@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 300" fill="none">
+  <!-- Main door frame -->
+  <rect x="60" y="20" width="140" height="260" rx="3" stroke="#0f2942" stroke-width="3" fill="#f0f9ff"/>
+  <!-- Door panel -->
+  <rect x="70" y="30" width="120" height="240" rx="2" stroke="#0284c7" stroke-width="1.5" fill="#e0f2fe" fill-opacity="0.3"/>
+  <!-- Door top glass -->
+  <rect x="80" y="42" width="100" height="110" rx="3" stroke="#0284c7" stroke-width="1" fill="#e0f2fe" fill-opacity="0.5"/>
+  <!-- Door bottom panel -->
+  <rect x="80" y="168" width="100" height="90" rx="3" stroke="#0284c7" stroke-width="1" fill="#0f2942" fill-opacity="0.05"/>
+  <!-- Door handle -->
+  <rect x="164" y="148" width="5" height="22" rx="2.5" fill="#0284c7" fill-opacity="0.4" stroke="#0284c7" stroke-width="1"/>
+  <!-- Side light (left) -->
+  <rect x="20" y="20" width="40" height="260" rx="3" stroke="#0f2942" stroke-width="2.5" fill="#f0f9ff"/>
+  <rect x="26" y="30" width="28" height="240" rx="2" stroke="#0284c7" stroke-width="1" fill="#e0f2fe" fill-opacity="0.5"/>
+  <!-- Side light dividers -->
+  <line x1="26" y1="100" x2="54" y2="100" stroke="#0284c7" stroke-width="1" opacity="0.4"/>
+  <line x1="26" y1="170" x2="54" y2="170" stroke="#0284c7" stroke-width="1" opacity="0.4"/>
+  <!-- Threshold -->
+  <rect x="14" y="278" width="192" height="6" rx="2" fill="#0f2942" fill-opacity="0.1" stroke="#0f2942" stroke-width="1"/>
+</svg>

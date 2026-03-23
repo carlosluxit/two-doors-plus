@@ -263,7 +263,24 @@ function formatSize(val) {
   return f ? `${whole} ${f}"` : `${whole}"`;
 }
 
+const TYPE_ILLUSTRATIONS = {
+  single_hung: '/types/single-hung.svg',
+  horizontal_roller_xo: '/types/horizontal-roller-xo.svg',
+  horizontal_roller_xox: '/types/horizontal-roller-xox.svg',
+  half_moon: '/types/half-moon.svg',
+  circle: '/types/circle.svg',
+  single_door: '/types/single-door.svg',
+  bermuda_door: '/types/bermuda-door.svg',
+  double_door: '/types/double-door.svg',
+  picture_window: '/types/picture-window.svg',
+  side_light: '/types/side-light.svg',
+  sgd_2_panel: '/types/sgd-2-panel.svg',
+  sgd_3_panel: '/types/sgd-3-panel.svg',
+  sgd_4_panel: '/types/sgd-4-panel.svg',
+};
+
 function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoading, onMeasure }) {
+  const [showTypePreview, setShowTypePreview] = useState(false);
   const isWindow = item.itemCategory === 'window';
   const isDoor = item.itemCategory === 'door';
   const isCircle = item.subType === 'circle';
@@ -272,6 +289,7 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
 
   const typeMap = isWindow ? WINDOW_TYPES : isDoor ? DOOR_TYPES : SLIDING_DOOR_TYPES;
   const typeEntries = Object.entries(typeMap);
+  const typeIllustration = TYPE_ILLUSTRATIONS[item.subType];
 
   const { whole: wWhole, fraction: wFrac } = splitInches(item.width);
   const { whole: hWhole, fraction: hFrac } = splitInches(item.height);
@@ -314,17 +332,45 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
 
       {/* Type + Qty */}
       <div className="grid grid-cols-[1fr_80px] gap-2.5 mb-3">
-        <div>
-          <label className="text-[10px] text-muted uppercase tracking-wide block mb-1">Type</label>
+        <div className="relative">
+          <div className="flex items-center gap-1.5 mb-1">
+            <label className="text-[10px] text-muted uppercase tracking-wide">Type</label>
+            {typeIllustration && (
+              <button
+                type="button"
+                onClick={() => setShowTypePreview(!showTypePreview)}
+                className="text-accent hover:text-accent-dark transition-colors cursor-pointer"
+                title="See what this looks like"
+              >
+                <Info className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
           <select
             value={item.subType}
-            onChange={(e) => dispatch({ type: 'UPDATE_ITEM', id: item.id, updates: { subType: e.target.value } })}
+            onChange={(e) => { dispatch({ type: 'UPDATE_ITEM', id: item.id, updates: { subType: e.target.value } }); setShowTypePreview(false); }}
             className="w-full border border-border rounded-md px-2.5 py-2 text-xs bg-white focus:border-accent outline-none cursor-pointer"
           >
             {typeEntries.map(([key, val]) => (
               <option key={key} value={key}>{val.name}</option>
             ))}
           </select>
+          {/* Type illustration popup */}
+          {showTypePreview && typeIllustration && (
+            <div className="absolute z-50 top-full left-0 right-0 mt-1.5 bg-white border border-border rounded-xl shadow-xl p-3 animate-in fade-in slide-in-from-top-1">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-semibold text-primary">{typeMap[item.subType]?.name}</span>
+                <button onClick={() => setShowTypePreview(false)} className="text-muted hover:text-slate-600 cursor-pointer">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+              </div>
+              <img
+                src={typeIllustration}
+                alt={typeMap[item.subType]?.name}
+                className="w-full max-h-48 object-contain rounded-lg bg-slate-50"
+              />
+            </div>
+          )}
         </div>
         <div>
           <label className="text-[10px] text-muted uppercase tracking-wide block mb-1">Qty</label>
