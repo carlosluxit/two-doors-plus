@@ -77,6 +77,19 @@ function formatSize(li) {
   return `${li.width}" × ${li.height}"`;
 }
 
+function getThumbUrl(productType) {
+  const map = {
+    single_hung: 'single-hung', horizontal_roller_xo: 'horizontal-roller-xo',
+    horizontal_roller_xox: 'horizontal-roller-xox', half_moon: 'half-moon',
+    circle: 'circle', single_door: 'single-door', double_door: 'double-door',
+    bermuda_door: 'bermuda-door', picture_window: 'picture-window',
+    side_light: 'side-light', sgd_2_panel: 'sgd-2-panel',
+    sgd_3_panel: 'sgd-3-panel', sgd_4_panel: 'sgd-4-panel',
+  };
+  const slug = map[productType];
+  return slug ? `${window.location.origin}/types/${slug}.svg` : '';
+}
+
 function generatePDF(quote, quoteItems) {
   const fmtDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   const expiryDate = new Date(quote.created_at);
@@ -87,22 +100,28 @@ function generatePDF(quote, quoteItems) {
     const category = CATEGORY_LABELS[li.item_category] || li.item_category;
     const details = formatItemDetails(li);
     const size = formatSize(li);
+    const thumbUrl = getThumbUrl(li.product_type);
     const displayPrice = li.unit_total > 0 ? `$${Math.round(li.base_price * 1.30).toLocaleString()}` : 'TBD';
     const displayInstall = li.unit_total > 0 ? `$${Math.round(li.install_fee).toLocaleString()}` : 'TBD';
     const lineTotal = li.line_total > 0 ? `$${Math.round(li.line_total).toLocaleString()}` : 'TBD';
     return `
       <tr>
-        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;">${i + 1}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;">
-          ${li.label ? `<div style="font-size:11px;color:#6b7280;"><strong>Label:</strong> ${li.label}</div>` : ''}
-          <div style="font-weight:600;">${typeName}</div>
-          ${details ? `<div style="font-size:11px;color:#6b7280;">${details}</div>` : ''}
+        <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;vertical-align:middle;">${i + 1}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;vertical-align:middle;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            ${thumbUrl ? `<img src="${thumbUrl}" style="width:36px;height:36px;object-fit:contain;opacity:0.75;flex-shrink:0;" />` : ''}
+            <div>
+              ${li.label ? `<div style="font-size:10px;color:#6b7280;"><strong>Label:</strong> ${li.label}</div>` : ''}
+              <div style="font-weight:600;">${typeName}</div>
+              ${details ? `<div style="font-size:10px;color:#6b7280;">${details}</div>` : ''}
+            </div>
+          </div>
         </td>
-        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:center;">${size}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:center;">${li.quantity}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:right;">${displayPrice}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:right;">${displayInstall}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:right;font-weight:600;">${lineTotal}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:center;vertical-align:middle;">${size}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:center;vertical-align:middle;">${li.quantity}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:right;vertical-align:middle;">${displayPrice}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:right;vertical-align:middle;">${displayInstall}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:right;font-weight:600;vertical-align:middle;">${lineTotal}</td>
       </tr>`;
   }).join('');
 
@@ -206,9 +225,12 @@ function generatePDF(quote, quoteItems) {
   const printWindow = window.open('', '_blank');
   printWindow.document.write(html);
   printWindow.document.close();
-  printWindow.onload = () => {
-    printWindow.print();
-  };
+  // Wait for all images to load before printing
+  const imgs = printWindow.document.querySelectorAll('img');
+  const promises = Array.from(imgs).map(img => img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; }));
+  Promise.all(promises).then(() => {
+    setTimeout(() => printWindow.print(), 200);
+  });
 }
 
 export default function AdminQuotes() {
