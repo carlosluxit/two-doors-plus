@@ -20,6 +20,22 @@ import {
 
 const ALL_TYPES = { ...WINDOW_TYPES, ...DOOR_TYPES, ...SLIDING_DOOR_TYPES };
 
+const TYPE_THUMBS = {
+  single_hung: '/types/single-hung.svg',
+  horizontal_roller_xo: '/types/horizontal-roller-xo.svg',
+  horizontal_roller_xox: '/types/horizontal-roller-xox.svg',
+  half_moon: '/types/half-moon.svg',
+  circle: '/types/circle.svg',
+  single_door: '/types/single-door.svg',
+  double_door: '/types/double-door.svg',
+  bermuda_door: '/types/bermuda-door.svg',
+  picture_window: '/types/picture-window.svg',
+  side_light: '/types/side-light.svg',
+  sgd_2_panel: '/types/sgd-2-panel.svg',
+  sgd_3_panel: '/types/sgd-3-panel.svg',
+  sgd_4_panel: '/types/sgd-4-panel.svg',
+};
+
 function getTypeName(item) {
   return ALL_TYPES[item.subType]?.name || item.subType;
 }
@@ -257,11 +273,18 @@ export default function StepQuote() {
                 <tr key={li.id} className="border-t border-border hover:bg-slate-50/50">
                   <td className="px-4 py-3 text-xs text-muted">{i + 1}</td>
                   <td className="px-4 py-3">
-                    <div className="text-xs font-medium text-primary">{li.label || getTypeName(li)}</div>
-                    <div className="text-[11px] text-muted">
-                      {getTypeName(li)}
-                      {li.doorStyle ? ` · ${DOOR_VARIANTS[li.doorStyle]}` : ''}
-                      {li.glassType && GLASS_TYPES[li.glassType] ? ` · ${GLASS_TYPES[li.glassType]}` : ''}
+                    <div className="flex items-center gap-2.5">
+                      {TYPE_THUMBS[li.subType] && (
+                        <img src={TYPE_THUMBS[li.subType]} alt="" className="w-9 h-9 object-contain flex-shrink-0 opacity-70" />
+                      )}
+                      <div>
+                        <div className="text-xs font-medium text-primary">{li.label || getTypeName(li)}</div>
+                        <div className="text-[11px] text-muted">
+                          {getTypeName(li)}
+                          {li.doorStyle ? ` · ${DOOR_VARIANTS[li.doorStyle]}` : ''}
+                          {li.glassType && GLASS_TYPES[li.glassType] ? ` · ${GLASS_TYPES[li.glassType]}` : ''}
+                        </div>
+                      </div>
                     </div>
                   </td>
                   <td className="px-4 py-3 text-xs text-slate-600">

@@ -42,6 +42,22 @@ const GLASS_TYPES = {
   frosted: 'Frosted',
 };
 
+const TYPE_THUMBS = {
+  single_hung: '/types/single-hung.svg',
+  horizontal_roller_xo: '/types/horizontal-roller-xo.svg',
+  horizontal_roller_xox: '/types/horizontal-roller-xox.svg',
+  half_moon: '/types/half-moon.svg',
+  circle: '/types/circle.svg',
+  single_door: '/types/single-door.svg',
+  double_door: '/types/double-door.svg',
+  bermuda_door: '/types/bermuda-door.svg',
+  picture_window: '/types/picture-window.svg',
+  side_light: '/types/side-light.svg',
+  sgd_2_panel: '/types/sgd-2-panel.svg',
+  sgd_3_panel: '/types/sgd-3-panel.svg',
+  sgd_4_panel: '/types/sgd-4-panel.svg',
+};
+
 const CATEGORY_LABELS = {
   window: 'Window',
   door: 'Door',
@@ -408,9 +424,16 @@ export default function AdminQuotes() {
                               <tr key={li.id} className="border-t border-border">
                                 <td className="px-3 py-2 text-muted">{idx + 1}</td>
                                 <td className="px-3 py-2">
-                                  {li.label && <div className="text-[10px] text-muted"><span className="font-semibold">Label:</span> {li.label}</div>}
-                                  <div className="text-primary font-medium">{typeName}</div>
-                                  {details && <div className="text-muted text-[10px]">{details}</div>}
+                                  <div className="flex items-center gap-2">
+                                    {TYPE_THUMBS[li.product_type] && (
+                                      <img src={TYPE_THUMBS[li.product_type]} alt="" className="w-8 h-8 object-contain flex-shrink-0 opacity-70" />
+                                    )}
+                                    <div>
+                                      {li.label && <div className="text-[10px] text-muted"><span className="font-semibold">Label:</span> {li.label}</div>}
+                                      <div className="text-primary font-medium">{typeName}</div>
+                                      {details && <div className="text-muted text-[10px]">{details}</div>}
+                                    </div>
+                                  </div>
                                 </td>
                                 <td className="px-3 py-2 text-slate-600">{size}</td>
                                 <td className="px-3 py-2 text-center text-slate-600">{li.quantity}</td>
