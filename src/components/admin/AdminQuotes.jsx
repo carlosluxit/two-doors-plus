@@ -105,23 +105,23 @@ function generatePDF(quote, quoteItems) {
     const displayInstall = li.unit_total > 0 ? `$${Math.round(li.install_fee).toLocaleString()}` : 'TBD';
     const lineTotal = li.line_total > 0 ? `$${Math.round(li.line_total).toLocaleString()}` : 'TBD';
     return `
-      <tr>
-        <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;vertical-align:middle;">${i + 1}</td>
-        <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;vertical-align:middle;">
-          <div style="display:flex;align-items:center;gap:10px;">
-            ${thumbUrl ? `<img src="${thumbUrl}" style="width:36px;height:36px;object-fit:contain;opacity:0.75;flex-shrink:0;" />` : ''}
-            <div>
-              ${li.label ? `<div style="font-size:10px;color:#6b7280;"><strong>Label:</strong> ${li.label}</div>` : ''}
-              <div style="font-weight:600;">${typeName}</div>
-              ${details ? `<div style="font-size:10px;color:#6b7280;">${details}</div>` : ''}
-            </div>
-          </div>
+      <tr style="page-break-inside:avoid;break-inside:avoid;">
+        <td>${i + 1}</td>
+        <td class="item-cell">
+          <table class="layout"><tr>
+            ${thumbUrl ? `<td style="width:36px;vertical-align:middle;"><img src="${thumbUrl}" class="item-thumb" /></td>` : ''}
+            <td style="vertical-align:middle;${thumbUrl ? 'padding-left:8px;' : ''}">
+              ${li.label ? `<div class="item-detail"><strong>Label:</strong> ${li.label}</div>` : ''}
+              <div class="item-name">${typeName}</div>
+              ${details ? `<div class="item-detail">${details}</div>` : ''}
+            </td>
+          </tr></table>
         </td>
-        <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:center;vertical-align:middle;">${size}</td>
-        <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:center;vertical-align:middle;">${li.quantity}</td>
-        <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:right;vertical-align:middle;">${displayPrice}</td>
-        <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:right;vertical-align:middle;">${displayInstall}</td>
-        <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-size:12px;text-align:right;font-weight:600;vertical-align:middle;">${lineTotal}</td>
+        <td style="text-align:center;">${size}</td>
+        <td style="text-align:center;">${li.quantity}</td>
+        <td style="text-align:right;">${displayPrice}</td>
+        <td style="text-align:right;">${displayInstall}</td>
+        <td style="text-align:right;font-weight:600;">${lineTotal}</td>
       </tr>`;
   }).join('');
 
@@ -136,73 +136,98 @@ function generatePDF(quote, quoteItems) {
 <meta charset="UTF-8">
 <title>Quote ${quote.quote_number}</title>
 <style>
-  @media print { body { margin: 0; } @page { margin: 0.5in; } }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #111827; margin: 0; padding: 24px; }
-  .header { background: linear-gradient(135deg, #0f2942, #1a3d5c); color: white; padding: 32px; border-radius: 12px; margin-bottom: 24px; }
-  .header h1 { margin: 0 0 4px; font-size: 22px; }
-  .header .brand { font-size: 11px; color: #93c5fd; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
-  .header .quote-num { font-size: 13px; color: #93c5fd; }
-  .header .total { font-size: 32px; font-weight: 800; color: #0ea5e9; }
-  .header .total-label { font-size: 11px; color: #93c5fd; }
-  .section { border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
-  .section h2 { margin: 0 0 12px; font-size: 13px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; }
-  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; }
-  .info-grid .label { color: #9ca3af; font-size: 11px; }
-  table { width: 100%; border-collapse: collapse; }
-  th { background: #f9fafb; padding: 8px 12px; text-align: left; font-size: 10px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
-  .total-row { text-align: right; font-size: 18px; font-weight: 700; color: #0f2942; padding-top: 12px; }
-  .guarantee { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 16px; font-size: 12px; color: #92400e; margin-bottom: 16px; }
-  .footer { text-align: center; font-size: 11px; color: #9ca3af; margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e7eb; }
+  * { box-sizing: border-box; }
+  @page { margin: 0.6in 0.5in; }
+  @media print {
+    body { margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .no-break { page-break-inside: avoid; break-inside: avoid; }
+    tr { page-break-inside: avoid; break-inside: avoid; }
+    thead { display: table-header-group; }
+    .guarantee { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #111827; margin: 0; padding: 32px; font-size: 13px; line-height: 1.5; }
+  .header { background: linear-gradient(135deg, #0f2942, #1a3d5c); color: white; padding: 28px 32px; border-radius: 10px; margin-bottom: 20px; }
+  table.layout { width: 100%; border-collapse: collapse; }
+  table.layout td { vertical-align: top; padding: 0; }
+  .section { border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px 20px; margin-bottom: 14px; }
+  .section h2 { margin: 0 0 10px; font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }
+  table.items { width: 100%; border-collapse: collapse; }
+  table.items th { background: #f8fafc; padding: 8px 10px; text-align: left; font-size: 9px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; border-bottom: 2px solid #e2e8f0; }
+  table.items td { padding: 10px; border-bottom: 1px solid #f1f5f9; font-size: 12px; vertical-align: middle; }
+  table.items tr:last-child td { border-bottom: none; }
+  .item-cell { vertical-align: middle; }
+  .item-thumb { width: 32px; height: 32px; vertical-align: middle; margin-right: 8px; }
+  .item-name { font-weight: 600; font-size: 12px; }
+  .item-detail { font-size: 10px; color: #6b7280; margin-top: 1px; }
+  .total-row { text-align: right; font-size: 16px; font-weight: 700; color: #0f2942; padding: 14px 10px 4px; border-top: 2px solid #e2e8f0; margin-top: 8px; }
+  .guarantee { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 14px 18px; font-size: 11px; color: #92400e; margin-bottom: 14px; line-height: 1.6; }
+  .footer { text-align: center; font-size: 10px; color: #9ca3af; margin-top: 20px; padding-top: 14px; border-top: 1px solid #e5e7eb; }
+  .info-table { width: 100%; border-collapse: collapse; }
+  .info-table td { padding: 3px 0; font-size: 12px; }
+  .info-label { color: #9ca3af; font-size: 10px; width: 90px; vertical-align: top; }
 </style>
 </head>
 <body>
-  <div class="header">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-      <div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-          <img src="${logoSvg}" alt="Doors Plus +" style="width:36px;height:38px;" />
-          <div>
-            <div style="font-size:16px;font-weight:700;color:#fff;">Doors Plus +</div>
-            <div style="font-size:9px;color:#93c5fd;text-transform:uppercase;letter-spacing:0.08em;">Hurricane Impact Doors & Windows</div>
-          </div>
-        </div>
-        <h1>Guaranteed Quote</h1>
-        <div class="quote-num">${quote.quote_number}</div>
-      </div>
-      <div style="text-align:right;">
-        <div class="total">${totalDisplay}</div>
-        <div class="total-label">Total Project Cost</div>
-      </div>
-    </div>
-    <div style="margin-top:16px;font-size:12px;color:#93c5fd;">
-      Issued: ${fmtDate(quote.created_at)} · Valid until: ${fmtDate(expiryDate)}
+  <div class="header no-break">
+    <table class="layout" style="width:100%;">
+      <tr>
+        <td style="width:60%;">
+          <table class="layout"><tr>
+            <td style="width:42px;vertical-align:middle;"><img src="${logoSvg}" alt="" style="width:36px;height:38px;" /></td>
+            <td style="vertical-align:middle;padding-left:10px;">
+              <div style="font-size:15px;font-weight:700;color:#fff;">Doors Plus +</div>
+              <div style="font-size:8px;color:#93c5fd;text-transform:uppercase;letter-spacing:0.08em;">Hurricane Impact Doors & Windows</div>
+            </td>
+          </tr></table>
+          <div style="margin-top:14px;font-size:20px;font-weight:700;color:#fff;">Guaranteed Quote</div>
+          <div style="font-size:12px;color:#93c5fd;margin-top:2px;">${quote.quote_number}</div>
+        </td>
+        <td style="width:40%;text-align:right;vertical-align:top;">
+          <div style="font-size:28px;font-weight:800;color:#0ea5e9;line-height:1.1;">${totalDisplay}</div>
+          <div style="font-size:10px;color:#93c5fd;margin-top:4px;">Total Project Cost</div>
+        </td>
+      </tr>
+    </table>
+    <div style="margin-top:12px;font-size:11px;color:#93c5fd;">
+      Issued: ${fmtDate(quote.created_at)} &nbsp;·&nbsp; Valid until: ${fmtDate(expiryDate)}
     </div>
   </div>
 
-  <div class="section">
+  <div class="section no-break">
     <h2>Project Details</h2>
-    <div class="info-grid">
-      <div><div class="label">Client</div>${quote.client_first_name} ${quote.client_last_name}</div>
-      <div><div class="label">Email</div>${quote.client_email}</div>
-      <div><div class="label">Phone</div>${quote.client_phone || '—'}</div>
-      <div><div class="label">Property</div>${quote.client_address || ''}${quote.client_city ? `, ${quote.client_city}` : ''} ${quote.client_zip || ''}</div>
-      <div><div class="label">Project Type</div><span style="text-transform:capitalize">${quote.project_type || '—'}</span></div>
-      <div><div class="label">Measurement</div><span style="text-transform:capitalize">${quote.measure_from || '—'}</span></div>
-    </div>
+    <table class="layout" style="width:100%;">
+      <tr>
+        <td style="width:50%;vertical-align:top;">
+          <table class="info-table">
+            <tr><td class="info-label">Client</td><td style="font-weight:600;">${quote.client_first_name} ${quote.client_last_name}</td></tr>
+            <tr><td class="info-label">Email</td><td>${quote.client_email}</td></tr>
+            <tr><td class="info-label">Phone</td><td>${quote.client_phone || '—'}</td></tr>
+          </table>
+        </td>
+        <td style="width:50%;vertical-align:top;">
+          <table class="info-table">
+            <tr><td class="info-label">Property</td><td>${quote.client_address || ''}${quote.client_city ? `, ${quote.client_city}` : ''} ${quote.client_zip || ''}</td></tr>
+            <tr><td class="info-label">Project</td><td style="text-transform:capitalize;">${quote.project_type || '—'}</td></tr>
+            <tr><td class="info-label">Measured</td><td style="text-transform:capitalize;">${quote.measure_from || '—'}</td></tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   </div>
 
   <div class="section">
     <h2>Bill of Materials</h2>
-    <table>
+    <table class="items">
       <thead>
         <tr>
-          <th>#</th>
+          <th style="width:24px;">#</th>
           <th>Item</th>
-          <th style="text-align:center;">Size</th>
-          <th style="text-align:center;">Qty</th>
-          <th style="text-align:right;">Price</th>
-          <th style="text-align:right;">Install</th>
-          <th style="text-align:right;">Total</th>
+          <th style="text-align:center;width:90px;">Size</th>
+          <th style="text-align:center;width:36px;">Qty</th>
+          <th style="text-align:right;width:70px;">Price</th>
+          <th style="text-align:right;width:70px;">Install</th>
+          <th style="text-align:right;width:70px;">Total</th>
         </tr>
       </thead>
       <tbody>${itemRows}</tbody>
@@ -210,13 +235,13 @@ function generatePDF(quote, quoteItems) {
     ${quote.total > 0 ? `<div class="total-row">Total: ${totalDisplay}</div>` : ''}
   </div>
 
-  <div class="guarantee">
+  <div class="guarantee no-break">
     <strong>5-Day Price Guarantee</strong> — This quote is guaranteed until ${fmtDate(expiryDate)},
     subject to on-site measurement verification. Final pricing confirmed after the complimentary expert visit.
   </div>
 
-  <div class="footer">
-    <div style="font-weight:600;color:#0f2942;margin-bottom:4px;">Doors Plus + USA</div>
+  <div class="footer no-break">
+    <div style="font-weight:600;color:#0f2942;margin-bottom:3px;">Doors Plus + USA</div>
     South Florida's Hurricane Impact Window & Door Specialists · (786) 555-1234
   </div>
 </body>
