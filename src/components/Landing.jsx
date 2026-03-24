@@ -11,7 +11,7 @@ const TRUST_ITEMS = [
 const STEPS_INFO = [
   { num: '1', icon: Ruler, title: 'Build Your Project', desc: 'Tell us about your doors and windows with simple measurements' },
   { num: '2', icon: FileText, title: 'Review Your Quote', desc: 'Get transparent pricing with product and installation breakdown' },
-  { num: '3', icon: CheckCircle, title: 'Schedule a Visit', desc: 'Free expert verification — no obligation, no pressure' },
+  { num: '3', icon: CheckCircle, title: 'Confirm Eligibility', desc: 'Free expert verification — no obligation, no pressure' },
 ];
 
 export default function Landing() {
@@ -37,8 +37,7 @@ export default function Landing() {
               ))}
             </div>
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight text-white mb-6">
-              Hurricane Impact Doors & Windows.{' '}
-              <span className="text-amber-400">Transparent pricing.</span>
+              Hurricane Impact Doors & Windows.
             </h2>
             <p className="text-slate-300 text-lg sm:text-xl mb-10 max-w-lg leading-relaxed">
               See your exact price in under two minutes. Guaranteed pricing,
