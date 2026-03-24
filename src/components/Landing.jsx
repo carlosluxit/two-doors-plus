@@ -3,13 +3,13 @@ import { useQuoteDispatch } from '../context/QuoteContext';
 
 const TRUST_ITEMS = [
   { icon: Clock, label: 'Instant Quote', desc: 'Real pricing in under 2 minutes' },
-  { icon: Lock, label: 'No Data Selling', desc: 'Your info stays with us only' },
+  { icon: Lock, label: 'Data Privacy', desc: 'Your info stays with us only' },
   { icon: BadgeDollarSign, label: 'Guaranteed Price', desc: 'Valid for 5 days, no surprises' },
   { icon: Shield, label: 'Miami-Dade Approved', desc: 'All products code-compliant' },
 ];
 
 const STEPS_INFO = [
-  { num: '1', icon: Ruler, title: 'Enter Your Project', desc: 'Tell us about your doors and windows with simple measurements' },
+  { num: '1', icon: Ruler, title: 'Build Your Project', desc: 'Tell us about your doors and windows with simple measurements' },
   { num: '2', icon: FileText, title: 'Review Your Quote', desc: 'Get transparent pricing with product and installation breakdown' },
   { num: '3', icon: CheckCircle, title: 'Schedule a Visit', desc: 'Free expert verification — no obligation, no pressure' },
 ];
@@ -42,7 +42,7 @@ export default function Landing() {
             </h2>
             <p className="text-slate-300 text-lg sm:text-xl mb-10 max-w-lg leading-relaxed">
               See your exact price in under two minutes. Guaranteed pricing,
-              professional installation, and a free expert verification visit.
+              professional installation, and a free expert verification visit the same week.
             </p>
             <button
               onClick={start}
@@ -52,7 +52,7 @@ export default function Landing() {
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" strokeWidth={2} />
             </button>
             <p className="text-slate-400 text-sm mt-6">
-              500+ South Florida homeowners quoted this month
+              500+ South Florida homeowners quoted this month.
             </p>
           </div>
         </div>
@@ -96,7 +96,7 @@ export default function Landing() {
             Why Homeowners Choose Us
           </h3>
           <p className="text-center text-slate-400 text-sm mb-14 max-w-md mx-auto">
-            Real prices, real products, and a team that stands behind every installation.
+            Real prices, quality products, and a team that stands behind every installation.
           </p>
           <div className="grid sm:grid-cols-2 gap-4">
             {[
@@ -125,7 +125,7 @@ export default function Landing() {
           </h3>
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { name: 'Maria G.', loc: 'Miami Beach', text: 'Finally a company that gives you a real price upfront. No games, no 10 salespeople calling me.' },
+              { name: 'Maria G.', loc: 'Miami Beach', text: 'Finally a company that gives you a real price upfront. No games, no 10 sales people calling me.' },
               { name: 'James R.', loc: 'Coral Gables', text: 'Got my quote in 2 minutes. The verification visit was professional and no pressure at all.' },
               { name: 'Ana S.', loc: 'Fort Lauderdale', text: 'The windows are amazing. Price was exactly what they quoted online. Highly recommend!' },
             ].map((review) => (

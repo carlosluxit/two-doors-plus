@@ -8,6 +8,7 @@ import {
   Plus,
   Trash2,
   Camera,
+  PlayCircle,
   Ruler,
   ArrowRight,
   ArrowLeft,
@@ -321,8 +322,8 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
           />
         </div>
         <div className="flex items-center gap-0.5">
-          <button onClick={onMeasure} className="p-1.5 text-muted hover:text-accent rounded-md transition-colors cursor-pointer" title="Measure with camera">
-            <Camera className="w-3.5 h-3.5" strokeWidth={1.5} />
+          <button onClick={onMeasure} className="p-1.5 text-muted hover:text-accent rounded-md transition-colors cursor-pointer" title="How to measure">
+            <PlayCircle className="w-3.5 h-3.5" strokeWidth={1.5} />
           </button>
           <button onClick={() => dispatch({ type: 'REMOVE_ITEM', id: item.id })} className="p-1.5 text-muted hover:text-danger rounded-md transition-colors cursor-pointer">
             <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
