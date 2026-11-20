@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" fill="none">
+  <!-- Arch shape -->
+  <path d="M30 130 L30 130 A90 90 0 0 1 210 130 Z" stroke="#0f2942" stroke-width="3" fill="#f0f9ff"/>
+  <!-- Inner glass -->
+  <path d="M40 130 A80 80 0 0 1 200 130 Z" stroke="#0284c7" stroke-width="1.5" fill="#e0f2fe" fill-opacity="0.4"/>
+  <!-- Radial lines -->
+  <line x1="120" y1="130" x2="120" y2="42" stroke="#0284c7" stroke-width="1" opacity="0.6"/>
+  <line x1="120" y1="130" x2="60" y2="58" stroke="#0284c7" stroke-width="1" opacity="0.6"/>
+  <line x1="120" y1="130" x2="180" y2="58" stroke="#0284c7" stroke-width="1" opacity="0.6"/>
+  <!-- Width dimension -->
+  <line x1="30" y1="148" x2="210" y2="148" stroke="#0284c7" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="120" y="158" text-anchor="middle" font-size="10" fill="#0284c7" font-family="system-ui">Width</text>
+  <!-- Height dimension -->
+  <line x1="222" y1="130" x2="222" y2="42" stroke="#0284c7" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="234" y="90" text-anchor="start" font-size="10" fill="#0284c7" font-family="system-ui" transform="rotate(-90 234 90)">Height</text>
+</svg>

@@ -1,16 +1,62 @@
-# React + Vite
+# EZPZ Windows
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Instant-quote web app for hurricane impact windows and doors in South Florida.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Frontend:** React 19 + Vite 5 + Tailwind 4
+- **Backend:** Supabase (Postgres, Auth, Edge Functions)
+- **Email:** Resend (transactional quote + OTP emails)
+- **Hosting:** Vercel
+- **PDF:** html2pdf.js (client-side) + pdf-lib (edge fallback)
 
-## React Compiler
+## Development
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```sh
+npm install
+npm run dev      # local dev server at http://localhost:5173
+npm run build    # production build to dist/
+npm run preview  # serve the production build locally
+npm run lint     # eslint
+```
 
-## Expanding the ESLint configuration
+Local dev requires `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `.env`.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Routing
+
+| Path | Served by | Purpose |
+|---|---|---|
+| `/` | React SPA | Landing + quote builder |
+| `/admin`, `/admin/*` | React SPA | Internal quote admin |
+| `/terms`, `/contact` | React SPA | Legal + contact form |
+| `/faq` | Static HTML in `public/` | SEO + AI-crawler FAQ |
+| `/hurricane-impact-windows-vs-shutters` | Static HTML | SEO comparison |
+| `/miami-dade-noa-explained` | Static HTML | SEO technical guide |
+| `/best-hurricane-impact-window-brands` | Static HTML | SEO brand comparison |
+| `/florida-hurricane-window-code-requirements` | Static HTML | SEO code guide |
+| `/robots.txt`, `/sitemap.xml` | Static files | SEO infrastructure |
+
+The static SEO pages are served directly by Vercel (`cleanUrls: true`) so AI crawlers see real HTML, not the empty SPA shell.
+
+## Project layout
+
+```
+src/
+  components/         # Landing, Header, quote-flow steps, admin
+  context/            # QuoteContext + PricingContext
+  data/products.js    # Window/door catalog, glass types, price lookup
+  lib/                # Supabase client, PDF generation
+supabase/
+  functions/          # Edge functions: submit-quote, send-otp, verify-otp
+  migrations/         # Schema migrations
+public/
+  *.html              # Pre-rendered SEO content pages
+  robots.txt          # AI-bot allowlist
+  sitemap.xml
+  types/              # Product thumbnail SVGs
+  logo.svg
+index.html            # Shell + JSON-LD + prerendered hero/FAQ for crawlers
+vercel.json           # Routing + clean URLs + caching headers
+```
+
+See `CLAUDE.md` for project-specific context (Supabase project ref, pending tasks, etc.).

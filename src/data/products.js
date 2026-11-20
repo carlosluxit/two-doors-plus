@@ -6,6 +6,7 @@ export const WINDOW_TYPES = {
   horizontal_roller_xox: { name: 'Horizontal Roller XOX', lucideIcon: 'Columns3', category: 'window' },
   half_moon: { name: 'Half Moon', lucideIcon: 'Hexagon', category: 'window' },
   circle: { name: 'Circle', lucideIcon: 'Circle', category: 'window' },
+  special_shape: { name: 'Special Shape', lucideIcon: 'Shapes', category: 'window' },
 };
 
 export const GLASS_TYPES = {
@@ -57,7 +58,7 @@ export function getVariantPrice(entry, variant) {
  */
 export function findPriceEntry(entries, productType, widthInches, heightInches) {
   // Half moon: width + center-to-top = sum determines price range
-  if (productType === 'half_moon') {
+  if (productType === 'half_moon' || productType === 'special_shape') {
     const geo = entries.filter((e) => e.product_type === 'geometric');
     const dim = widthInches + heightInches;
     return geo.find((e) => dim >= e.width_min && dim <= e.width_max) ?? null;

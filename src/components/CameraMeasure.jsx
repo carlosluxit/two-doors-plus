@@ -74,15 +74,22 @@ export default function CameraMeasure({ onComplete, onCancel, itemType, measureF
                   : 'Measure from outside — border to border where the frame sits.'}
               </p>
 
-              {isInside ? (
-                <div className="space-y-2">
-                  <img src="/inside_1.GIF" alt="Measure wall to wall" className="w-full rounded-lg" />
-                  <img src="/inside2.GIF" alt="Measure sill to top" className="w-full rounded-lg" />
-                </div>
+              {itemType === 'window' ? (
+                isInside ? (
+                  <div className="space-y-2">
+                    <img src="/inside_1.GIF" alt="Measure wall to wall" className="w-full rounded-lg" />
+                    <img src="/inside2.GIF" alt="Measure sill to top" className="w-full rounded-lg" />
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <img src="/outside_1.GIF" alt="Measure edge to edge" className="w-full rounded-lg" />
+                    <img src="/outside_2.GIF" alt="Measure sill to top" className="w-full rounded-lg" />
+                  </div>
+                )
               ) : (
                 <div className="space-y-2">
-                  <img src="/outside_1.GIF" alt="Measure edge to edge" className="w-full rounded-lg" />
-                  <img src="/outside_2.GIF" alt="Measure sill to top" className="w-full rounded-lg" />
+                  <img src="/door_width.gif" alt="Measure door width" className="w-full rounded-lg" />
+                  <img src="/door_height.gif" alt="Measure door height" className="w-full rounded-lg" />
                 </div>
               )}
 

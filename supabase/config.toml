@@ -1,0 +1,12 @@
+# Supabase project configuration
+
+project_id = "ynacvefjxnrexuzoftxq"
+
+[functions.submit-quote]
+verify_jwt = false
+
+[functions.send-otp]
+verify_jwt = false
+
+[functions.verify-otp]
+verify_jwt = false

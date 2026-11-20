@@ -37,7 +37,7 @@ export default function Landing() {
               ))}
             </div>
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight text-white mb-6">
-              Hurricane Impact Doors & Windows.
+              Hurricane Impact Windows & Doors. Made EZPZ.
             </h2>
             <p className="text-slate-300 text-lg sm:text-xl mb-10 max-w-lg leading-relaxed">
               See your exact price in under two minutes. Guaranteed pricing,
@@ -165,10 +165,43 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-primary-dark py-10">
-        <div className="max-w-5xl mx-auto px-5 text-center">
-          <p className="text-slate-400 text-sm">&copy; 2026 Doors Plus + USA. All rights reserved.</p>
-          <p className="text-slate-500 text-xs mt-2">South Florida's Trusted Hurricane Impact Door & Window Experts</p>
+      <footer className="bg-primary-dark py-12">
+        <div className="max-w-5xl mx-auto px-5">
+          <div className="grid sm:grid-cols-3 gap-8 text-left mb-8">
+            <div>
+              <h4 className="text-white text-sm font-semibold mb-3">EZPZ Windows</h4>
+              <p className="text-slate-400 text-xs leading-relaxed">South Florida's trusted hurricane impact windows &amp; doors specialists. Miami-Dade NOA approved. Real quotes in 2 minutes.</p>
+            </div>
+            <div>
+              <h4 className="text-white text-sm font-semibold mb-3">Learn</h4>
+              <ul className="space-y-1.5 text-xs">
+                <li><a href="/hurricane-impact-windows-vs-shutters" className="text-slate-400 hover:text-slate-200 transition-colors">Impact windows vs shutters</a></li>
+                <li><a href="/miami-dade-noa-explained" className="text-slate-400 hover:text-slate-200 transition-colors">Miami-Dade NOA explained</a></li>
+                <li><a href="/best-hurricane-impact-window-brands" className="text-slate-400 hover:text-slate-200 transition-colors">Best impact window brands</a></li>
+                <li><a href="/florida-hurricane-window-code-requirements" className="text-slate-400 hover:text-slate-200 transition-colors">Florida code requirements</a></li>
+                <li><a href="/faq" className="text-slate-400 hover:text-slate-200 transition-colors">FAQ</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white text-sm font-semibold mb-3">Company</h4>
+              <ul className="space-y-1.5 text-xs">
+                <li><a href="/about" className="text-slate-400 hover:text-slate-200 transition-colors">About</a></li>
+                <li><a href="/contact" className="text-slate-400 hover:text-slate-200 transition-colors">Contact us</a></li>
+                <li><a href="/terms" className="text-slate-400 hover:text-slate-200 transition-colors">Terms &amp; Conditions</a></li>
+                <li><a href="mailto:info@ezpzwindows.com" className="text-slate-400 hover:text-slate-200 transition-colors">info@ezpzwindows.com</a></li>
+                <li><a href="tel:+17865551234" className="text-slate-400 hover:text-slate-200 transition-colors">(786) 555-1234</a></li>
+                <li>
+                  <a href="https://www.instagram.com/doorsplususa?igsh=MTBndHplNzhucjA4OA==" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-slate-400 hover:text-slate-200 transition-colors">
+                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                    Instagram
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="pt-6 border-t border-white/10 text-center">
+            <p className="text-slate-400 text-xs">&copy; 2026 EZPZ Windows. All rights reserved. Serving Miami-Dade, Broward &amp; Palm Beach counties.</p>
+          </div>
         </div>
       </footer>
     </div>

@@ -20,6 +20,15 @@ function InsideImages() {
   );
 }
 
+function DoorImages() {
+  return (
+    <div className="space-y-2">
+      <img src="/door_width.gif" alt="Measure door width" className="w-full rounded-lg" />
+      <img src="/door_height.gif" alt="Measure door height" className="w-full rounded-lg" />
+    </div>
+  );
+}
+
 export default function StepMeasureMethod() {
   const state = useQuote();
   const dispatch = useQuoteDispatch();
@@ -229,7 +238,7 @@ const POPUP_CONFIG = {
     title: 'Measuring From Outside',
     subtitle: 'Required for all door measurements',
     icon: AlertTriangle,
-    images: OutsideImages,
+    images: DoorImages,
     showDiagram: true,
     showWhy: true,
     buttonText: "I Understand — I'll Measure From Outside",
@@ -237,7 +246,6 @@ const POPUP_CONFIG = {
       { title: 'Go outside the home', desc: 'Stand outside where you can see the full door frame.' },
       { title: 'Measure the WIDTH', desc: 'Outer edge to outer edge of the frame.' },
       { title: 'Measure the HEIGHT', desc: 'Threshold (bottom sill) to top outer edge.' },
-      { title: 'Measure 3 times', desc: 'Use the SMALLEST number from left/center/right and top/middle/bottom.' },
     ],
   },
   'outside-windows': {
@@ -252,7 +260,6 @@ const POPUP_CONFIG = {
       { title: 'Go outside the home', desc: 'Stand outside where you can see the full window frame.' },
       { title: 'Measure the WIDTH', desc: 'Outer edge to outer edge of the frame.' },
       { title: 'Measure the HEIGHT', desc: 'Outer bottom sill to outer top edge.' },
-      { title: 'Measure 3 times', desc: 'Use the SMALLEST number from left/center/right and top/middle/bottom.' },
     ],
   },
   inside: {
@@ -267,7 +274,6 @@ const POPUP_CONFIG = {
       { title: 'Stay inside the home', desc: 'Stand inside facing the window opening.' },
       { title: 'Measure the WIDTH', desc: 'Left inner edge to right inner edge of the opening.' },
       { title: 'Measure the HEIGHT', desc: 'Inner bottom sill to inner top edge.' },
-      { title: 'Measure 3 times', desc: 'Use the SMALLEST number from left/center/right and top/middle/bottom.' },
     ],
   },
 };

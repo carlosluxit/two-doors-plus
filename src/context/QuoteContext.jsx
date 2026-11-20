@@ -4,10 +4,11 @@ const QuoteContext = createContext(null);
 const QuoteDispatchContext = createContext(null);
 
 const initialState = {
-  // 0=landing, 1=project type, 2=measure method, 3=items, 4=client info, 5=verify, 6=quote
+  // 0=landing, 1=project type, 2=measure method, 3=quote mode, 4=items, 5=client info, 6=verify, 7=quote
   step: 0,
   projectType: null,   // 'windows' | 'doors' | 'both'
   measureFrom: 'inside', // 'inside' | 'outside'
+  quoteMode: null, // 'quick' | 'detailed'
   items: [],
   clientInfo: {
     firstName: '',
@@ -24,6 +25,12 @@ const initialState = {
   quoteData: null, // full quote response from DB after submission
 };
 
+const QUICK_DEFAULTS = {
+  window: { subType: 'single_hung', glassType: 'clear' },
+  door: { subType: 'single_door', doorStyle: 'traditional' },
+  sliding_door: { subType: 'sgd_2_panel' },
+};
+
 function quoteReducer(state, action) {
   switch (action.type) {
     case 'SET_STEP':
@@ -36,6 +43,13 @@ function quoteReducer(state, action) {
       return { ...state, projectType: action.projectType };
     case 'SET_MEASURE_FROM':
       return { ...state, measureFrom: action.measureFrom };
+    case 'SET_QUOTE_MODE':
+      if (action.quoteMode !== 'quick') return { ...state, quoteMode: action.quoteMode };
+      return {
+        ...state,
+        quoteMode: 'quick',
+        items: state.items.map((item) => ({ ...item, ...QUICK_DEFAULTS[item.itemCategory] })),
+      };
     case 'ADD_ITEM':
       return { ...state, items: [...state.items, { ...action.item, id: Date.now() }] };
     case 'UPDATE_ITEM':

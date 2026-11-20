@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuote, useQuoteDispatch } from '../context/QuoteContext';
 import { usePricing } from '../context/PricingContext';
 import { WINDOW_TYPES, DOOR_TYPES, SLIDING_DOOR_TYPES, DOOR_VARIANTS, GLASS_TYPES, findPriceEntry, calcLineItem } from '../data/products';
 import { supabase } from '../lib/supabase';
+import { generateQuotePdfBase64 } from '../lib/generateQuotePdf';
 import {
   Calendar,
   CreditCard,
@@ -55,6 +56,7 @@ export default function StepQuote() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [submitted, setSubmitted] = useState(false);
+  const submissionStartedRef = useRef(false); // sync guard against StrictMode double-mount
 
   const quoteDate = new Date();
   const expiryDate = new Date(quoteDate);
@@ -69,6 +71,8 @@ export default function StepQuote() {
 
   useEffect(() => {
     if (state.quoteGenerated || submitted) return;
+    if (submissionStartedRef.current) return; // guard against StrictMode double-mount
+    submissionStartedRef.current = true;
     submitQuote();
   }, []);
 
@@ -127,16 +131,30 @@ export default function StepQuote() {
       const { error: itemsErr } = await supabase.from('quote_items').insert(quoteItems);
       if (itemsErr) throw itemsErr;
 
-      // Read back the DB-generated quote number (e.g. DP-001)
+      // Read back the DB-generated quote number (e.g. DP-001) and the full saved quote for PDF
       const { data: savedQuote } = await supabase
         .from('quotes')
-        .select('quote_number')
+        .select('*')
         .eq('id', quoteId)
         .single();
 
+      // Generate PDF from the admin-style template (matches images + layout).
+      // This runs client-side so images are resolvable from the same origin.
+      let pdfBase64 = null;
+      try {
+        const { data: savedItems } = await supabase
+          .from('quote_items')
+          .select('*')
+          .eq('quote_id', quoteId)
+          .order('sort_order');
+        pdfBase64 = await generateQuotePdfBase64(savedQuote, savedItems || []);
+      } catch (pdfErr) {
+        console.error('PDF generation failed:', pdfErr);
+      }
+
       try {
         await supabase.functions.invoke('submit-quote', {
-          body: { quoteId },
+          body: { quoteId, pdfBase64 },
         });
       } catch (_) {}
 
@@ -188,7 +206,7 @@ export default function StepQuote() {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Shield className="w-4 h-4 text-accent" strokeWidth={1.5} />
-              <span className="text-[11px] font-medium text-slate-400 uppercase tracking-widest">Doors Plus + USA</span>
+              <span className="text-[11px] font-medium text-slate-400 uppercase tracking-widest">EZPZ Windows</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-semibold mb-1">Your Guaranteed Quote</h2>
             <p className="text-slate-400 text-xs">
@@ -381,7 +399,7 @@ export default function StepQuote() {
 
       <div className="text-center text-[11px] text-slate-400 pb-8">
         <p>This quote is an estimate based on the information provided. Final pricing subject to on-site measurement verification.</p>
-        <p className="mt-1.5">&copy; 2026 Doors Plus + USA &middot; South Florida</p>
+        <p className="mt-1.5">&copy; 2026 EZPZ Windows &middot; South Florida</p>
       </div>
     </div>
   );

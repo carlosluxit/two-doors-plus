@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Search, RefreshCw, ChevronDown, ChevronUp, Loader2, Archive, Trash2, Download, ArchiveRestore, AlertTriangle } from 'lucide-react';
+import { buildQuotePdfHtml } from '../../lib/quotePdfHtml';
 
 const STATUS_COLORS = {
   pending:  'bg-amber-50 text-amber-700 border-amber-200',
@@ -17,6 +18,7 @@ const PRODUCT_TYPE_LABELS = {
   horizontal_roller_xox: 'Horizontal Roller XOX',
   half_moon: 'Half Moon Window',
   circle: 'Circle Window',
+  special_shape: 'Special Shape Window',
   geometric: 'Geometric Window',
   single_door: 'Single Door',
   bermuda_door: 'Bermuda Door',
@@ -91,166 +93,10 @@ function getThumbUrl(productType) {
 }
 
 function generatePDF(quote, quoteItems) {
-  const fmtDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-  const expiryDate = new Date(quote.created_at);
-  expiryDate.setDate(expiryDate.getDate() + 5);
-
-  const itemRows = (quoteItems || []).map((li, i) => {
-    const typeName = PRODUCT_TYPE_LABELS[li.product_type] || li.product_type;
-    const category = CATEGORY_LABELS[li.item_category] || li.item_category;
-    const details = formatItemDetails(li);
-    const size = formatSize(li);
-    const thumbUrl = getThumbUrl(li.product_type);
-    const displayPrice = li.unit_total > 0 ? `$${Math.round(li.base_price * 1.30).toLocaleString()}` : 'TBD';
-    const displayInstall = li.unit_total > 0 ? `$${Math.round(li.install_fee).toLocaleString()}` : 'TBD';
-    const lineTotal = li.line_total > 0 ? `$${Math.round(li.line_total).toLocaleString()}` : 'TBD';
-    return `
-      <tr style="page-break-inside:avoid;break-inside:avoid;">
-        <td>${i + 1}</td>
-        <td class="item-cell">
-          <table class="layout"><tr>
-            ${thumbUrl ? `<td style="width:36px;vertical-align:middle;"><img src="${thumbUrl}" class="item-thumb" /></td>` : ''}
-            <td style="vertical-align:middle;${thumbUrl ? 'padding-left:8px;' : ''}">
-              ${li.label ? `<div class="item-detail"><strong>Label:</strong> ${li.label}</div>` : ''}
-              <div class="item-name">${typeName}</div>
-              ${details ? `<div class="item-detail">${details}</div>` : ''}
-            </td>
-          </tr></table>
-        </td>
-        <td style="text-align:center;">${size}</td>
-        <td style="text-align:center;">${li.quantity}</td>
-        <td style="text-align:right;">${displayPrice}</td>
-        <td style="text-align:right;">${displayInstall}</td>
-        <td style="text-align:right;font-weight:600;">${lineTotal}</td>
-      </tr>`;
-  }).join('');
-
-  const totalDisplay = quote.total > 0 ? `$${Math.round(quote.total).toLocaleString()}` : 'Custom Quote';
-
-  const logoSvg = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 42 44" fill="none"><path d="M20 2 L36 10 L36 24 C36 32 28 40 20 42 C12 40 4 32 4 24 L4 10 Z" stroke="#0284c7" stroke-width="2.5" fill="#0284c7" fill-opacity="0.08"/><rect x="13" y="12" width="14" height="22" rx="2" stroke="#0284c7" stroke-width="2" fill="none"/><rect x="15.5" y="14.5" width="9" height="8" rx="1" fill="#0284c7" fill-opacity="0.15" stroke="#0284c7" stroke-width="1"/><rect x="15.5" y="25" width="9" height="6.5" rx="1" fill="#0284c7" fill-opacity="0.15" stroke="#0284c7" stroke-width="1"/><circle cx="24" cy="25" r="1.2" fill="#0284c7"/><circle cx="33" cy="8" r="8" fill="#0284c7"/><circle cx="33" cy="8" r="6" fill="#ffffff"/><rect x="29.5" y="6.75" width="7" height="2.5" rx="0.8" fill="#f59e0b"/><rect x="31.75" y="4.5" width="2.5" height="7" rx="0.8" fill="#f59e0b"/></svg>')}`;
-
-  const html = `
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Quote ${quote.quote_number}</title>
-<style>
-  * { box-sizing: border-box; }
-  @page { margin: 0.6in 0.5in; }
-  @media print {
-    body { margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .no-break { page-break-inside: avoid; break-inside: avoid; }
-    tr { page-break-inside: avoid; break-inside: avoid; }
-    thead { display: table-header-group; }
-    .guarantee { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #111827; margin: 0; padding: 32px; font-size: 13px; line-height: 1.5; }
-  .header { background: linear-gradient(135deg, #0f2942, #1a3d5c); color: white; padding: 28px 32px; border-radius: 10px; margin-bottom: 20px; }
-  table.layout { width: 100%; border-collapse: collapse; }
-  table.layout td { vertical-align: top; padding: 0; }
-  .section { border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px 20px; margin-bottom: 14px; }
-  .section h2 { margin: 0 0 10px; font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }
-  table.items { width: 100%; border-collapse: collapse; }
-  table.items th { background: #f8fafc; padding: 8px 10px; text-align: left; font-size: 9px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; border-bottom: 2px solid #e2e8f0; }
-  table.items td { padding: 10px; border-bottom: 1px solid #f1f5f9; font-size: 12px; vertical-align: middle; }
-  table.items tr:last-child td { border-bottom: none; }
-  .item-cell { vertical-align: middle; }
-  .item-thumb { width: 32px; height: 32px; vertical-align: middle; margin-right: 8px; }
-  .item-name { font-weight: 600; font-size: 12px; }
-  .item-detail { font-size: 10px; color: #6b7280; margin-top: 1px; }
-  .total-row { text-align: right; font-size: 16px; font-weight: 700; color: #0f2942; padding: 14px 10px 4px; border-top: 2px solid #e2e8f0; margin-top: 8px; }
-  .guarantee { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 14px 18px; font-size: 11px; color: #92400e; margin-bottom: 14px; line-height: 1.6; }
-  .footer { text-align: center; font-size: 10px; color: #9ca3af; margin-top: 20px; padding-top: 14px; border-top: 1px solid #e5e7eb; }
-  .info-table { width: 100%; border-collapse: collapse; }
-  .info-table td { padding: 3px 0; font-size: 12px; }
-  .info-label { color: #9ca3af; font-size: 10px; width: 90px; vertical-align: top; }
-</style>
-</head>
-<body>
-  <div class="header no-break">
-    <table class="layout" style="width:100%;">
-      <tr>
-        <td style="width:60%;">
-          <table class="layout"><tr>
-            <td style="width:42px;vertical-align:middle;"><img src="${logoSvg}" alt="" style="width:36px;height:38px;" /></td>
-            <td style="vertical-align:middle;padding-left:10px;">
-              <div style="font-size:15px;font-weight:700;color:#fff;">Doors Plus +</div>
-              <div style="font-size:8px;color:#93c5fd;text-transform:uppercase;letter-spacing:0.08em;">Hurricane Impact Doors & Windows</div>
-            </td>
-          </tr></table>
-          <div style="margin-top:14px;font-size:20px;font-weight:700;color:#fff;">Guaranteed Quote</div>
-          <div style="font-size:12px;color:#93c5fd;margin-top:2px;">${quote.quote_number}</div>
-        </td>
-        <td style="width:40%;text-align:right;vertical-align:top;">
-          <div style="font-size:28px;font-weight:800;color:#0ea5e9;line-height:1.1;">${totalDisplay}</div>
-          <div style="font-size:10px;color:#93c5fd;margin-top:4px;">Total Project Cost</div>
-        </td>
-      </tr>
-    </table>
-    <div style="margin-top:12px;font-size:11px;color:#93c5fd;">
-      Issued: ${fmtDate(quote.created_at)} &nbsp;·&nbsp; Valid until: ${fmtDate(expiryDate)}
-    </div>
-  </div>
-
-  <div class="section no-break">
-    <h2>Project Details</h2>
-    <table class="layout" style="width:100%;">
-      <tr>
-        <td style="width:50%;vertical-align:top;">
-          <table class="info-table">
-            <tr><td class="info-label">Client</td><td style="font-weight:600;">${quote.client_first_name} ${quote.client_last_name}</td></tr>
-            <tr><td class="info-label">Email</td><td>${quote.client_email}</td></tr>
-            <tr><td class="info-label">Phone</td><td>${quote.client_phone || '—'}</td></tr>
-          </table>
-        </td>
-        <td style="width:50%;vertical-align:top;">
-          <table class="info-table">
-            <tr><td class="info-label">Property</td><td>${quote.client_address || ''}${quote.client_city ? `, ${quote.client_city}` : ''} ${quote.client_zip || ''}</td></tr>
-            <tr><td class="info-label">Project</td><td style="text-transform:capitalize;">${quote.project_type || '—'}</td></tr>
-            <tr><td class="info-label">Measured</td><td style="text-transform:capitalize;">${quote.measure_from || '—'}</td></tr>
-          </table>
-        </td>
-      </tr>
-    </table>
-  </div>
-
-  <div class="section">
-    <h2>Bill of Materials</h2>
-    <table class="items">
-      <thead>
-        <tr>
-          <th style="width:24px;">#</th>
-          <th>Item</th>
-          <th style="text-align:center;width:90px;">Size</th>
-          <th style="text-align:center;width:36px;">Qty</th>
-          <th style="text-align:right;width:70px;">Price</th>
-          <th style="text-align:right;width:70px;">Install</th>
-          <th style="text-align:right;width:70px;">Total</th>
-        </tr>
-      </thead>
-      <tbody>${itemRows}</tbody>
-    </table>
-    ${quote.total > 0 ? `<div class="total-row">Total: ${totalDisplay}</div>` : ''}
-  </div>
-
-  <div class="guarantee no-break">
-    <strong>5-Day Price Guarantee</strong> — This quote is guaranteed until ${fmtDate(expiryDate)},
-    subject to on-site measurement verification. Final pricing confirmed after the complimentary expert visit.
-  </div>
-
-  <div class="footer no-break">
-    <div style="font-weight:600;color:#0f2942;margin-bottom:3px;">Doors Plus + USA</div>
-    South Florida's Hurricane Impact Window & Door Specialists · (786) 555-1234
-  </div>
-</body>
-</html>`;
-
+  const html = buildQuotePdfHtml(quote, quoteItems, window.location.origin);
   const printWindow = window.open('', '_blank');
   printWindow.document.write(html);
   printWindow.document.close();
-  // Wait for all images to load before printing
   const imgs = printWindow.document.querySelectorAll('img');
   const promises = Array.from(imgs).map(img => img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; }));
   Promise.all(promises).then(() => {

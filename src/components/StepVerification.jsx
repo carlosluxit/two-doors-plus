@@ -1,19 +1,36 @@
 import { useState } from 'react';
 import { useQuote, useQuoteDispatch } from '../context/QuoteContext';
-import { ArrowLeft, Mail, MessageSquare, Check } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { ArrowLeft, Mail, MessageSquare, Check, Loader2 } from 'lucide-react';
 
 export default function StepVerification() {
   const state = useQuote();
   const dispatch = useQuoteDispatch();
   const [code, setCode] = useState(['', '', '', '', '', '']);
-  const [method, setMethod] = useState('email');
+  const [method, setMethod] = useState('email'); // sms disabled for now
+  const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const [verified, setVerified] = useState(false);
   const [error, setError] = useState('');
 
-  const sendCode = () => {
-    setSent(true);
+  const email = state.clientInfo.email;
+
+  const sendCode = async () => {
     setError('');
+    setSending(true);
+    try {
+      const { data, error: fnErr } = await supabase.functions.invoke('send-otp', {
+        body: { email },
+      });
+      if (fnErr) throw fnErr;
+      if (data?.error) throw new Error(data.error);
+      setSent(true);
+    } catch (err) {
+      setError(err.message || 'Could not send the verification code. Please try again.');
+    } finally {
+      setSending(false);
+    }
   };
 
   const handleCodeChange = (index, value) => {
@@ -37,21 +54,36 @@ export default function StepVerification() {
     }
   };
 
-  const verifyCode = () => {
+  const verifyCode = async () => {
     const fullCode = code.join('');
-    if (fullCode.length === 6) {
+    if (fullCode.length !== 6) {
+      setError('Please enter the full 6-digit code.');
+      return;
+    }
+    setError('');
+    setVerifying(true);
+    try {
+      const { data, error: fnErr } = await supabase.functions.invoke('verify-otp', {
+        body: { email, code: fullCode },
+      });
+      if (fnErr) throw fnErr;
+      if (!data?.ok) {
+        throw new Error(data?.error || 'Verification failed');
+      }
       setVerified(true);
       dispatch({ type: 'SET_VERIFICATION_CODE', code: fullCode });
       setTimeout(() => {
         dispatch({ type: 'NEXT_STEP' });
-      }, 1500);
-    } else {
-      setError('Please enter the full 6-digit code.');
+      }, 1200);
+    } catch (err) {
+      setError(err.message || 'Verification failed. Please try again.');
+    } finally {
+      setVerifying(false);
     }
   };
 
-  const maskedEmail = state.clientInfo.email
-    ? state.clientInfo.email.replace(/(.{2}).*(@.*)/, '$1***$2')
+  const maskedEmail = email
+    ? email.replace(/(.{2}).*(@.*)/, '$1***$2')
     : '';
   const maskedPhone = state.clientInfo.phone
     ? '***-***-' + state.clientInfo.phone.slice(-4)
@@ -80,48 +112,56 @@ export default function StepVerification() {
         Verify Your Contact
       </h2>
       <p className="text-sm text-muted text-center mb-10">
-        We'll send a 6-digit code to confirm your information.
+        We'll email you a 6-digit code to confirm your information.
       </p>
 
       {!sent ? (
         <>
           <div className="space-y-2.5 mb-8">
             {[
-              { id: 'email', icon: Mail, label: 'Email', detail: maskedEmail },
-              { id: 'sms', icon: MessageSquare, label: 'Text Message', detail: maskedPhone },
-            ].map(({ id, icon: Icon, label, detail }) => (
+              { id: 'email', icon: Mail, label: 'Email', detail: maskedEmail, disabled: false },
+              { id: 'sms', icon: MessageSquare, label: 'Text Message', detail: maskedPhone, disabled: true },
+            ].map(({ id, icon: Icon, label, detail, disabled }) => (
               <button
                 key={id}
-                onClick={() => setMethod(id)}
-                className={`w-full flex items-center gap-3.5 p-3.5 rounded-lg border text-left transition-all cursor-pointer ${
-                  method === id
-                    ? 'border-accent bg-accent/5'
-                    : 'border-border hover:border-slate-300'
+                onClick={() => !disabled && setMethod(id)}
+                disabled={disabled}
+                className={`w-full flex items-center gap-3.5 p-3.5 rounded-lg border text-left transition-all ${
+                  disabled
+                    ? 'opacity-50 cursor-not-allowed border-border'
+                    : method === id
+                    ? 'border-accent bg-accent/5 cursor-pointer'
+                    : 'border-border hover:border-slate-300 cursor-pointer'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${method === id ? 'text-accent' : 'text-muted'}`} strokeWidth={1.5} />
-                <div>
-                  <div className="text-sm font-medium text-primary">{label}</div>
+                <Icon className={`w-4 h-4 ${method === id && !disabled ? 'text-accent' : 'text-muted'}`} strokeWidth={1.5} />
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-primary">
+                    {label}
+                    {disabled && <span className="ml-2 text-[10px] font-normal text-muted">Coming soon</span>}
+                  </div>
                   <div className="text-xs text-muted">{detail}</div>
                 </div>
               </button>
             ))}
           </div>
 
+          {error && <p className="text-center text-xs text-danger mb-3">{error}</p>}
+
           <button
             onClick={sendCode}
-            className="w-full bg-primary text-white py-2.5 rounded-lg text-sm font-medium hover:bg-primary-light transition-colors cursor-pointer"
+            disabled={sending}
+            className="w-full bg-primary text-white py-2.5 rounded-lg text-sm font-medium hover:bg-primary-light transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
           >
-            Send Verification Code
+            {sending && <Loader2 className="w-4 h-4 animate-spin" strokeWidth={2} />}
+            {sending ? 'Sending…' : 'Send Verification Code'}
           </button>
         </>
       ) : (
         <>
           <p className="text-center text-xs text-muted mb-6">
             Code sent to{' '}
-            <span className="font-medium text-primary">
-              {method === 'email' ? maskedEmail : maskedPhone}
-            </span>
+            <span className="font-medium text-primary">{maskedEmail}</span>
           </p>
 
           <div className="flex justify-center gap-2 mb-4">
@@ -135,7 +175,8 @@ export default function StepVerification() {
                 value={digit}
                 onChange={(e) => handleCodeChange(i, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(i, e)}
-                className="w-10 h-12 text-center text-lg font-semibold border border-border rounded-md focus:border-accent outline-none transition-colors"
+                disabled={verifying}
+                className="w-10 h-12 text-center text-lg font-semibold border border-border rounded-md focus:border-accent outline-none transition-colors disabled:opacity-60"
               />
             ))}
           </div>
@@ -144,9 +185,11 @@ export default function StepVerification() {
 
           <button
             onClick={verifyCode}
-            className="w-full bg-primary text-white py-2.5 rounded-lg text-sm font-medium hover:bg-primary-light transition-colors cursor-pointer"
+            disabled={verifying}
+            className="w-full bg-primary text-white py-2.5 rounded-lg text-sm font-medium hover:bg-primary-light transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
           >
-            Verify & Get Quote
+            {verifying && <Loader2 className="w-4 h-4 animate-spin" strokeWidth={2} />}
+            {verifying ? 'Verifying…' : 'Verify & Get Quote'}
           </button>
 
           <button
@@ -155,10 +198,6 @@ export default function StepVerification() {
           >
             Didn't receive it? Resend code
           </button>
-
-          <p className="text-center text-[10px] text-slate-300 mt-2">
-            (Demo: Enter any 6 digits to continue)
-          </p>
         </>
       )}
 

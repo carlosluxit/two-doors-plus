@@ -29,6 +29,7 @@ export default function StepMeasurements() {
   const showDoors = state.projectType === 'doors' || state.projectType === 'both';
   const showSlidingDoors = state.projectType === 'sliding_doors' || state.projectType === 'both';
   const measureFrom = state.measureFrom || 'inside';
+  const quick = state.quoteMode === 'quick';
 
   const addItem = (category) => {
     let defaults;
@@ -83,7 +84,9 @@ export default function StepMeasurements() {
         Add Your Windows & Doors
       </h2>
       <p className="text-sm text-muted text-center mb-6">
-        Enter measurements in inches and select product types.
+        {quick
+          ? 'Just enter approximate width and height in inches — we’ll price a standard configuration.'
+          : 'Enter measurements in inches and select product types.'}
       </p>
 
       {/* Measurement method banner */}
@@ -129,6 +132,7 @@ export default function StepMeasurements() {
               measureFrom={measureFrom}
               priceEntries={priceEntries}
               pricingLoading={pricingLoading}
+              quick={quick}
               onMeasure={() => setMeasureItem({ id: item.id, itemCategory: 'window' })}
             />
           ))}
@@ -154,6 +158,7 @@ export default function StepMeasurements() {
               measureFrom={measureFrom}
               priceEntries={priceEntries}
               pricingLoading={pricingLoading}
+              quick={quick}
               onMeasure={() => setMeasureItem({ id: item.id, itemCategory: 'door' })}
             />
           ))}
@@ -179,6 +184,7 @@ export default function StepMeasurements() {
               measureFrom={measureFrom}
               priceEntries={priceEntries}
               pricingLoading={pricingLoading}
+              quick={quick}
               onMeasure={() => setMeasureItem({ id: item.id, itemCategory: 'sliding_door' })}
             />
           ))}
@@ -280,13 +286,13 @@ const TYPE_ILLUSTRATIONS = {
   sgd_4_panel: '/types/sgd-4-panel.svg',
 };
 
-function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoading, onMeasure }) {
+function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoading, onMeasure, quick }) {
   const [showTypePreview, setShowTypePreview] = useState(false);
   const isWindow = item.itemCategory === 'window';
   const isDoor = item.itemCategory === 'door';
   const isCircle = item.subType === 'circle';
   const isHalfMoon = item.subType === 'half_moon';
-  const isGeometric = isCircle || isHalfMoon;
+  const isSpecialShape = item.subType === 'special_shape';
 
   const typeMap = isWindow ? WINDOW_TYPES : isDoor ? DOOR_TYPES : SLIDING_DOOR_TYPES;
   const typeEntries = Object.entries(typeMap);
@@ -332,7 +338,8 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
       </div>
 
       {/* Type + Qty */}
-      <div className="grid grid-cols-[1fr_80px] gap-2.5 mb-3">
+      <div className={`grid ${quick ? 'grid-cols-[80px]' : 'grid-cols-[1fr_80px]'} gap-2.5 mb-3`}>
+        {!quick && (
         <div className="relative">
           <div className="flex items-center gap-1.5 mb-1">
             <label className="text-[10px] text-muted uppercase tracking-wide">Type</label>
@@ -373,6 +380,7 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
             </div>
           )}
         </div>
+        )}
         <div>
           <label className="text-[10px] text-muted uppercase tracking-wide block mb-1">Qty</label>
           <input
@@ -386,7 +394,7 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
       </div>
 
       {/* Glass type — windows only */}
-      {isWindow && (
+      {isWindow && !quick && (
         <div className="mb-3">
           <label className="text-[10px] text-muted uppercase tracking-wide block mb-1.5">Glass Type</label>
           <div className="grid grid-cols-4 gap-1.5">
@@ -408,7 +416,7 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
       )}
 
       {/* Door style */}
-      {isDoor && (
+      {isDoor && !quick && (
         <div className="mb-3">
           <label className="text-[10px] text-muted uppercase tracking-wide block mb-1.5">Style</label>
           <div className="grid grid-cols-2 gap-1.5">
@@ -513,10 +521,9 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
         </>
       )}
 
-      {/* Half moon sum indicator */}
-      {isHalfMoon && (
+      {(isHalfMoon || isSpecialShape) && (
         <div className="mt-1.5 px-2.5 py-1.5 bg-accent/5 border border-accent/20 rounded-md text-[11px] text-slate-600">
-          Width + Center to Top = <span className="font-semibold text-primary">{formatSize(item.width + item.height)}</span> (used for pricing)
+          Width + {isSpecialShape ? 'Height' : 'Center to Top'} =<span className="font-semibold text-primary">{formatSize(item.width + item.height)}</span> (used for pricing)
         </div>
       )}
 
