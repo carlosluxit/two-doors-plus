@@ -3,7 +3,6 @@ import { useQuote, useQuoteDispatch } from '../context/QuoteContext';
 import { usePricing } from '../context/PricingContext';
 import { WINDOW_TYPES, DOOR_TYPES, SLIDING_DOOR_TYPES, DOOR_VARIANTS, GLASS_TYPES, findPriceEntry, calcLineItem } from '../data/products';
 import CameraMeasure from './CameraMeasure';
-import FractionPicker, { splitInches, combineInches } from './FractionPicker';
 import {
   Plus,
   Trash2,
@@ -223,9 +222,9 @@ export default function StepMeasurements() {
         <button
           disabled={!canProceed}
           onClick={() => dispatch({ type: 'NEXT_STEP' })}
-          className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium tracking-wide transition-all cursor-pointer ${
+          className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold tracking-wide transition-all cursor-pointer ${
             canProceed
-              ? 'bg-primary text-white hover:bg-primary-light'
+              ? 'bg-amber-400 text-primary hover:bg-amber-300 shadow-lg shadow-amber-400/30'
               : 'bg-slate-100 text-slate-300 cursor-not-allowed'
           }`}
         >
@@ -262,12 +261,8 @@ function Section({ label, icon: Icon, count, onAdd, addLabel, emptyMsg, children
   );
 }
 
-const FRAC_LABELS = { 0: '', 0.125: '\u215B', 0.25: '\u00BC', 0.375: '\u215C', 0.5: '\u00BD', 0.625: '\u215D', 0.75: '\u00BE', 0.875: '\u215E' };
-
 function formatSize(val) {
-  const { whole, fraction } = splitInches(val);
-  const f = FRAC_LABELS[fraction] || '';
-  return f ? `${whole} ${f}"` : `${whole}"`;
+  return `${Math.round(val || 0)}"`;
 }
 
 const TYPE_ILLUSTRATIONS = {
@@ -298,11 +293,8 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
   const typeEntries = Object.entries(typeMap);
   const typeIllustration = TYPE_ILLUSTRATIONS[item.subType];
 
-  const { whole: wWhole, fraction: wFrac } = splitInches(item.width);
-  const { whole: hWhole, fraction: hFrac } = splitInches(item.height);
-
-  const updateDim = (dim, whole, frac) => {
-    dispatch({ type: 'UPDATE_ITEM', id: item.id, updates: { [dim]: combineInches(whole, frac) } });
+  const updateDim = (dim, value) => {
+    dispatch({ type: 'UPDATE_ITEM', id: item.id, updates: { [dim]: parseInt(value) || 0 } });
   };
 
   const selectOnFocus = (e) => e.target.select();
@@ -461,17 +453,16 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
             <span className="text-[10px] font-medium text-muted uppercase tracking-wide">Diameter</span>
             <span className="text-xs text-primary font-semibold ml-auto">{formatSize(item.width)}</span>
           </div>
-          <div className="flex items-center gap-2 mb-1.5">
+          <div className="flex items-center gap-2.5">
             <input
               type="number" min="0" max="300" inputMode="numeric"
-              value={wWhole}
+              value={Math.round(item.width || 0)}
               onFocus={selectOnFocus}
-              onChange={(e) => updateDim('width', e.target.value, wFrac)}
-              className="w-16 border border-border rounded-md px-2 py-1.5 text-xs font-medium focus:border-accent outline-none text-center bg-white"
+              onChange={(e) => updateDim('width', e.target.value)}
+              className="w-28 border border-border rounded-lg px-3 py-3 text-lg font-semibold text-primary focus:border-accent outline-none text-center bg-white"
             />
-            <span className="text-[10px] text-muted">in +</span>
+            <span className="text-sm font-medium text-muted">inches</span>
           </div>
-          <FractionPicker value={wFrac} onChange={(f) => updateDim('width', wWhole, f)} />
         </div>
       ) : (
         <>
@@ -484,17 +475,16 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
               </span>
               <span className="text-xs text-primary font-semibold ml-auto">{formatSize(item.width)}</span>
             </div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <input
-                type="number" min="0" max="300" inputMode="numeric"
-                value={wWhole}
-                onFocus={selectOnFocus}
-                onChange={(e) => updateDim('width', e.target.value, wFrac)}
-                className="w-16 border border-border rounded-md px-2 py-1.5 text-xs font-medium focus:border-accent outline-none text-center bg-white"
-              />
-              <span className="text-[10px] text-muted">in +</span>
-            </div>
-            <FractionPicker value={wFrac} onChange={(f) => updateDim('width', wWhole, f)} />
+            <div className="flex items-center gap-2.5">
+            <input
+              type="number" min="0" max="300" inputMode="numeric"
+              value={Math.round(item.width || 0)}
+              onFocus={selectOnFocus}
+              onChange={(e) => updateDim('width', e.target.value)}
+              className="w-28 border border-border rounded-lg px-3 py-3 text-lg font-semibold text-primary focus:border-accent outline-none text-center bg-white"
+            />
+            <span className="text-sm font-medium text-muted">inches</span>
+          </div>
           </div>
 
           {/* Height / Half Moon Center to Top */}
@@ -506,17 +496,16 @@ function ItemCard({ item, index, dispatch, measureFrom, priceEntries, pricingLoa
               </span>
               <span className="text-xs text-primary font-semibold ml-auto">{formatSize(item.height)}</span>
             </div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <input
-                type="number" min="0" max="300" inputMode="numeric"
-                value={hWhole}
-                onFocus={selectOnFocus}
-                onChange={(e) => updateDim('height', e.target.value, hFrac)}
-                className="w-16 border border-border rounded-md px-2 py-1.5 text-xs font-medium focus:border-accent outline-none text-center bg-white"
-              />
-              <span className="text-[10px] text-muted">in +</span>
-            </div>
-            <FractionPicker value={hFrac} onChange={(f) => updateDim('height', hWhole, f)} />
+            <div className="flex items-center gap-2.5">
+            <input
+              type="number" min="0" max="300" inputMode="numeric"
+              value={Math.round(item.height || 0)}
+              onFocus={selectOnFocus}
+              onChange={(e) => updateDim('height', e.target.value)}
+              className="w-28 border border-border rounded-lg px-3 py-3 text-lg font-semibold text-primary focus:border-accent outline-none text-center bg-white"
+            />
+            <span className="text-sm font-medium text-muted">inches</span>
+          </div>
           </div>
         </>
       )}

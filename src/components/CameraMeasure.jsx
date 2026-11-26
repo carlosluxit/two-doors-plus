@@ -9,18 +9,13 @@ import {
   ArrowLeftRight,
   ArrowUpDown,
 } from 'lucide-react';
-import FractionPicker, { TapeMeasureTutorial, combineInches } from './FractionPicker';
-
-const FRAC_LABELS = { 0: '', 0.125: '\u215B', 0.25: '\u00BC', 0.375: '\u215C', 0.5: '\u00BD', 0.625: '\u215D', 0.75: '\u00BE', 0.875: '\u215E' };
 
 export default function CameraMeasure({ onComplete, onCancel, itemType, measureFrom = 'inside' }) {
   const webcamRef = useRef(null);
   const [step, setStep] = useState('guide');
   const [photo, setPhoto] = useState(null);
   const [widthWhole, setWidthWhole] = useState('');
-  const [widthFrac, setWidthFrac] = useState(0);
   const [heightWhole, setHeightWhole] = useState('');
-  const [heightFrac, setHeightFrac] = useState(0);
   const [cameraError, setCameraError] = useState(false);
 
   const capturePhoto = useCallback(() => {
@@ -31,19 +26,12 @@ export default function CameraMeasure({ onComplete, onCancel, itemType, measureF
     }
   }, []);
 
-  const totalWidth = combineInches(widthWhole, widthFrac);
-  const totalHeight = combineInches(heightWhole, heightFrac);
+  const totalWidth = parseInt(widthWhole) || 0;
+  const totalHeight = parseInt(heightWhole) || 0;
   const canSubmit = totalWidth > 0 && totalHeight > 0;
   const label = itemType === 'window' ? 'window' : 'door';
   const isInside = measureFrom === 'inside';
 
-  const formatMeasurement = (whole, frac) => {
-    const w = parseInt(whole) || 0;
-    const f = FRAC_LABELS[frac] || '';
-    if (w === 0 && !f) return '\u2014';
-    if (!f) return `${w}"`;
-    return `${w} ${f}"`;
-  };
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-2 sm:p-4">
@@ -96,14 +84,11 @@ export default function CameraMeasure({ onComplete, onCancel, itemType, measureF
               <div className="space-y-2">
                 <Tip icon={ArrowLeftRight} text={`WIDTH: ${isInside ? 'Wall to wall' : 'Border to border'} measurement`} />
                 <Tip icon={ArrowUpDown} text={`HEIGHT: ${isInside ? 'Sill to top of opening' : 'Full frame height'}`} />
-                <Tip icon={Ruler} text="Measure in 3 spots — use the SMALLEST number" />
               </div>
-
-              <TapeMeasureTutorial />
 
               <button
                 onClick={() => setStep('camera')}
-                className="w-full bg-primary text-white py-2.5 rounded-lg text-sm font-medium hover:bg-primary-light transition-colors cursor-pointer flex items-center justify-center gap-2"
+                className="w-full bg-amber-400 text-primary py-2.5 rounded-lg text-sm font-bold hover:bg-amber-300 shadow-lg shadow-amber-400/30 transition-colors cursor-pointer flex items-center justify-center gap-2"
               >
                 <Camera className="w-4 h-4" strokeWidth={1.5} /> Take Photo of {label}
               </button>
@@ -153,7 +138,7 @@ export default function CameraMeasure({ onComplete, onCancel, itemType, measureF
                   </div>
                   <button
                     onClick={capturePhoto}
-                    className="w-full mt-3 bg-primary text-white py-2.5 rounded-lg text-sm font-medium hover:bg-primary-light transition-colors cursor-pointer flex items-center justify-center gap-2"
+                    className="w-full mt-3 bg-amber-400 text-primary py-2.5 rounded-lg text-sm font-bold hover:bg-amber-300 shadow-lg shadow-amber-400/30 transition-colors cursor-pointer flex items-center justify-center gap-2"
                   >
                     <Camera className="w-4 h-4" strokeWidth={1.5} /> Snap Photo
                   </button>
@@ -200,16 +185,10 @@ export default function CameraMeasure({ onComplete, onCancel, itemType, measureF
                     onChange={(e) => setWidthWhole(e.target.value)}
                     placeholder="36"
                     autoFocus
-                    className="w-20 border border-border rounded-md px-2.5 py-2 text-sm font-medium focus:border-accent outline-none text-center bg-white"
+                    className="w-28 border border-border rounded-lg px-3 py-3 text-lg font-semibold text-primary focus:border-accent outline-none text-center bg-white"
                   />
-                  <span className="text-[11px] text-muted">in +</span>
+                  <span className="text-sm font-medium text-muted">inches</span>
                 </div>
-                <FractionPicker value={widthFrac} onChange={setWidthFrac} />
-                {totalWidth > 0 && (
-                  <p className="text-[11px] text-primary font-semibold">
-                    Total: {formatMeasurement(widthWhole, widthFrac)}
-                  </p>
-                )}
               </div>
 
               {/* Height */}
@@ -227,16 +206,10 @@ export default function CameraMeasure({ onComplete, onCancel, itemType, measureF
                     value={heightWhole}
                     onChange={(e) => setHeightWhole(e.target.value)}
                     placeholder="48"
-                    className="w-20 border border-border rounded-md px-2.5 py-2 text-sm font-medium focus:border-accent outline-none text-center bg-white"
+                    className="w-28 border border-border rounded-lg px-3 py-3 text-lg font-semibold text-primary focus:border-accent outline-none text-center bg-white"
                   />
-                  <span className="text-[11px] text-muted">in +</span>
+                  <span className="text-sm font-medium text-muted">inches</span>
                 </div>
-                <FractionPicker value={heightFrac} onChange={setHeightFrac} />
-                {totalHeight > 0 && (
-                  <p className="text-[11px] text-primary font-semibold">
-                    Total: {formatMeasurement(heightWhole, heightFrac)}
-                  </p>
-                )}
               </div>
 
               <button
@@ -244,7 +217,7 @@ export default function CameraMeasure({ onComplete, onCancel, itemType, measureF
                 onClick={() => onComplete({ width: totalWidth, height: totalHeight, photo })}
                 className={`w-full py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer flex items-center justify-center gap-2 ${
                   canSubmit
-                    ? 'bg-primary text-white hover:bg-primary-light'
+                    ? 'bg-amber-400 text-primary hover:bg-amber-300 shadow-lg shadow-amber-400/30'
                     : 'bg-slate-100 text-slate-300 cursor-not-allowed'
                 }`}
               >

@@ -190,7 +190,7 @@ export default function StepQuote() {
         <p className="text-sm text-muted mb-6">{submitError}</p>
         <button
           onClick={submitQuote}
-          className="bg-primary text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-primary-light cursor-pointer"
+          className="bg-amber-400 text-primary px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-amber-300 shadow-lg shadow-amber-400/30 cursor-pointer"
         >
           Try Again
         </button>
@@ -360,11 +360,11 @@ export default function StepQuote() {
       <div className="border border-border rounded-lg p-5 mb-6">
         <h3 className="text-sm font-semibold text-primary mb-4">Ready to Move Forward?</h3>
         <div className="grid sm:grid-cols-2 gap-3">
-          <button className="flex items-center gap-3 p-3.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-light transition-colors cursor-pointer">
+          <button className="flex items-center gap-3 p-3.5 bg-amber-400 text-primary rounded-lg text-sm font-bold hover:bg-amber-300 shadow-lg shadow-amber-400/30 transition-colors cursor-pointer">
             <CreditCard className="w-5 h-5" strokeWidth={1.5} />
             <div className="text-left">
               <div>Secure with Deposit</div>
-              <div className="text-[11px] font-normal text-slate-400">Lock in your price today</div>
+              <div className="text-[11px] font-normal text-primary/70">Lock in your price today</div>
             </div>
           </button>
           <button className="flex items-center gap-3 p-3.5 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors cursor-pointer">

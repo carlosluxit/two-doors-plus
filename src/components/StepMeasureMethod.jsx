@@ -215,9 +215,9 @@ export default function StepMeasureMethod() {
         <button
           disabled={!canContinue}
           onClick={() => dispatch({ type: 'NEXT_STEP' })}
-          className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium tracking-wide transition-all cursor-pointer ${
+          className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold tracking-wide transition-all cursor-pointer ${
             canContinue
-              ? 'bg-primary text-white hover:bg-primary-light'
+              ? 'bg-amber-400 text-primary hover:bg-amber-300 shadow-lg shadow-amber-400/30'
               : 'bg-slate-100 text-slate-300 cursor-not-allowed'
           }`}
         >
@@ -365,7 +365,7 @@ function MeasurePopup({ type, onClose }) {
         <div className="px-5 py-4 border-t border-border">
           <button
             onClick={onClose}
-            className="w-full bg-primary text-white py-3 rounded-lg text-sm font-medium hover:bg-primary-light transition-colors cursor-pointer"
+            className="w-full bg-amber-400 text-primary py-3 rounded-lg text-sm font-bold hover:bg-amber-300 shadow-lg shadow-amber-400/30 transition-colors cursor-pointer"
           >
             {config.buttonText}
           </button>

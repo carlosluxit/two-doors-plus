@@ -86,9 +86,9 @@ export default function StepProjectType() {
         <button
           disabled={!canProceed}
           onClick={() => dispatch({ type: 'NEXT_STEP' })}
-          className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium tracking-wide transition-all cursor-pointer ${
+          className={`inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold tracking-wide transition-all cursor-pointer ${
             canProceed
-              ? 'bg-primary text-white hover:bg-primary-light'
+              ? 'bg-amber-400 text-primary hover:bg-amber-300 shadow-lg shadow-amber-400/30'
               : 'bg-slate-100 text-slate-300 cursor-not-allowed'
           }`}
         >

@@ -151,7 +151,7 @@ export default function StepVerification() {
           <button
             onClick={sendCode}
             disabled={sending}
-            className="w-full bg-primary text-white py-2.5 rounded-lg text-sm font-medium hover:bg-primary-light transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+            className="w-full bg-amber-400 text-primary py-2.5 rounded-lg text-sm font-bold hover:bg-amber-300 shadow-lg shadow-amber-400/30 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
           >
             {sending && <Loader2 className="w-4 h-4 animate-spin" strokeWidth={2} />}
             {sending ? 'Sending…' : 'Send Verification Code'}
@@ -186,7 +186,7 @@ export default function StepVerification() {
           <button
             onClick={verifyCode}
             disabled={verifying}
-            className="w-full bg-primary text-white py-2.5 rounded-lg text-sm font-medium hover:bg-primary-light transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+            className="w-full bg-amber-400 text-primary py-2.5 rounded-lg text-sm font-bold hover:bg-amber-300 shadow-lg shadow-amber-400/30 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
           >
             {verifying && <Loader2 className="w-4 h-4 animate-spin" strokeWidth={2} />}
             {verifying ? 'Verifying…' : 'Verify & Get Quote'}
